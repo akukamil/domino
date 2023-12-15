@@ -996,7 +996,7 @@ sound={
 	
 	on : 1,
 	
-	play(snd_res) {
+	play(snd_res,is_loop) {
 		
 		if (!this.on||document.hidden)
 			return;
@@ -1004,7 +1004,7 @@ sound={
 		if (!gres[snd_res]?.data)
 			return;
 		
-		gres[snd_res].sound.play();	
+		gres[snd_res].sound.play({loop:is_loop||false});	
 		
 	},
 	
@@ -1230,6 +1230,7 @@ res_window={
 		
 		if (init) {
 			some_process.res_window_process=function(){res_window.process_info()};
+			sound.play('progress',true);
 			
 			const delta=this.winner.tot_score-this.winner.cur_score;
 			
@@ -1252,6 +1253,7 @@ res_window={
 		if(p.cur_score>=p.tot_score){		
 			p.cur_score=p.tot_score;
 			this.draw_score(p,p.cur_score);
+			gres['progress'].sound.stop();
 			some_process.res_window_process=function(){};
 			if (p.cur_score===50){
 				this.total_stop(p===my_player?'my_win':'opp_win');
@@ -2052,10 +2054,12 @@ my_player={
 		
 		//если нет коннекта или костяшка не моя
 		if (!fit||!chip.mine||!my_turn) {
+			sound.play('locked');
 			anim2.add(chip,{x:[chip.x,chip.x+3]}, true, 0.15,'shake');
 			return;
 		}	
 		
+		sound.play('domino2');
 		//если нажали на ждущую костяшку то убираем ее
 		if (chip===this.pending_chip&&!tar_anchor){
 			this.pending_chip=0;			
@@ -2229,7 +2233,7 @@ game={
 		dominoes_vals.sort((a,b)=>a[2]-b[2])		
 		
 		bazar_chips=dominoes_vals.slice(14,28);
-		bazar_chips=[];
+		//bazar_chips=[];
 		
 		this.lines=[0,0,0,0,0,1,0,0,0,0];
 
@@ -2368,9 +2372,11 @@ game={
 	take_from_bazar(p){
 		
 		if (!bazar_chips.length){
-			console.log('на базаре больше нету костей!')
+			sound.play('locked');
 			return;
 		}
+		
+		sound.play('bazar');
 				
 		//берем костящку из базара
 		const chip=bazar_chips.pop();
@@ -5256,8 +5262,11 @@ async function load_resources() {
 	game_res.add('online_message',git_src+'sounds/online_message.mp3');
 	game_res.add('inst_msg',git_src+'sounds/inst_msg.mp3');
 	game_res.add('domino',git_src+'sounds/domino.mp3');
+	game_res.add('domino2',git_src+'sounds/domino2.mp3');
 	game_res.add('round',git_src+'sounds/round.mp3');
 	game_res.add('skip',git_src+'sounds/skip.mp3');
+	game_res.add('progress',git_src+'sounds/progress.mp3');
+	game_res.add('bazar',git_src+'sounds/bazar.mp3');
 	
     //добавляем из листа загрузки
     for (var i = 0; i < load_list.length; i++)
