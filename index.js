@@ -2943,7 +2943,7 @@ vk={
 		
 		sound.play('click');
 		vkBridge.send('VKWebAppShowInviteBox');
-		anim2.add(objects.vk_buttons_cont,{y:[objects.vk_buttons_cont.y,850]}, false, 0.75,'linear');	
+		anim2.add(objects.vk_buttons_cont,{y:[objects.vk_buttons_cont.y,-150]}, false, 0.75,'linear');	
 		
 	},
 	
@@ -2954,7 +2954,7 @@ vk={
 		
 		sound.play('click');
 		vkBridge.send('VKWebAppShowWallPostBox', { message: 'Я играю в Домино Онлайн и мне нравится!','attachments': 'https://vk.com/app51815345'})
-		anim2.add(objects.vk_buttons_cont,{y:[objects.vk_buttons_cont.y,850]}, false, 0.75,'linear');	
+		anim2.add(objects.vk_buttons_cont,{y:[objects.vk_buttons_cont.y,-150]}, false, 0.75,'linear');	
 		
 	}
 	
