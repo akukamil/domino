@@ -2875,7 +2875,7 @@ ad={
 		
 	prv_show : -9999,
 		
-	show:() {
+	show(){
 		
 		if ((Date.now() - this.prv_show) < 100000 )
 			return;
