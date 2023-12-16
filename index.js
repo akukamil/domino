@@ -1136,6 +1136,7 @@ res_window={
 		clearInterval(res_window.timer);
 		anim2.add(objects.res_window_cont,{scale_y:[1,0]}, false, 0.25,'linear');
 		some_process.res_window_process=function(){};
+		ad.show();
 	},
 	
 	total_stop(result){
@@ -2872,8 +2873,13 @@ pref={
 
 ad={
 		
+	prv_show : -9999,
 		
-	show() {
+	show:() {
+		
+		if ((Date.now() - this.prv_show) < 100000 )
+			return;
+		this.prv_show = Date.now();
 		
 		if (game_platform==="YANDEX") {			
 			//показываем рекламу
