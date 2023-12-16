@@ -2584,7 +2584,7 @@ game={
 
 		
 		const next_chip_type=['NOR','DUB'][chip.double];	
-		const max_line_len=[1,7][cur_line_id%2]
+		const max_line_len=[1,8][cur_line_id%2]
 		next_dir=cur_dir;
 		let turn_flag=0;
 		if (cur_line_len>=max_line_len){
@@ -2698,7 +2698,7 @@ game={
 			const cur_line_len=this.lines[cur_line_id];
 			
 			const next_chip_type=['NOR','DUB'][next_chip.double];
-			const max_line_len=[1,7][cur_line_id%2]			
+			const max_line_len=[1,8][cur_line_id%2]			
 			let next_dir=cur_dir;
 			if (cur_line_len>=max_line_len){
 				//поворот
