@@ -410,6 +410,16 @@ class domino_class extends PIXI.Container{
 		this.icon2.y=60;
 		this.icon2.tint=0xffffff;
 		
+		this.lock=new PIXI.Sprite(gres.lock.texture);
+		this.lock.width=70;
+		this.lock.height=70;
+		this.lock.anchor.set(0.5,0.5);
+		this.lock.x=50;
+		this.lock.y=95;
+		this.lock.angle=30;
+		this.lock.visible=false;
+
+		
 		this.interactive=true;
 		this.visible=false;
 		
@@ -422,7 +432,7 @@ class domino_class extends PIXI.Container{
 		
 		this.set_skin(0);
 				
-		this.addChild(this.shadow,this.bcg,this.icon1,this.icon2);		
+		this.addChild(this.shadow,this.bcg,this.icon1,this.icon2,this.lock);		
 		
 	}		
 		
@@ -1126,7 +1136,6 @@ res_window={
 		clearInterval(res_window.timer);
 		anim2.add(objects.res_window_cont,{scale_y:[1,0]}, false, 0.25,'linear');
 		some_process.res_window_process=function(){};
-		ad.show();
 	},
 	
 	total_stop(result){
@@ -2772,11 +2781,11 @@ pref={
 			const rating_req=SKINS_DATA[i].rating;
 			const games_req=SKINS_DATA[i].games;
 			
-			/*if (my_data.rating>=rating_req&&my_data.games>=games_req){
-				objects.skins[i].alpha=1;
+			if (my_data.rating>=rating_req&&my_data.games>=games_req){
+				objects.skins[i].lock.visible=false;
 			}else{
-				objects.skins[i].alpha=0.25;
-			}*/
+				objects.skins[i].lock.visible=true;
+			}
 			
 		}
 		
@@ -2790,7 +2799,7 @@ pref={
 		const games_req=SKINS_DATA[skin.skin_id].games;
 		
 		if (!(my_data.rating>=rating_req&&my_data.games>=games_req)){
-			anim2.add(skin,{angle:[skin.angle,skin.angle+10]}, true, 0.15,'shake');
+			anim2.add(skin.lock,{angle:[skin.lock.angle,skin.lock.angle+10]}, true, 0.15,'shake');
 			objects.pref_skin_req.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Ratin >${rating_req}, Games >${games_req}`][LANG];
 			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);
 			sound.play('locked');
@@ -2862,14 +2871,9 @@ pref={
 }
 
 ad={
-	
-	prv_show : -9999,
+		
 		
 	show() {
-		
-		if ((Date.now() - this.prv_show) < 100000 )
-			return;
-		this.prv_show = Date.now();
 		
 		if (game_platform==="YANDEX") {			
 			//показываем рекламу
@@ -2884,6 +2888,8 @@ ad={
 		if (game_platform==="VK") {
 					 
 			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
+			.then(data => console.log(data.result))
+			.catch(error => console.log(error));	
 		}		
 
 		if (game_platform==="MY_GAMES") {
