@@ -2332,14 +2332,14 @@ game={
 	
 		//показываем и заполняем мою карточку	
 		objects.my_card_cont.visible=true;
-		objects.my_card_name.set2(my_data.name,150);
-		objects.my_card_rating.text=opp_data.rating;
+		objects.my_card_name.set2(my_data.name,110);
+		objects.my_card_rating.text=my_data.rating;
 		objects.my_avatar.avatar.texture=players_cache.players[my_data.uid].texture;	
 		anim2.add(objects.my_card_cont,{x:[-100, objects.my_card_cont.sx]}, true, 0.5,'linear');		
 				
 		//показываем и заполняем карточку оппонента		
 		objects.opp_card_cont.visible=true;	
-		objects.opp_card_name.set2(opp_data.name,150);
+		objects.opp_card_name.set2(opp_data.name,110);
 		objects.opp_card_rating.text=opp_data.rating;
 		objects.opp_avatar.avatar.texture=players_cache.players[opp_data.uid].texture;	
 		anim2.add(objects.opp_card_cont,{x:[800, objects.opp_card_cont.sx]}, true, 0.5,'linear');
@@ -4532,6 +4532,7 @@ lobby={
 
 			opp_data.name=['Бот','Bot'][LANG];
 			opp_data.uid='bot';
+			opp_data.rating=1400;
 			game.activate(bot,irnd(1,9999),1);
 		}
 		else
