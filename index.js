@@ -516,7 +516,7 @@ class player_mini_card_class extends PIXI.Container {
 		this.name='';
 		this.name_text=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24,align: 'center'});
 		this.name_text.anchor.set(0,0);
-		this.name_text.x=95;
+		this.name_text.x=90;
 		this.name_text.y=20;
 		this.name_text.tint=0xffffff;		
 
@@ -5074,6 +5074,12 @@ async function check_blocked(){
 
 async function init_game_env(lang) {
 
+	document.body.style.webkitTouchCallout = "none";
+	document.body.style.webkitUserSelect = "none";
+	document.body.style.khtmlUserSelect = "none";
+	document.body.style.mozUserSelect = "none";
+	document.body.style.msUserSelect = "none";
+	document.body.style.userSelect = "none";	
 	
 	await define_platform_and_language();
 	console.log(game_platform, LANG);
@@ -5102,8 +5108,10 @@ async function init_game_env(lang) {
 	fbs=firebase.database();
 	
 	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x202020});
-	document.body.appendChild(app.view);
-
+	const c=document.body.appendChild(app.view);
+	c.style["boxShadow"] = "0 0 15px #000000";
+	
+	//доп функция для текста битмап
 	PIXI.BitmapText.prototype.set2=function(text,w){		
 		const t=this.text=text;
 		for (i=t.length;i>=0;i--){
@@ -5148,6 +5156,8 @@ async function init_game_env(lang) {
         }
     }
 
+	
+	
     //обрабатываем вторую часть кода в объектах
     for (var i = 0; i < load_list.length; i++) {
         const obj_class = load_list[i].class;
@@ -5176,6 +5186,7 @@ async function init_game_env(lang) {
         }
     }
 
+	
 	//запускаем главный цикл
 	main_loop();
 	
@@ -5199,6 +5210,7 @@ async function init_game_env(lang) {
 		chat.wheel_event(Math.sign(event.deltaY));
 	});	
 	window.addEventListener('keydown', function(event) { keyboard.keydown(event.key)});
+	
 	
 	//загружаем остальные данные из файербейса
 	let _other_data = await fbs.ref('players/' + my_data.uid).once('value');
@@ -5265,7 +5277,7 @@ async function init_game_env(lang) {
 	setInterval(function()	{keep_alive()}, 40000);
 
 	//убираем попап
-	anim2.add(objects.id_cont,{y:[objects.id_cont.sy, -200]}, false, 0.5,'easeInBack');
+	setTimeout(function(){anim2.add(objects.id_cont,{y:[objects.id_cont.sy, -200]}, false, 0.5,'easeInBack')},2000);
 	
 	//контроль за присутсвием
 	var connected_control = fbs.ref('.info/connected');
@@ -5278,6 +5290,8 @@ async function init_game_env(lang) {
 	
 	//показыаем основное меню
 	main_menu.activate();	
+
+
 
 }
 
@@ -5336,8 +5350,9 @@ async function load_resources() {
 	await new Promise((resolve, reject)=> game_res.load(resolve))
 	
 	//убираем элементы загрузки
-	document.getElementById("m_progress").outerHTML = "";	
-
+	document.getElementById("m_progress").outerHTML="";	
+	
+	
 	//короткое обращение к ресурсам
 	gres=game_res.resources;
 
