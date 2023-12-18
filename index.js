@@ -3242,6 +3242,9 @@ players_cache={
 		//если нет URL
 		if (!player.pic_url) player.pic_url=await fbs_once('players/'+uid+'/pic_url');
 		
+		if(player.pic_url==='https://vk.com/images/camera_100.png')
+			player.pic_url='https://akukamil.github.io/domino/vk_icon.png';
+		
 		//загружаем и записываем текстуру
 		if (player.pic_url) player.texture=PIXI.Texture.from(player.pic_url);	
 		
