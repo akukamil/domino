@@ -5130,6 +5130,13 @@ async function define_platform_and_language() {
 		return;	
 	}	
 	
+	if (s.includes('crazygames')) {
+			
+		game_platform = 'CRAZYGAMES';	
+		LANG = 1;
+		return;
+	}
+	
 	if (s.includes('127.0')) {
 			
 		game_platform = 'DEBUG';	
