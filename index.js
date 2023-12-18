@@ -1222,7 +1222,7 @@ res_window={
 		if (result_type===DRAW) my_data.rating=my_data.draw_rating;
 		
 		objects.res_window_title.text=result_desc;
-		objects.res_window_title2.text='Рейтинг: '+old_rating+' >>> '+my_data.rating;
+		objects.res_window_title2.text=['Рейтинг: ','Rating: '][LANG]+old_rating+' >>> '+my_data.rating;
 		
 		objects.res_window_fb_button.visible=true;
 		
