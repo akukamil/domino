@@ -2862,7 +2862,7 @@ pref={
 		
 		if (!(my_data.rating>=rating_req&&my_data.games>=games_req)){
 			anim2.add(skin.lock,{angle:[skin.lock.angle,skin.lock.angle+10]}, true, 0.15,'shake');
-			objects.pref_skin_req.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Ratin >${rating_req}, Games >${games_req}`][LANG];
+			objects.pref_skin_req.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Rating >${rating_req}, Games >${games_req}`][LANG];
 			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);
 			sound.play('locked');
 			return;
@@ -2879,7 +2879,7 @@ pref={
 		
 		if (!(my_data.rating>=rating_req&&my_data.games>=games_req)){
 			anim2.add(bcg.lock,{angle:[bcg.lock.angle,bcg.lock.angle+10]}, true, 0.15,'shake');
-			objects.pref_skin_req.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Ratin >${rating_req}, Games >${games_req}`][LANG];
+			objects.pref_skin_req.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Rating >${rating_req}, Games >${games_req}`][LANG];
 			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);
 			sound.play('locked');
 			return;
