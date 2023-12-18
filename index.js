@@ -14,12 +14,24 @@ const SHADOW_SHIFT=3;
 const SHADOW_DISP_XY={'0':[3,3],'90':[3,-3],'-90':[-3,3],'180':[-3,-3]}
 
 SKINS_DATA={
-	0:{tint:0x111111,rating:0,games:0},
-	1:{tint:0xffffff,rating:0,games:20},
-	2:{tint:0xffffff,rating:1450,games:50},
+	0:{tint:0x262626,rating:0,games:0},
+	1:{tint:0xF2F2F2,rating:0,games:20},
+	2:{tint:0xF2F2F2,rating:1450,games:50},
 	3:{tint:0xffffff,rating:1550,games:150},
-	4:{tint:0x111111,rating:1700,games:300}
+	4:{tint:0x77370B,rating:1700,games:300},
+	5:{tint:0x3A3A3A,rating:1900,games:500},
+	6:{tint:0x203864,rating:2000,games:700}
 }
+
+BCG_DATA={
+	0:{rating:0,games:0},
+	1:{rating:1500,games:950},
+	2:{rating:1700,games:9150},
+	3:{rating:1900,games:9500},
+	4:{rating:2000,games:9700},
+	5:{rating:2100,games:91000}
+}
+
 
 const map_next_place={
 	
@@ -483,6 +495,50 @@ class domino_class extends PIXI.Container{
 		
 	}
 		
+}
+
+class bcg_class extends PIXI.Container{
+	
+	constructor(){
+		
+		super();
+		this.shadow=new PIXI.Sprite(gres.bcg_icon_shadow.texture);
+		this.shadow.width=120;
+		this.shadow.height=80;
+		this.shadow.x=-10;
+		this.shadow.y=-10;
+		
+		
+		this.bcg=new PIXI.Sprite(gres.bcg_0.texture);
+		this.bcg.width=120;
+		this.bcg.height=80;
+		this.bcg.x=-10;
+		this.bcg.y=-10;
+		
+		this.lock=new PIXI.Sprite(gres.lock.texture);
+		this.lock.width=70;
+		this.lock.height=70;
+		this.lock.anchor.set(0.5,0.5);
+		this.lock.x=90;
+		this.lock.y=50;
+		this.lock.angle=30;
+		this.lock.visible=false;
+		
+		this.id=0;
+		
+		this.interactive=true;
+		this.buttonMode=true;
+		this.pointerdown=function(){pref.bcg_down(this)};
+		
+		this.addChild(this.shadow,this.bcg,this.lock)
+		
+	}	
+	
+	set_bcg(id){
+		this.id=id;
+		this.bcg.texture=gres['bcg_'+id].texture;		
+	}
+	
 }
 
 class player_mini_card_class extends PIXI.Container {
@@ -2777,17 +2833,22 @@ pref={
 		this.select_skin(objects.skins[my_data.skin_id]);
 		
 		//определяем доступные скиниы
-		for (let i in SKINS_DATA){
-			
+		for (let i in SKINS_DATA){			
 			const rating_req=SKINS_DATA[i].rating;
-			const games_req=SKINS_DATA[i].games;
-			
-			if (my_data.rating>=rating_req&&my_data.games>=games_req){
-				objects.skins[i].lock.visible=false;
-			}else{
-				objects.skins[i].lock.visible=true;
-			}
-			
+			const games_req=SKINS_DATA[i].games;	
+			const av=my_data.rating>=rating_req&&my_data.games>=games_req;
+			objects.skins[i].lock.visible=!av;
+		}
+		
+		//устанавливаем текущий фон
+		this.select_bcg(objects.bcgs[my_data.bcg_id]);
+		
+		//определяем доступные скиниы
+		for (let i in BCG_DATA){			
+			const rating_req=BCG_DATA[i].rating;
+			const games_req=BCG_DATA[i].games;	
+			const av=my_data.rating>=rating_req&&my_data.games>=games_req;
+			objects.bcgs[i].lock.visible=!av;
 		}
 		
 		
@@ -2811,10 +2872,33 @@ pref={
 		this.select_skin(skin);	
 	},
 	
+	bcg_down(bcg){
+		
+		const rating_req=BCG_DATA[bcg.id].rating;
+		const games_req=BCG_DATA[bcg.id].games;
+		
+		if (!(my_data.rating>=rating_req&&my_data.games>=games_req)){
+			anim2.add(bcg.lock,{angle:[bcg.lock.angle,bcg.lock.angle+10]}, true, 0.15,'shake');
+			objects.pref_skin_req.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Ratin >${rating_req}, Games >${games_req}`][LANG];
+			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);
+			sound.play('locked');
+			return;
+		}
+		
+		sound.play('click2');
+		this.select_bcg(bcg);	
+	},
+	
 	select_skin(skin){
 		my_data.skin_id=skin.skin_id;
 		objects.selected_skin.x=skin.x;
 		objects.selected_skin.y=skin.y;	
+	},
+	
+	select_bcg(bcg){
+		my_data.bcg_id=bcg.id;
+		objects.selected_bcg.x=bcg.x-10;
+		objects.selected_bcg.y=bcg.y-10;	
 	},
 	
 	music_switch_down(){
@@ -5227,7 +5311,7 @@ async function init_game_env(lang) {
 	my_data.name = (other_data && other_data.name) || my_data.name;
 	my_data.nick_tm = (other_data && other_data.nick_tm) || 0;
 	my_data.skin_id = (other_data && other_data.skin_id) || 0;
-
+	my_data.bcg_id = (other_data && other_data.bcg_id) || 0;
 	
 	//проверяем блокировку
 	check_blocked();
