@@ -2066,6 +2066,7 @@ my_player={
 	opp_conf_next:0,
 	cur_score:0,
 	tot_score:0,
+	timeout:0,
 	
 	process_incoming_move(data){
 		
@@ -2074,7 +2075,7 @@ my_player={
 		
 		//ждем если еще не готово
 		if (!game.on){			
-			setTimeout(function(){my_player.process_incoming_move(data)},250);
+			this.timeout=setTimeout(function(){my_player.process_incoming_move(data)},250);
 			return;
 		}
 			
@@ -2548,6 +2549,7 @@ game={
 		
 		//это только остановка игры
 		if(opponent.timer) clearInterval(opponent.timer);
+		my_player.clearTimeout(my_player.timeout);
 				
 		res_window.total_stop(result);		
 	},
