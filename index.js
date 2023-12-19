@@ -19,7 +19,7 @@ SKINS_DATA={
 	2:{tint:0xF2F2F2,rating:1450,games:50},
 	3:{tint:0xffffff,rating:1550,games:150},
 	4:{tint:0x77370B,rating:1700,games:300},
-	5:{tint:0x3A3A3A,rating:1900,games:500},
+	5:{tint:0x333333,rating:1900,games:500},
 	6:{tint:0x203864,rating:2000,games:700}
 }
 
@@ -5423,8 +5423,8 @@ async function load_resources() {
 
 	document.getElementById("m_progress").style.display = 'flex';
 
-	let git_src="https://akukamil.github.io/domino/"
-	git_src=""
+	let git_src='https://akukamil.github.io/domino/'
+	git_src=''
 
 	//подпапка с ресурсами
 	let lang_pack = ['RUS','ENG'][LANG];
