@@ -1627,7 +1627,9 @@ bot={
 	activate(){
 		
 		//устанавливаем локальный и удаленный статус
-		//set_state({state : 'p'});
+		set_state({state : 'b'});
+		
+		
 		if (!my_turn)
 			this.try_make_move();
 		
@@ -2881,7 +2883,7 @@ pref={
 		
 		if (!(my_data.rating>=rating_req&&my_data.games>=games_req)){
 			anim2.add(skin.lock,{angle:[skin.lock.angle,skin.lock.angle+10]}, true, 0.15,'shake');
-			objects.pref_skin_req.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Rating >${rating_req}, Games >${games_req}`][LANG];
+			objects.pref_skin_req.text=[`НУЖНО:\nРейтинг >${rating_req}, Игры >${games_req}`,`NEED:\nRating >${rating_req}, Games >${games_req}`][LANG];
 			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);
 			sound.play('locked');
 			return;
@@ -2898,7 +2900,7 @@ pref={
 		
 		if (!(my_data.rating>=rating_req&&my_data.games>=games_req)){
 			anim2.add(bcg.lock,{angle:[bcg.lock.angle,bcg.lock.angle+10]}, true, 0.15,'shake');
-			objects.pref_skin_req.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Rating >${rating_req}, Games >${games_req}`][LANG];
+			objects.pref_skin_req.text=[`НУЖНО:\nРейтинг >${rating_req}, Игры >${games_req}`,`NEED:\nRating >${rating_req}, Games >${games_req}`][LANG];
 			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);
 			sound.play('locked');
 			return;
@@ -2926,12 +2928,10 @@ pref={
 			sound.play('locked');
 			return;			
 		}
-		
-		
-		
+				
 		music.switch();
 		sound.play('click3');
-		const tar_x=music.on?120:80;
+		const tar_x=music.on?143:104;
 		anim2.add(objects.music_slider,{x:[objects.music_slider.x,tar_x]}, true, 0.1,'linear');		
 		
 	},
@@ -2945,7 +2945,7 @@ pref={
 		
 		sound.switch();
 		sound.play('click3');
-		const tar_x=sound.on?280:240;
+		const tar_x=sound.on?299:260;
 		anim2.add(objects.sound_slider,{x:[objects.sound_slider.x,tar_x]}, true, 0.1,'linear');	
 		
 	},
@@ -4084,19 +4084,19 @@ lobby={
 	
 		switch(s) {
 
-			case "o":
+			case 'o':
 				return gres.mini_player_card.texture;
 			break;
 
-			case "b":
+			case 'b':
 				return gres.mini_player_card_bot.texture;
 			break;
 
-			case "p":
+			case 'p':
 				return gres.mini_player_card.texture;
 			break;
 			
-			case "bot":
+			case 'b':
 				return gres.mini_player_card.texture;
 			break;
 
@@ -4551,17 +4551,24 @@ lobby={
 	async inst_message(data){
 		
 		//когда ничего не видно не принимаем сообщения
-		if(!objects.lobby_cont.visible) return;
-		
+		if(!objects.lobby_cont.visible) return;		
 
 		await players_cache.update(data.uid);
-		await players_cache.update_avatar(data.uid);
-		
+		await players_cache.update_avatar(data.uid);		
 		
 		sound.play('inst_msg');		
 		anim2.add(objects.inst_msg_cont,{alpha:[0, 1]},true,0.4,'linear',false);		
 		objects.inst_msg_avatar.texture=players_cache.players[data.uid].texture||PIXI.Texture.WHITE;
 		objects.inst_msg_text.set2(data.msg,300);
+		objects.inst_msg_cont.tm=Date.now();
+	},
+	
+	async inst_message2(t){
+		
+		sound.play('locked');		
+		anim2.add(objects.inst_msg_cont,{alpha:[0, 1]},true,0.4,'linear',false);		
+		objects.inst_msg_avatar.texture=gres.pc_icon.texture;
+		objects.inst_msg_text.text=t;
 		objects.inst_msg_cont.tm=Date.now();
 	},
 	
@@ -4681,6 +4688,7 @@ lobby={
 		this.rejected_invites[pending_player]=Date.now();
 		pending_player="";
 		lobby._opp_data={};
+		this.inst_message2(['Соперник отказался от игры. Повторить приглашение можно через 1 минуту.','The opponent refused to play. You can repeat the invitation in 1 minute'][LANG]);
 		this.close_invite_dialog();
 		//big_message.show(['Соперник отказался от игры. Повторить приглашение можно через 1 минуту.','The opponent refused to play. You can repeat the invitation in 1 minute'][LANG],'---');
 
