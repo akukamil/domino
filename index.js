@@ -1166,6 +1166,9 @@ res_window={
 	
 	show(){
 		
+		objects.res_window_ok_button.visible=false;
+		objects.res_window_ok_button_t.visible=false;
+		
 		if (objects.res_window_cont.visible) return;
 		
 		anim2.add(objects.res_window_cont,{scale_y:[0,1]}, true, 0.25,'linear');
@@ -1227,7 +1230,7 @@ res_window={
 		objects.res_window_fb_button.visible=true;
 		
 		//если выиграли в онлайн игре
-		if (opponent===online_player){			
+		if (opponent===online_player){
 			my_data.games++;
 			fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating);
 			fbs.ref('players/'+my_data.uid+'/games').set(my_data.games);			
