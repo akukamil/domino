@@ -5260,7 +5260,7 @@ async function init_game_env(lang) {
 							
 	await load_resources();
 	
-	await auth2.init();
+	
 		
 	//инициируем файербейс
 	if (firebase.apps.length===0) {
@@ -5326,7 +5326,6 @@ async function init_game_env(lang) {
             break;
         }
     }
-
 	
 	
     //обрабатываем вторую часть кода в объектах
@@ -5366,6 +5365,8 @@ async function init_game_env(lang) {
 		objects.id_loup.x=20*Math.sin(game_tick*8)+90;
 		objects.id_loup.y=20*Math.cos(game_tick*8)+150;
 	}
+
+	await auth2.init();
 
 	//загружаем мои данные в кэш
 	await players_cache.update(my_data.uid);
