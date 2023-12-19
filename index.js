@@ -429,7 +429,6 @@ class domino_class extends PIXI.Container{
 		this.lock.y=95;
 		this.lock.angle=30;
 		this.lock.visible=false;
-
 		
 		this.interactive=true;
 		this.visible=false;
@@ -443,9 +442,25 @@ class domino_class extends PIXI.Container{
 		
 		this.set_skin(0);
 				
-		this.addChild(this.shadow,this.bcg,this.icon1,this.icon2,this.lock);		
+		this.addChild(this.shadow,this.bcg,this.icon1,this.icon2,this.lock);
 		
 	}		
+		
+	crop(){
+		
+		this.pivot.x=0;
+		this.pivot.y=0;
+		
+		const bcg_BT=this.bcg.texture.baseTexture;
+		const shadow_BT=this.shadow.texture.baseTexture;
+		
+		this.bcg.texture=new PIXI.Texture(bcg_BT,new PIXI.Rectangle(0,0,140,60));
+		this.bcg.height*=0.25;
+		
+		this.shadow.texture=new PIXI.Texture(shadow_BT,new PIXI.Rectangle(0,0,105,45));
+		this.shadow.height*=0.25;
+		
+	}	
 		
 	set_skin(skin_id){
 		
@@ -473,8 +488,7 @@ class domino_class extends PIXI.Container{
 			this.icon1.texture=gres['d'+v1].texture;	
 		}else
 			this.icon1.texture=PIXI.Texture.EMPTY;
-		
-		
+				
 		if (v2){
 			this.icon2.texture=gres['d'+v2].texture;			
 		}else
@@ -2283,13 +2297,12 @@ game={
 		//seed=348;
 		//предварительный терн
 		my_turn=this.initiator=initiator
-		
+
 		objects.desktop.texture=gres.desktop.texture;
-		anim2.add(objects.desktop,{alpha:[0,1]}, true, 0.5,'linear');	
+		anim2.add(objects.desktop,{alpha:[0,1]}, true, 0.5,'linear');
 		
 		//не случайный сид
 		s_random.make_seed(seed);
-						
 								
 		//если это начало игры
 		if(!resume){
@@ -2301,8 +2314,7 @@ game={
 			
 			//если открыт чат то закрываем его
 			if (objects.chat_cont.visible) chat.close();			
-			
-			
+						
 			[my_player,opponent].forEach(p=>{
 				p.cur_score=p.tot_score=0;
 				res_window.draw_score(p,0);
@@ -2352,7 +2364,7 @@ game={
 			d.set(dominoes_vals[i+(1-my_turn)*7][0],dominoes_vals[i+(1-my_turn)*7][1])		
 			d.visible=true;
 			d.hide_values();
-			d.y=-20;
+			d.y=45;
 			d.x=objects.opp_chips[i].tx=i*40;
 			d.mine=0;
 			opponent.chips.push(d);			
@@ -2428,6 +2440,11 @@ game={
 		//кнопка настроек
 		anim2.add(objects.pref_button2,{alpha:[0,1]}, true, 0.3,'linear');	
 		
+		//полка костей соперника
+		objects.opp_chips_shelf.visible=true;
+		objects.opp_chips_mask.visible=true;
+		objects.opp_chips_cont.mask=objects.opp_chips_mask;
+		
 		opponent.activate();
 
 	},
@@ -2481,7 +2498,7 @@ game={
 		
 		//добавляем костяшку на экран
 		const chips=p==='my'?my_player.chips:opponent.chips;
-		const move_y_data=p==='my'?[500,405]:[-100,-20];
+		const move_y_data=p==='my'?[500,405]:[-100,45];
 
 		new_chip.set(chip[0],chip[1]);
 		new_chip.mine=+(p==='my');
@@ -2552,6 +2569,11 @@ game={
 		
 		objects.t_round.visible=false;
 		anim2.add(objects.pref_button2,{alpha:[1,0]}, false, 0.3,'linear');	
+		
+		//полка костей соперника и маска
+		objects.opp_chips_shelf.visible=false;
+		objects.opp_chips_mask.visible=false;
+		
 		
 		set_state({state:'o'});	
 
@@ -2832,7 +2854,11 @@ game={
 		if (!opponent.chips.length) return;		
 		for (let chip of opponent.chips)
 			chip.show_values();
-		anim2.add(objects.opp_chips_cont,{y:[0,60]}, true, 0.25,'linear');
+		objects.opp_chips_cont.mask=null
+		objects.opp_chips_shelf.visible=false;
+		objects.opp_chips_mask.visible=false;
+		
+		//anim2.add(objects.opp_chips_cont,{y:[0,60]}, true, 0.25,'linear');
 	}
 
 }
