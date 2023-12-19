@@ -32,7 +32,6 @@ BCG_DATA={
 	5:{rating:2100,games:91000}
 }
 
-
 const map_next_place={
 	
 	'HORLINE':{
@@ -887,6 +886,23 @@ anim2 = {
 		return 1		
 	},
 	
+	ease3peaks(x){
+
+		if (x < 0.16666) {
+			return x / 0.16666;
+		} else if (x < 0.33326) {
+			return 1-(x - 0.16666) / 0.16666;
+		} else if (x < 0.49986) {
+			return (x - 0.3326) / 0.16666;
+		} else if (x < 0.66646) {
+			return 1-(x - 0.49986) / 0.16666;
+		} else if (x < 0.83306) {
+			return (x - 0.6649) / 0.16666;
+		} else if (x >= 0.83306) {
+			return 1-(x - 0.83306) / 0.16666;
+		}		
+	},
+	
 	easeOutBack(x) {
 		return 1 + this.c3 * Math.pow(x - 1, 3) + this.c1 * Math.pow(x - 1, 2);
 	},
@@ -974,7 +990,7 @@ anim2 = {
 				}
 				
 				//для возвратных функцие конечное значение равно начальному
-				if (func === 'ease2back' || func === 'shake')
+				if (func === 'ease2back' || func === 'shake' || func === 'ease3peaks')
 					for (let key in params)
 						params[key][1]=params[key][0];				
 					
@@ -3831,6 +3847,7 @@ lobby={
 	activated:false,
 	rejected_invites:{},
 	fb_cache:{},
+	first_run:0,
 	sw_header:{time:0,index:0,header_list:[]},
 	
 	activate() {
@@ -4261,6 +4278,16 @@ lobby={
 			players_cache.players.bot.rating=1400;
 			players_cache.players.bot.texture=gres.pc_icon.texture;			
 		}
+		
+		
+		if (this.first_run){
+			objects.hand.angle=0;
+			objects.hint_cont.x=240;
+			objects.hint_cont.y=30;
+			objects.hint_cont.visible=true;
+			objects.t_hint.text=["НАЖМИТЕ ЧТОБЫ ОТКРЫТЬ КАРТОЧКУ ИГРОКА","CLICK TO OPEN THE PLAYER'S CARD"][LANG];
+			anim2.add(objects.hand,{x:[230,190],y:[160,120]}, true, 4,'ease3peaks',false);
+		}
 	},
 	
 	card_down(card_id) {
@@ -4358,6 +4385,16 @@ lobby={
 		objects.invite_avatar.texture=card.avatar.texture;
 		objects.invite_name.set2(lobby._opp_data.name,230);
 		objects.invite_rating.text=card.rating_text.text;
+		
+		
+		if (this.first_run){			
+			objects.hint_cont.visible=true;
+			objects.hint_cont.x=80;
+			objects.hint_cont.y=160;
+			objects.hand.angle=134;
+			objects.t_hint.text=["НАЖМИТЕ ЧТОБЫ НАЧАТЬ ИГРУ","CLICK TO START A GAME"][LANG];
+			anim2.add(objects.hand,{x:[425,480],y:[220,220]}, true, 4,'ease3peaks',false)		
+		}
 	},
 	
 	fb_delete_down(){
@@ -4608,13 +4645,16 @@ lobby={
 	async send_invite() {
 
 
-		if (objects.invite_cont.ready===false || objects.invite_cont.visible===false)
+		if (!objects.invite_cont.ready||!objects.invite_cont.visible)
 			return;
 
 		if (anim2.any_on() === true) {
 			sound.play('locked');
 			return
 		};
+		
+		//если окошко открыто
+		if(objects.hint_cont.visible) this.close_hints();
 
 		if (lobby._opp_data.uid==='bot')
 		{
@@ -4689,6 +4729,13 @@ lobby={
 		}
 		
 		anim2.add(objects.cards_cont,{x:[cur_x, new_x]},true,0.2,'easeInOutCubic');
+	},
+
+	close_hints(){
+		objects.hint_cont.visible=false;
+		anim2.kill_anim(objects.hand);
+		objects.hand.visible=false;		
+		if(objects.hint_cont.x===80) this.first_run=0;
 	},
 
 	async exit_lobby_down() {
@@ -5339,6 +5386,7 @@ async function init_game_env(lang) {
 	//загружаем остальные данные из файербейса
 	let _other_data = await fbs.ref('players/' + my_data.uid).once('value');
 	let other_data = _other_data.val();
+	if(!other_data) lobby.first_run=1;
 
 	//сервисное сообщение
 	if(other_data && other_data.s_msg){
