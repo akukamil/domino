@@ -1637,7 +1637,8 @@ bot={
 	conf_resume:1,
 	cur_score:0,
 	tot_score:0,
-		
+	start_time:0,
+	
 	activate(){
 		
 		//устанавливаем локальный и удаленный статус
@@ -1805,7 +1806,7 @@ online_player={
 		set_state({state:'p'});
 				
 		//фиксируем врему начала игры для статистики
-		this.move_time_start=this.start_time = Date.now();		
+		this.move_time_start=Date.now();		
 		
 		//перезапускаем таймер
 		this.timer_prv_time=Date.now();
@@ -2320,6 +2321,8 @@ game={
 				p.cur_score=p.tot_score=0;
 				res_window.draw_score(p,0);
 			})
+			
+			opponent.start_time=Date.now();
 			this.round=0;
 			
 			opponent = opp;		
