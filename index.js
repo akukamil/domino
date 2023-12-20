@@ -1565,6 +1565,13 @@ keyboard={
 		this.process_key(key);	
 	},
 	
+	response_message(uid, name) {
+		
+		objects.chat_keyboard_text.text = name.split(' ')[0]+', ';	
+		objects.chat_keyboard_control.text = `${objects.chat_keyboard_text.text.length}/${keyboard.MAX_SYMBOLS}`		
+		
+	},
+	
 	switch_layout(){
 		
 		if (this.layout===this.ru_keys){			
@@ -3593,7 +3600,7 @@ chat={
 			objects.chat_msg_cont.y-=gdata.chat_record_h
 		
 	},
-			
+						
 	avatar_down(player_data){
 		
 		if (this.moderation_mode){
@@ -3601,11 +3608,8 @@ chat={
 			return
 		}
 		
-		if (objects.feedback_cont.visible){			
-			feedback.response_message(player_data.uid,player_data.name.text);			
-		}else{			
-			lobby.show_invite_dialog_from_chat(player_data.uid,player_data.name.text);			
-		}
+		if (objects.chat_keyboard_cont.visible)		
+			keyboard.response_message(player_data.uid,player_data.name.text);			
 		
 		
 	},
