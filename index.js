@@ -3018,7 +3018,7 @@ ad={
 		
 	show(){
 		
-		if ((Date.now() - this.prv_show) < 100000 )
+		if ((Date.now() - this.prv_show) < 150000 )
 			return;
 		this.prv_show = Date.now();
 		
