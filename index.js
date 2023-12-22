@@ -1924,6 +1924,7 @@ online_player={
 		this.my_conf_play=1;
 						
 		//отправляем ход онайлн сопернику (с таймаутом)
+		clearTimeout(this.write_fb_timer);
 		this.write_fb_timer=setTimeout(function(){game.stop('my_no_connection');}, 8000);  
 		fbs.ref('inbox/'+opp_data.uid).set({message:'MOVE',sender:my_data.uid,data,tm:Date.now()}).then(()=>{	
 			clearTimeout(this.write_fb_timer);			
