@@ -643,7 +643,7 @@ class lb_player_card_class extends PIXI.Container{
 		this.bcg.height = 70;
 
 		this.place=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});
-		this.place.tint=0xffff00;
+		this.place.tint=0xffffff;
 		this.place.x=20;
 		this.place.y=22;
 
@@ -654,14 +654,14 @@ class lb_player_card_class extends PIXI.Container{
 
 
 		this.name=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});
-		this.name.tint=0xdddddd;
+		this.name.tint=0xcceeff;
 		this.name.x=105;
 		this.name.y=22;
 
 
 		this.rating=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});
 		this.rating.x=298;
-		this.rating.tint=0xdddddd;
+		this.rating.tint=0xFFFF00;
 		this.rating.y=22;
 
 		this.addChild(this.bcg,this.place, this.avatar, this.name, this.rating);
@@ -3403,7 +3403,7 @@ main_menu={
 		
 		//vk
 		if (game_platform==='VK')
-		anim2.add(objects.vk_buttons_cont,{y:[-150,objects.vk_buttons_cont.sy]}, true, 0.75,'linear');	
+		anim2.add(objects.vk_buttons_cont,{alpha:[0,1]}, true, 0.5,'linear');	
 		
 		//игровой титл
 		anim2.add(objects.game_title,{y:[-100,objects.game_title.sy],alpha:[0,1]}, true, 0.75,'linear');	
@@ -3430,7 +3430,7 @@ main_menu={
 		
 		//vk
 		if(objects.vk_buttons_cont.visible)
-			anim2.add(objects.vk_buttons_cont,{y:[objects.vk_buttons_cont.y,-150]}, false, 0.75,'linear');	
+			anim2.add(objects.vk_buttons_cont,{alpha:[1,0]}, false, 0.25,'linear');	
 
 	},
 
@@ -3860,7 +3860,7 @@ lb={
 		for (let place in top){
 			const target=top[place];
 			const leader=leaders_array[place];
-			target.t_name.text=leader.name;
+			target.t_name.set2(leader.name,place>2?200:130);
 			target.t_rating.text=leader.rating;			
 		}
 		
