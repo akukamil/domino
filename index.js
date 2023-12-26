@@ -1645,6 +1645,8 @@ bot={
 	cur_score:0,
 	tot_score:0,
 	start_time:0,
+	opp_conf_play:0,
+	my_conf_play:0,
 	
 	activate(){
 		
@@ -1823,11 +1825,8 @@ online_player={
 		//обновляем текст на экране
 		objects.timer_text.text='0:'+this.time_for_move;
 		
-		this.reset_timer();
-		
-		//никто не подтвердил
-		this.opp_conf_play=0;
-		this.my_conf_play=0;
+		this.reset_timer();		
+
 		
 		objects.game_buttons.visible=true;
 		
@@ -2329,6 +2328,10 @@ game={
 				p.cur_score=p.tot_score=0;
 				res_window.draw_score(p,0);
 			})
+			
+			//никто не подтвердил
+			opponent.opp_conf_play=0;
+			opponent.my_conf_play=0;
 			
 			opponent.start_time=Date.now();
 			this.round=0;
