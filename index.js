@@ -649,7 +649,7 @@ class lb_player_card_class extends PIXI.Container{
 
 		this.avatar=new PIXI.Sprite();
 		this.avatar.x=43;
-		this.avatar.y=13;
+		this.avatar.y=14;
 		this.avatar.width=this.avatar.height=44;
 
 
@@ -657,7 +657,6 @@ class lb_player_card_class extends PIXI.Container{
 		this.name.tint=0xcceeff;
 		this.name.x=105;
 		this.name.y=22;
-
 
 		this.rating=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});
 		this.rating.x=298;
@@ -3863,7 +3862,7 @@ lb={
 		for (let place in top){
 			const target=top[place];
 			const leader=leaders_array[place];
-			target.t_name.set2(leader.name,place>2?200:130);
+			target.t_name.set2(leader.name,place>2?190:130);
 			target.t_rating.text=leader.rating;			
 		}
 		
