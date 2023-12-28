@@ -3027,10 +3027,11 @@ ad={
 		
 		if (game_platform==="YANDEX") {			
 			//показываем рекламу
+			PIXI.sound.volumeAll=0;
 			window.ysdk.adv.showFullscreenAdv({
 			  callbacks: {
-				onClose: function() {}, 
-				onError: function() {}
+				onClose: function() {PIXI.sound.volumeAll=1;}, 
+				onError: function() {PIXI.sound.volumeAll=1;}
 						}
 			})
 		}
@@ -5199,13 +5200,13 @@ function set_state(params) {
 
 function vis_change() {
 
-		if (document.hidden === true) {
-			hidden_state_start = Date.now();			
-			PIXI.sound.pauseAll();	
-		} else {
-			PIXI.sound.resumeAll();	
-		}		
-		set_state({hidden : document.hidden});
+	if (document.hidden === true) {
+		hidden_state_start = Date.now();			
+		PIXI.sound.volumeAll=0;	
+	} else {
+		PIXI.sound.volumeAll=1;	
+	}		
+	set_state({hidden : document.hidden});
 		
 		
 }
