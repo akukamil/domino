@@ -3345,7 +3345,7 @@ req_dialog={
 		if (objects.req_cont.ready===false || objects.req_cont.visible===false)
 			return;
 		
-		sound.play('close');
+		sound.play('close_it');
 
 
 		anim2.add(objects.req_cont,{y:[objects.req_cont.sy, -260]}, false, 0.5,'easeInBack');
