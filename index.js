@@ -3510,7 +3510,7 @@ chat={
 
 		anim2.add(objects.chat_cont,{alpha:[0, 1]}, true, 0.1,'linear');
 		objects.desktop.texture=gres.desktop.texture;
-		//objects.chat_enter_button.visible=my_data.rating>1430;
+		objects.chat_enter_button.visible=!my_data.blocked
 
 	},
 	
@@ -5293,9 +5293,6 @@ async function check_blocked(){
 	
 	if (block_data) my_data.blocked=1;
 		
-	
-	
-	
 }
 
 async function init_game_env(lang) {
