@@ -5449,7 +5449,7 @@ async function init_game_env(lang) {
 
 	my_data.rating = (other_data && other_data.rating) || 1400;
 	my_data.games = (other_data && other_data.games) || 0;
-	my_data.name = (other_data && other_data.name) || my_data.name;
+	my_data.name = my_data.name;
 	my_data.nick_tm = (other_data && other_data.nick_tm) || 0;
 	my_data.skin_id = (other_data && other_data.skin_id) || 0;
 	my_data.bcg_id = (other_data && other_data.bcg_id) || 0;
