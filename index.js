@@ -25,8 +25,8 @@ SKINS_DATA={
 
 BCG_DATA={
 	0:{rating:0,games:0},
-	1:{rating:1500,games:950},
-	2:{rating:1700,games:9150},
+	1:{rating:1500,games:150},
+	2:{rating:1600,games:500},
 	3:{rating:1900,games:9500},
 	4:{rating:2000,games:9700},
 	5:{rating:2100,games:91000}
