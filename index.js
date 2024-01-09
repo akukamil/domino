@@ -1493,7 +1493,7 @@ keyboard={
 		if (!this.layout)this.switch_layout();	
 		
 		//если какой-то ресолвер открыт
-		if(this.resolver) this.resolver();
+		if(this.resolver) this.resolver('');
 		
 		objects.chat_keyboard_text.text ='';
 		objects.chat_keyboard_control.text = `0/${this.MAX_SYMBOLS}`
@@ -2306,12 +2306,12 @@ game={
 		//предварительный терн
 		my_turn=this.initiator=initiator
 
-		objects.desktop.texture=gres.desktop.texture;
+		objects.desktop.texture=pref.get_game_texture();
 		anim2.add(objects.desktop,{alpha:[0,1]}, true, 0.5,'linear');
 		
 		//не случайный сид
 		s_random.make_seed(seed);
-								
+
 		//если это начало игры
 		if(!resume){
 			
@@ -2364,7 +2364,7 @@ game={
 			d.set(dominoes_vals[i+my_turn*7][0],dominoes_vals[i+my_turn*7][1])		
 			d.visible=true;
 			d.show_values();
-			d.y=405;
+			d.y=0;
 			d.x=objects.my_chips[i].tx=i*40;
 			d.mine=1;
 			my_player.chips.push(d);
@@ -2405,6 +2405,7 @@ game={
 		
 		
 		objects.opp_chips_cont.y=0;
+		objects.my_chips_cont.scale_xy=1;
 		
 		game.align_chips_cont('my');
 		game.align_chips_cont('opp');
@@ -2486,6 +2487,30 @@ game={
 		const cur_x=objects[p+'_chips_cont'].x;
 		const tar_x=400-40*(player.chips.length-1)*0.5;
 		anim2.add(objects[p+'_chips_cont'],{x:[cur_x,tar_x]}, true, 0.25,'linear');
+		
+		
+		
+		const tar_map={
+			15:{s:0.95,x:120},
+			16:{s:0.92,x:100},
+			17:{s:0.9,x:70},
+			18:{s:0.89,x:50},
+			19:{s:0.85,x:45},
+			20:{s:0.82,x:35},
+			21:{s:0.8,x:25}
+		};
+		const tar_scale=tar_map[my_player.chips.length]?.s||1;
+		const tar_x2=tar_map[my_player.chips.length]?.x||140;
+		
+		if(my_player.chips.length>14)
+			anim2.add(objects.my_chips_cont,{scale_xy:[objects.my_chips_cont.scale_xy,tar_scale],x:[objects.my_chips_cont.x,tar_x2]}, true, 0.25,'linear');
+		else{
+			if(objects.my_chips_cont.scale_xy!==1)
+				anim2.add(objects.my_chips_cont,{scale_x:[objects.my_chips_cont.scale_xy,1],x:[objects.my_chips_cont.x,tar_x2]}, true, 0.25,'linear');
+		}	
+		
+		
+		
 	},
 	
 	take_from_bazar(p){
@@ -2512,7 +2537,7 @@ game={
 		
 		//добавляем костяшку на экран
 		const chips=p==='my'?my_player.chips:opponent.chips;
-		const move_y_data=p==='my'?[500,405]:[-100,45];
+		const move_y_data=p==='my'?[100,0]:[-100,45];
 
 		new_chip.set(chip[0],chip[1]);
 		new_chip.mine=+(p==='my');
@@ -2880,6 +2905,8 @@ game={
 
 pref={
 	
+	bcg_loader:null,
+	
 	activate(){
 		
 		if(anim2.any_on()||objects.pref_cont.visible){
@@ -2916,15 +2943,14 @@ pref={
 		
 	},
 	
-	skin_down(skin){
-		
+	skin_down(skin){		
 		
 		const rating_req=SKINS_DATA[skin.skin_id].rating;
 		const games_req=SKINS_DATA[skin.skin_id].games;
 		
 		if (!(my_data.rating>=rating_req&&my_data.games>=games_req)){
 			anim2.add(skin.lock,{angle:[skin.lock.angle,skin.lock.angle+10]}, true, 0.15,'shake');
-			objects.pref_skin_req.text=[`НУЖНО:\nРейтинг >${rating_req}, Игры >${games_req}`,`NEED:\nRating >${rating_req}, Games >${games_req}`][LANG];
+			objects.pref_skin_req.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Rating >${rating_req}, Games >${games_req}`][LANG];
 			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);
 			sound.play('locked');
 			return;
@@ -2941,7 +2967,7 @@ pref={
 		
 		if (!(my_data.rating>=rating_req&&my_data.games>=games_req)){
 			anim2.add(bcg.lock,{angle:[bcg.lock.angle,bcg.lock.angle+10]}, true, 0.15,'shake');
-			objects.pref_skin_req.text=[`НУЖНО:\nРейтинг >${rating_req}, Игры >${games_req}`,`NEED:\nRating >${rating_req}, Games >${games_req}`][LANG];
+			objects.pref_skin_req.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Rating >${rating_req}, Games >${games_req}`][LANG];
 			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);
 			sound.play('locked');
 			return;
@@ -2949,6 +2975,13 @@ pref={
 		
 		sound.play('click2');
 		this.select_bcg(bcg);	
+	},
+	
+	get_game_texture(){
+		
+		
+		return this.bcg_loader?.resources['bcg'+my_data.bcg_id]?.texture||gres.desktop.texture;
+		
 	},
 	
 	select_skin(skin){
@@ -3000,10 +3033,92 @@ pref={
 		
 		sound.play('close_it');
 		this.close();
-		fbs.ref('players/'+my_data.uid+'/skin').set(my_data.skin_id);
-		[...objects.my_chips,...objects.opp_chips,...objects.game_chips].forEach(chip=>{			
+		fbs.ref('players/'+my_data.uid+'/skin_id').set(my_data.skin_id);
+		fbs.ref('players/'+my_data.uid+'/bcg_id').set(my_data.bcg_id);
+		
+		this.update_bcg();
+		
+		[...objects.my_chips,...objects.opp_chips,...objects.game_chips].forEach(chip=>{
 			chip.set_skin(my_data.skin_id);			
 		})
+		
+	},
+	
+	async update_bcg(){
+		
+		if (!this.bcg_loader) this.bcg_loader=new PIXI.Loader();
+		
+		//если базовая текстура выбрана которая идет в комплекте с loadlist
+		if (my_data.bcg_id===0){
+			if (game.on)
+				objects.desktop.texture=gres.desktop.texture;
+			return;
+		}		
+		
+		const res_name='bcg'+my_data.bcg_id;		
+		if (!this.bcg_loader.resources[res_name]){
+			this.bcg_loader.add(res_name,'bcg/bcg'+my_data.bcg_id+'.jpg');
+			await new Promise(resolve=>pref.bcg_loader.load(resolve));			
+		}
+
+		if (game.on) objects.desktop.texture=this.bcg_loader.resources[res_name].texture;
+	},
+	
+	async change_name_down(){
+		
+		if(anim2.any_on()){
+			sound.play('locked');
+			return;			
+		}
+		
+		
+		const rating_req=1450;
+		const games_req=50;
+		
+		if (!(my_data.rating>=rating_req&&my_data.games>=games_req)){
+			objects.pref_skin_req.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Rating >${rating_req}, Games >${games_req}`][LANG];
+			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);
+			sound.play('locked');
+			return;
+		}
+		
+		
+		//провряем можно ли менять ник
+		const tm=Date.now();
+		const days_since_nick_change=~~((tm-my_data.nick_tm)/86400000);
+		const days_befor_change=30-days_since_nick_change;
+		const ln=days_befor_change%10;
+		const opt=[0,5,6,7,8,9].includes(ln)*0+[2,3,4].includes(ln)*1+(ln===1)*2;
+		const day_str=['дней','дня','день'][opt];
+
+		if (days_befor_change>0){
+
+			objects.pref_skin_req.text=[`Поменять имя можно через ${days_befor_change} ${day_str}`,`Wait ${days_befor_change} days`][LANG];
+			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);	
+
+			sound.play('locked');
+			return;
+		}
+				
+					
+		const name=await keyboard.read();
+		if (name.length>1){
+			my_data.name=name;
+			fbs.ref('players/'+my_data.uid+'/name').set(my_data.name);
+			objects.my_card_name.set2(my_data.name,110);
+			set_state({});
+			
+			objects.pref_skin_req.text=['Имя изменено','Name has been changed'][LANG];
+			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);			
+			fbs.ref('players/'+my_data.uid+'/nick_tm').set(tm);
+			my_data.nick_tm=tm;
+		}else{
+			
+			objects.pref_skin_req.text=['Какая-то ошибка','Unknown error'][LANG];
+			anim2.add(objects.pref_skin_req,{alpha:[0,1]}, false, 3,'easeBridge',false);
+			
+		}
+
 		
 	},
 	
@@ -3403,7 +3518,9 @@ main_menu={
 		//проверяем и включаем музыку
 		music.activate();
 		
-		
+		//перезагружем
+		pref.update_bcg();
+				
 		//vk
 		if (game_platform==='VK')
 		anim2.add(objects.vk_buttons_cont,{alpha:[0,1]}, true, 0.5,'linear');	
@@ -4049,7 +4166,7 @@ lobby={
 				if (single[card_uid] === undefined)					
 					objects.mini_cards[i].visible = false;
 				else
-					this.update_existing_card({id:i, state:players[card_uid].state , rating:players[card_uid].rating});
+					this.update_existing_card({id:i, state:players[card_uid].state, rating:players[card_uid].rating, name:players[card_uid].name});
 			}
 		}
 		
@@ -4199,15 +4316,17 @@ lobby={
 		
 	},
 
-	update_existing_card(params={id:0, state:"o" , rating:1400}) {
+	update_existing_card(params={id:0, state:'o' , rating:1400, name:''}) {
 
-		//устанавливаем цвет карточки в зависимости от состояния(имя и аватар не поменялись)
-		objects.mini_cards[params.id].bcg.texture=this.get_state_texture(params.state);
-		objects.mini_cards[params.id].state=params.state;
+		//устанавливаем цвет карточки в зависимости от состояния( аватар не поменялись)
+		const card=objects.mini_cards[params.id];
+		card.bcg.texture=this.get_state_texture(params.state);
+		card.state=params.state;
 
-		objects.mini_cards[params.id].rating=params.rating;
-		objects.mini_cards[params.id].rating_text.text=params.rating;
-		objects.mini_cards[params.id].visible=true;
+		card.name_text.set2(params.name,105);
+		card.rating=params.rating;
+		card.rating_text.text=params.rating;
+		card.visible=true;
 	},
 
 	place_new_card(params={uid:0, state: "o", name: "XXX", rating: rating}) {
@@ -5310,9 +5429,7 @@ async function init_game_env(lang) {
 	//отображаем шкалу загрузки
 	document.body.innerHTML='<style>html,body {margin: 0;padding: 0;height: 100%;	}body {display: flex;align-items: center;justify-content: center;background-color: rgba(41,41,41,1);flex-direction: column	}#m_progress {	  background: #1a1a1a;	  justify-content: flex-start;	  border-radius: 5px;	  align-items: center;	  position: relative;	  padding: 0 5px;	  display: none;	  height: 50px;	  width: 70%;	}	#m_bar {	  box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;	  border-radius: 5px;	  background: rgb(119, 119, 119);	  height: 70%;	  width: 0%;	}	</style></div><div id="m_progress">  <div id="m_bar"></div></div>';
 							
-	await load_resources();
-	
-	
+	await load_resources();		
 		
 	//инициируем файербейс
 	if (firebase.apps.length===0) {
@@ -5350,8 +5467,8 @@ async function init_game_env(lang) {
 	//идентификатор клиента
 	client_id = irnd(10,999999);
 
-    //создаем спрайты и массивы спрайтов и запускаем первую часть кода
-    for (var i = 0; i < load_list.length; i++) {
+	//создаем спрайты и массивы спрайтов и запускаем первую часть кода
+	for (var i = 0; i < load_list.length; i++) {
         const obj_class = load_list[i].class;
         const obj_name = load_list[i].name;
 		console.log('Processing: ' + obj_name)
@@ -5378,10 +5495,9 @@ async function init_game_env(lang) {
             break;
         }
     }
-	
-	
-    //обрабатываем вторую часть кода в объектах
-    for (var i = 0; i < load_list.length; i++) {
+		
+	//обрабатываем вторую часть кода в объектах
+	for (var i = 0; i < load_list.length; i++) {
         const obj_class = load_list[i].class;
         const obj_name = load_list[i].name;
 		console.log('Processing: ' + obj_name)
@@ -5449,8 +5565,8 @@ async function init_game_env(lang) {
 
 	my_data.rating = (other_data && other_data.rating) || 1400;
 	my_data.games = (other_data && other_data.games) || 0;
-	my_data.name = my_data.name||(other_data && other_data.games);
 	my_data.nick_tm = (other_data && other_data.nick_tm) || 0;
+	my_data.name = (other_data && other_data.name)||my_data.name;
 	my_data.skin_id = (other_data && other_data.skin_id) || 0;
 	my_data.bcg_id = (other_data && other_data.bcg_id) || 0;
 	
@@ -5496,7 +5612,6 @@ async function init_game_env(lang) {
 	//отключение от игры и удаление не нужного
 	fbs.ref('inbox/'+my_data.uid).onDisconnect().remove();
 	fbs.ref(room_name+'/'+my_data.uid).onDisconnect().remove();
-
 
 	//keep-alive сервис
 	setInterval(function()	{keep_alive()}, 40000);
