@@ -2982,8 +2982,7 @@ pref={
 		this.select_bcg(bcg);	
 	},
 	
-	get_game_texture(){
-		
+	get_game_texture(){		
 		
 		return this.bcg_loader?.resources['bcg'+my_data.bcg_id]?.texture||gres.desktop.texture;
 		
@@ -3054,9 +3053,8 @@ pref={
 		if (!this.bcg_loader) this.bcg_loader=new PIXI.Loader();
 		
 		//если базовая текстура выбрана которая идет в комплекте с loadlist
-		if (my_data.bcg_id===0){
-			if (game.on)
-				objects.desktop.texture=gres.desktop.texture;
+		if (!my_data.bcg_id){
+			if (game.on) objects.desktop.texture=gres.desktop.texture;
 			return;
 		}		
 		
