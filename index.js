@@ -1262,7 +1262,12 @@ res_window={
 		if (opponent===online_player){
 			my_data.games++;
 			fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating);
-			fbs.ref('players/'+my_data.uid+'/games').set(my_data.games);			
+			fbs.ref('players/'+my_data.uid+'/games').set(my_data.games);		
+
+			if(my_data.rating>1500||opp_data.rating>1500){
+				const duration = ~~((Date.now() - opponent.start_time)*0.001);
+				fbs.ref("finishes2").push({uid:my_data.uid,player1:objects.my_card_name.text,player2:objects.opp_card_name.text, res:result_type,fin_type:result,duration:duration, rating: [old_rating,my_data.rating], ts:firebase.database.ServerValue.TIMESTAMP});	
+			}
 		}
 		
 		//звуки
