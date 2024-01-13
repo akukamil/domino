@@ -1165,6 +1165,7 @@ res_window={
 
 		const title_text=['Раунд завершен (','Round end ('][LANG]+{'my_win':['Победа!','You win!'],'opp_win':['Поражение!','You lose!'],'fish':['Рыба!','Fish!']}[result][LANG]+')';
 		objects.res_window_title.text=title_text;
+		objects.res_window_title2.text=')))';
 		this.game_end=0;
 		this.winner=winner;
 		this.result=result;
