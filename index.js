@@ -2391,23 +2391,13 @@ game={
 		}
 		
 		//определяем чья очередь
-		const fm_chips=[[6,6],[5,5],[4,4],[3,3],[2,2],[1,1],[0,0],[6,5],[6,4],[6,3],[6,2],[6,1],[6,0],[5,4],[5,3]];
-		for (let i=0;i<fm_chips.length;i++){
-			const fm_chip=fm_chips[i];
-			
-			const my_check=objects.my_chips.find(function(c){return (c.v1===fm_chip[0]&&c.v2===fm_chip[1])||(c.v1===fm_chip[1]&&c.v2===fm_chip[0])});
-			const opp_check=objects.opp_chips.find(function(c){return (c.v1===fm_chip[0]&&c.v2===fm_chip[1])||(c.v1===fm_chip[1]&&c.v2===fm_chip[0])});
-			
-			if (my_check){				
-				my_turn=1;
-				break;
-			}
-				
-			if (opp_check){				
-				my_turn=0;
-				break;
-			}
-		}
+		const my_check_val=this.getMaxSum(objects.my_chips)*10+this.initiator;
+		const opp_check_val=this.getMaxSum(objects.opp_chips)*10;
+		
+		if (my_check_val>opp_check_val)			
+			my_turn=1;
+		else			
+			my_turn=0;
 		
 		
 		objects.opp_chips_cont.y=0;
@@ -2468,6 +2458,18 @@ game={
 		
 		opponent.activate();
 
+	},
+	
+	getMaxSum(arr) {
+		let maxSum = 0;
+		for (let i = 0; i < arr.length; i++) {
+			const chip1=arr[i].v1;
+			const chip2=arr[i].v2;
+			let currentSum = chip1+chip2+(chip1===chip2)*(chip1*100);
+			if (currentSum > maxSum)
+				maxSum = currentSum;
+		}
+		return maxSum;
 	},
 	
 	resume_game(){				
