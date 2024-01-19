@@ -2391,8 +2391,8 @@ game={
 		}
 		
 		//определяем чья очередь
-		const my_check_val=this.getMaxSum(objects.my_chips)*10+this.initiator;
-		const opp_check_val=this.getMaxSum(objects.opp_chips)*10;
+		const my_check_val=this.getMaxSum(objects.my_chips.filter(c=>c.visible))*10+this.initiator;
+		const opp_check_val=this.getMaxSum(objects.opp_chips.filter(c=>c.visible))*10;
 		
 		if (my_check_val>opp_check_val)			
 			my_turn=1;
@@ -2463,6 +2463,7 @@ game={
 	getMaxSum(arr) {
 		let maxSum = 0;
 		for (let i = 0; i < arr.length; i++) {
+			
 			const chip1=arr[i].v1;
 			const chip2=arr[i].v2;
 			let currentSum = chip1+chip2+(chip1===chip2)*(chip1*100);
