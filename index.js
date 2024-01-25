@@ -3629,6 +3629,7 @@ chat={
 	drag_sy:-999,	
 	recent_msg:[],
 	moderation_mode:0,
+	kill_next_click:0,
 	
 	activate() {	
 
@@ -3730,12 +3731,26 @@ chat={
 	},
 						
 	avatar_down(player_data){
-		
+	
 		if (this.moderation_mode){
 			console.log(player_data.index,player_data.uid,player_data.name.text,player_data.msg.text);
-			return
+			fbs_once('players/'+player_data.uid+'/games').then((data)=>{
+				console.log('сыграно игр: ',data)
+			})
 		}
 		
+		if (this.block_next_click){			
+			fbs.ref('blocked/'+player_data.uid).set(Date.now())
+			console.log('Игрок заблокирован: ',player_data.uid);
+			this.block_next_click=0;
+		}
+		
+		if (this.kill_next_click){			
+			fbs.ref('inbox/'+player_data.uid).set({message:'CLIEND_ID',tm:Date.now(),client_id:999999});
+			console.log('Игрок убит: ',player_data.uid);
+			this.kill_next_click=0;
+		}
+
 		if (objects.chat_keyboard_cont.visible)		
 			keyboard.response_message(player_data.uid,player_data.name.text);			
 		
