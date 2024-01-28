@@ -5602,7 +5602,12 @@ async function init_game_env(lang) {
 	objects.id_name.set2(my_data.name,150);	
 			
 	//номер комнаты
-	room_name= 'states';		
+	//номер комнаты
+	let rooms_ranges = [0,1480,9999]
+	if (my_data.rating > rooms_ranges[0] && my_data.rating <= rooms_ranges[1])
+		room_name= 'states';			
+	if (my_data.rating > rooms_ranges[1] && my_data.rating <= rooms_ranges[2])
+		room_name= 'states2';		
 	
 	//room_name= 'states5';	
 	//это путь к чату
