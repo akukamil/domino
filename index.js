@@ -678,26 +678,25 @@ class chat_record_class extends PIXI.Container {
 		this.tm=0;
 		this.hash=0;
 		this.index=0;
-		this.uid='';
-	
+		this.uid='';	
 		
-		this.msg_bcg = new PIXI.Sprite(gres.msg_bcg_short.texture);
-		this.msg_bcg.width=gdata.chat_record_w;
-		this.msg_bcg.height=gdata.chat_record_h;
-
+		this.msg_bcg = new PIXI.NineSlicePlane(gres.msg_bcg.texture,90,50,45,50);
+		this.msg_bcg.width=200;
+		this.msg_bcg.height=70;	
+		this.msg_bcg.x=100;	
 
 		this.name = new PIXI.BitmapText('Имя Фамил', {fontName: 'mfont',fontSize: gdata.chat_record_name_font_size});
 		this.name.anchor.set(0.5,0.5);
-		this.name.x=gdata.chat_record_name_x;
-		this.name.y=gdata.chat_record_name_y;	
-		this.name.tint=gdata.chat_record_name_tint;
+		this.name.x=60;
+		this.name.y=60;	
+		this.name.tint=0xffff00;
 		
 		
 		this.avatar = new PIXI.Sprite(PIXI.Texture.WHITE);
-		this.avatar.width=gdata.chat_record_avatar_w;
-		this.avatar.height=gdata.chat_record_avatar_h;
-		this.avatar.x=gdata.chat_record_avatar_sx;
-		this.avatar.y=gdata.chat_record_avatar_sy;
+		this.avatar.width=40;
+		this.avatar.height=40;
+		this.avatar.x=40;
+		this.avatar.y=10;
 		this.avatar.interactive=true;
 		const this_card=this;
 		this.avatar.pointerdown=function(){chat.avatar_down(this_card)};		
@@ -705,17 +704,16 @@ class chat_record_class extends PIXI.Container {
 				
 		
 		this.msg = new PIXI.BitmapText('Имя Фамил', {fontName: 'mfont',fontSize: gdata.chat_record_text_font_size,align: 'left'}); 
-		this.msg.x=gdata.chat_record_text_x;
-		this.msg.y=gdata.chat_record_text_y;
-		this.msg.maxWidth=gdata.chat_record_text_max_w;
+		this.msg.x=150;
+		this.msg.y=35;
+		this.msg.maxWidth=450;
 		this.msg.anchor.set(0,0.5);
-		this.msg.tint = gdata.chat_record_text_col;
+		this.msg.tint = 0x3B3838;
 		
 		this.msg_tm = new PIXI.BitmapText('28.11.22 12:31', {fontName: 'mfont',fontSize: gdata.chat_record_tm_font_size}); 
-		this.msg_tm.x=gdata.chat_record_tm_x;		
-		this.msg_tm.y=gdata.chat_record_tm_y;
-
-		this.msg_tm.tint=gdata.chat_record_tm_col;
+		this.msg_tm.x=200;		
+		this.msg_tm.y=45;
+		this.msg_tm.tint=0x767171;
 		this.msg_tm.anchor.set(0,0);
 		
 		this.visible = false;
@@ -743,22 +741,19 @@ class chat_record_class extends PIXI.Container {
 		this.hash = msg_data.hash;
 		this.index = msg_data.index;
 		
-		if (msg_data.name.length > 15) msg_data.name = msg_data.name.substring(0, 15);	
-		
-		//бэкграунд сообщения в зависимости от длины
-		if (msg_data.msg.length>20){
-			this.msg_bcg.texture=gres.msg_bcg_long.texture
-			this.msg_tm.x=490;		
-		}else{
-			this.msg_bcg.texture=gres.msg_bcg_short.texture
-			this.msg_tm.x=330;		
-		}
-		
 		
 		this.name.set2(msg_data.name,110)
 		this.msg.text=msg_data.msg;		
-		this.visible = true;		
+		
+		const msg_bcg_width=Math.max(this.msg.width,100)+100;		
+		
+		//бэкграунд сообщения в зависимости от длины
+		this.msg_bcg.width=msg_bcg_width				
+				
+		this.msg_tm.x=msg_bcg_width-15;
 		this.msg_tm.text = new Date(msg_data.tm).toLocaleString();
+		this.visible = true;	
+		
 		
 	}	
 	
@@ -3629,13 +3624,16 @@ chat={
 	drag_sy:-999,	
 	recent_msg:[],
 	moderation_mode:0,
+	block_next_click:0,
 	kill_next_click:0,
+	delete_message_mode:0,
+	games_to_chat:200,
 	
 	activate() {	
 
 		anim2.add(objects.chat_cont,{alpha:[0, 1]}, true, 0.1,'linear');
 		objects.desktop.texture=gres.desktop.texture;
-		objects.chat_enter_button.visible=!my_data.blocked
+		objects.chat_enter_button.visible=!my_data.blocked;
 
 	},
 	
@@ -3653,6 +3651,7 @@ chat={
 			rec.msg_id = -1;	
 			rec.tm=0;
 		}			
+		
 		
 		//загружаем чат
 		fbs.ref(chat_path).orderByChild('tm').limitToLast(20).once('value', snapshot => {chat.chat_load(snapshot.val());});		
@@ -3731,31 +3730,38 @@ chat={
 	},
 						
 	avatar_down(player_data){
-	
+		
 		if (this.moderation_mode){
 			console.log(player_data.index,player_data.uid,player_data.name.text,player_data.msg.text);
 			fbs_once('players/'+player_data.uid+'/games').then((data)=>{
 				console.log('сыграно игр: ',data)
 			})
-			return;
 		}
 		
 		if (this.block_next_click){			
 			fbs.ref('blocked/'+player_data.uid).set(Date.now())
 			console.log('Игрок заблокирован: ',player_data.uid);
 			this.block_next_click=0;
-			return;
 		}
 		
 		if (this.kill_next_click){			
 			fbs.ref('inbox/'+player_data.uid).set({message:'CLIEND_ID',tm:Date.now(),client_id:999999});
 			console.log('Игрок убит: ',player_data.uid);
 			this.kill_next_click=0;
-			return;
 		}
-
+		
+		if(this.delete_message_mode){			
+			fbs.ref(`${chat_path}/${player_data.index}`).remove();
+			console.log(`сообщение ${player_data.index} удалено`)
+		}
+		
+		
+		if(this.moderation_mode||this.block_next_click||this.kill_next_click||this.delete_message_mode) return;
+		
 		if (objects.chat_keyboard_cont.visible)		
-			keyboard.response_message(player_data.uid,player_data.name.text);			
+			keyboard.response_message(player_data.uid,player_data.name.text);
+		else
+			lobby.show_invite_dialog_from_chat(player_data.uid,player_data.name.text);
 		
 		
 	},
@@ -3892,7 +3898,7 @@ chat={
 		this.recent_msg.push(Date.now());
 		
 		//пишем сообщение в чат и отправляем его		
-		const msg = await keyboard.read();		
+		const msg = await keyboard.read(70);		
 		if (msg) {			
 			const hash=this.make_hash();
 			const index=chat.get_oldest_index();
