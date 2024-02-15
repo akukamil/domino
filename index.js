@@ -4329,49 +4329,50 @@ lobby={
 			//это если есть вакантная карточка
 			if (objects.mini_cards[i].visible===false) {
 
+				const card=objects.mini_cards[i];
 				//устанавливаем цвет карточки в зависимости от состояния
-				objects.mini_cards[i].bcg.texture=this.get_state_texture(params.state);
-				objects.mini_cards[i].state=params.state;
+				card.bcg.texture=this.get_state_texture(params.state);
+				card.state=params.state;
 
-				objects.mini_cards[i].type = "table";
+				card.type = "table";
 				
 				
-				objects.mini_cards[i].bcg.texture = gres.mini_player_card_table.texture;
+				card.bcg.texture = gres.mini_player_card_table.texture;
 				
 				//присваиваем карточке данные
-				//objects.mini_cards[i].uid=params.uid;
-				objects.mini_cards[i].uid1=params.uid1;
-				objects.mini_cards[i].uid2=params.uid2;
+				//card.uid=params.uid;
+				card.uid1=params.uid1;
+				card.uid2=params.uid2;
 												
 				//убираем элементы свободного стола
-				objects.mini_cards[i].rating_text.visible = false;
-				objects.mini_cards[i].avatar.visible = false;
-				//objects.mini_cards[i].avatar_frame.visible = false;
-				objects.mini_cards[i].name_text.visible = false;
+				card.rating_text.visible = false;
+				card.avatar.visible = false;
+				card.t_country.visible = false;
+				card.name_text.visible = false;
 
 				//Включаем элементы стола 
-				objects.mini_cards[i].table_rating_hl.visible=true;
-				objects.mini_cards[i].rating_text1.visible = true;
-				objects.mini_cards[i].rating_text2.visible = true;
-				objects.mini_cards[i].avatar1.visible = true;
-				objects.mini_cards[i].avatar2.visible = true;
-				//objects.mini_cards[i].rating_bcg.visible = true;
+				card.table_rating_hl.visible=true;
+				card.rating_text1.visible = true;
+				card.rating_text2.visible = true;
+				card.avatar1.visible = true;
+				card.avatar2.visible = true;
+				//card.rating_bcg.visible = true;
 
-				objects.mini_cards[i].rating_text1.text = params.rating1;
-				objects.mini_cards[i].rating_text2.text = params.rating2;
+				card.rating_text1.text = params.rating1;
+				card.rating_text2.text = params.rating2;
 				
-				objects.mini_cards[i].name1 = params.name1;
-				objects.mini_cards[i].name2 = params.name2;
+				card.name1 = params.name1;
+				card.name2 = params.name2;
 
 				//получаем аватар и загружаем его
-				this.load_avatar2({uid:params.uid1, tar_obj:objects.mini_cards[i].avatar1});
+				this.load_avatar2({uid:params.uid1, tar_obj:card.avatar1});
 				
 				//получаем аватар и загружаем его
-				this.load_avatar2({uid:params.uid2, tar_obj:objects.mini_cards[i].avatar2});
+				this.load_avatar2({uid:params.uid2, tar_obj:card.avatar2});
 
 
-				objects.mini_cards[i].visible=true;
-				objects.mini_cards[i].game_id=params.game_id;
+				card.visible=true;
+				card.game_id=params.game_id;
 
 				break;
 			}
@@ -4426,6 +4427,7 @@ lobby={
 				card.avatar.visible = true;
 				card.rating_text.visible = true;	
 				card.name_text.visible = true;
+				card.t_country.visible = true;
 				
 				//добавляем страну и имя из кэша
 				const cached_player=players_cache.players[params.uid];
