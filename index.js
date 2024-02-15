@@ -3426,6 +3426,13 @@ players_cache={
 		
 		if (!player.name) player.name=await fbs_once('players/'+uid+'/name');
 		if (!player.rating) player.rating=await fbs_once('players/'+uid+'/rating');
+		
+		//извлекаем страну если она есть в отдельную категорию и из имени убираем
+		const country =auth2.get_country_from_name(player.name);
+		if (country){			
+			player.country=country;
+			player.name=player.name.slice(0, -4);
+		}	
 	},
 	
 	async update_avatar(uid){
