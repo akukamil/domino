@@ -578,11 +578,11 @@ class player_mini_card_class extends PIXI.Container {
 		this.table_rating_hl.height=100;
 		
 		this.avatar=new PIXI.Sprite();
-		this.avatar.x=18;
-		this.avatar.y=17;
-		this.avatar.width=this.avatar.height=62;
+		this.avatar.x=20;
+		this.avatar.y=18;
+		this.avatar.width=this.avatar.height=60;
 				
-		this.name='';
+		this.name="";
 		this.name_text=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24,align: 'center'});
 		this.name_text.anchor.set(0,0);
 		this.name_text.x=90;
@@ -593,21 +593,28 @@ class player_mini_card_class extends PIXI.Container {
 		this.rating_text=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 30,align: 'center'});
 		this.rating_text.tint=0xffff00;
 		this.rating_text.anchor.set(0,0.5);
-		this.rating_text.x=100;
+		this.rating_text.x=95;
 		this.rating_text.y=65;		
 		this.rating_text.tint=0xffff00;
 
+		this.t_country=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});
+		this.t_country.tint=0xffff00;
+		this.t_country.anchor.set(1,0.5);
+		this.t_country.x=190;
+		this.t_country.y=70;		
+		this.t_country.tint=0xaaaa99;
+
 		//аватар первого игрока
 		this.avatar1=new PIXI.Sprite();
-		this.avatar1.x=26;
+		this.avatar1.x=27;
 		this.avatar1.y=17;
-		this.avatar1.width=this.avatar1.height=61;
+		this.avatar1.width=this.avatar1.height=60;
 
 		//аватар второго игрока
 		this.avatar2=new PIXI.Sprite();
 		this.avatar2.x=125;
 		this.avatar2.y=17;
-		this.avatar2.width=this.avatar2.height=61;
+		this.avatar2.width=this.avatar2.height=60;
 		
 		this.rating_text1=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});
 		this.rating_text1.tint=0xffff00;
@@ -625,7 +632,7 @@ class player_mini_card_class extends PIXI.Container {
 		this.name1="";
 		this.name2="";
 
-		this.addChild(this.bcg,this.avatar, this.avatar1, this.avatar2,this.rating_text,this.table_rating_hl,this.rating_text1,this.rating_text2, this.name_text);
+		this.addChild(this.bcg,this.avatar, this.avatar1, this.avatar2,this.rating_text,this.t_country,this.table_rating_hl,this.rating_text1,this.rating_text2, this.name_text);
 	}
 
 }
@@ -3394,6 +3401,18 @@ players_cache={
 	
 	players:{},
 	
+	async load_pic(uid,pic_url){
+		
+		//если это мультиаватар
+		if(pic_url.includes('mavatar'))
+			return PIXI.Texture.from(multiavatar(pic_url));
+		
+		const loader=new PIXI.Loader;
+		loader.add(uid, pic_url,{loadType: PIXI.LoaderResource.LOAD_TYPE.IMAGE, timeout: 5000});	
+		await new Promise(resolve=> loader.load(resolve))		
+		return loader.resources[uid].texture;
+	},
+	
 	async update(uid,params={}){
 				
 		//если игрока нет в кэше то создаем его
@@ -3422,9 +3441,9 @@ players_cache={
 		
 		if(player.pic_url==='https://vk.com/images/camera_100.png')
 			player.pic_url='https://akukamil.github.io/domino/vk_icon.png';
-		
+				
 		//загружаем и записываем текстуру
-		if (player.pic_url) player.texture=PIXI.Texture.from(player.pic_url);	
+		if (player.pic_url) player.texture=await this.load_pic(uid, player.pic_url);	
 		
 	}	
 }
@@ -3760,8 +3779,8 @@ chat={
 		
 		if (objects.chat_keyboard_cont.visible)		
 			keyboard.response_message(player_data.uid,player_data.name.text);
-		//else
-		//	lobby.show_invite_dialog_from_chat(player_data.uid,player_data.name.text);
+		else
+			lobby.show_invite_dialog_from_chat(player_data.uid,player_data.name.text);
 		
 		
 	},
@@ -4203,7 +4222,7 @@ lobby={
 				if (single[card_uid] === undefined)					
 					objects.mini_cards[i].visible = false;
 				else
-					this.update_existing_card({id:i, state:players[card_uid].state, rating:players[card_uid].rating, name:players[card_uid].name});
+					this.update_existing_card({id:i, state:players[card_uid].state, rating:players[card_uid].rating, name:players[card_uid].name, uid:card_uid});
 			}
 		}
 		
@@ -4353,20 +4372,24 @@ lobby={
 		
 	},
 
-	update_existing_card(params={id:0, state:'o' , rating:1400, name:''}) {
+	update_existing_card(params={id:0, state:'o' , rating:1400, name:'',uid:0}) {
 
 		//устанавливаем цвет карточки в зависимости от состояния( аватар не поменялись)
 		const card=objects.mini_cards[params.id];
 		card.bcg.texture=this.get_state_texture(params.state);
 		card.state=params.state;
 
-		card.name_text.set2(params.name,105);
+		//добавляем страну и имя из кэша
+		const cached_player=players_cache.players[params.uid];
+		card.name=params.name;
+		card.name_text.set2(cached_player.name,105);
+				
 		card.rating=params.rating;
 		card.rating_text.text=params.rating;
 		card.visible=true;
 	},
 
-	place_new_card(params={uid:0, state: "o", name: "XXX", rating: rating}) {
+	place_new_card(params={uid:0, state: "o", name: "XXX", rating: rating,uid:0}) {
 
 		for(let i=1;i<objects.mini_cards.length;i++) {
 
@@ -4393,13 +4416,17 @@ lobby={
 				card.table_rating_hl.visible=false;
 				
 				//включаем элементы свободного стола
-				card.rating_text.visible = true;
 				card.avatar.visible = true;
-				//card.avatar_frame.visible = true;
+				card.rating_text.visible = true;	
 				card.name_text.visible = true;
-
+				
+				//добавляем страну и имя из кэша
+				const cached_player=players_cache.players[params.uid];
+				card.t_country.text = cached_player.country||'';;
 				card.name=params.name;
-				card.name_text.set2(params.name,105);
+				card.name_text.set2(cached_player.name,105);
+				
+			
 				card.rating=params.rating;
 				card.rating_text.text=params.rating;
 
@@ -4634,15 +4661,10 @@ lobby={
 	
 		anim2.add(objects.invite_cont,{x:[800, objects.invite_cont.sx]}, true, 0.15,'linear');
 		
-		let player_data={uid};
-		await this.update_players_cache_data(uid);
-			
-		player_data.name=this.players_cache[uid].name;
-		player_data.rating=this.players_cache[uid].rating;
-		player_data.pic_url=this.players_cache[uid].pic_url;
-		
+		//await this.update_players_cache_data(uid);
+					
 		//копируем предварительные данные
-		lobby._opp_data = {uid:player_data.uid,name:player_data.name,rating:player_data.rating};
+		lobby._opp_data = {uid,name:players_cache.players[uid].name,rating:players_cache.players[uid].rating};
 											
 		this.show_feedbacks(lobby._opp_data.uid);
 		
@@ -4661,9 +4683,9 @@ lobby={
 		objects.invite_button.visible=objects.invite_button_title.visible=invite_available;
 
 		//заполняем карточу приглашения данными
-		objects.invite_avatar.texture=PIXI.utils.TextureCache[player_data.pic_url];
-		objects.invite_name.set2(lobby._opp_data.name,230);
-		objects.invite_rating.text=player_data.rating;
+		objects.invite_avatar.texture=players_cache.players[uid].texture;
+		objects.invite_name.set2(players_cache.players[uid].name,230);
+		objects.invite_rating.text=players_cache.players[uid].rating;
 	},
 
 	async show_feedbacks(uid) {	
@@ -5044,39 +5066,7 @@ stickers={
 }
 
 auth2={
-	
-	my_games_user_profile_resolve : {},
-	my_games_login_status_resolve : {},
-	my_games_register_user_resolve : {},
-	ok_resolve : {},
-	
-	get_mygames_user_data () {
 		
-		return new Promise(function(resolve, reject){			
-			auth2.my_games_user_profile_resolve = resolve;
-			my_games_api.userProfile();	  
-		});	
-		
-	},
-	
-	get_mygames_login_status() {
-		
-		return new Promise(function(resolve, reject){			
-			auth2.my_games_login_status_resolve = resolve;
-			my_games_api.getLoginStatus();	  
-		});	
-		
-	},
-	
-	register_mygames_user () {
-		
-		return new Promise(function(resolve, reject){			
-			auth2.my_games_register_user_resolve = resolve;
-			my_games_api.registerUser();	  
-		});	
-		
-	},
-	
 	load_script(src) {
 	  return new Promise((resolve, reject) => {
 		const script = document.createElement('script')
@@ -5095,7 +5085,7 @@ auth2={
 		
 	},
 	
-	get_random_uid_for_local(prefix) {
+	get_random_uid_for_local (prefix) {
 		
 		let uid = prefix;
 		for ( let c = 0 ; c < 12 ; c++ )
@@ -5110,7 +5100,7 @@ auth2={
 		
 	},
 	
-	get_random_name(uid) {
+	get_random_name (uid) {
 		
 		const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 		const rnd_names = ['Gamma','Chime','Dron','Perl','Onyx','Asti','Wolf','Roll','Lime','Cosy','Hot','Kent','Pony','Baker','Super','ZigZag','Magik','Alpha','Beta','Foxy','Fazer','King','Kid','Rock'];
@@ -5132,34 +5122,33 @@ auth2={
 		}	
 	},	
 	
-	async get_country_code () {
-		
+	async get_country_code() {
+
 		let country_code = ''
 		try {
-			let resp1 = await fetch("https://ipinfo.io/json");
+			let resp1 = await fetch("https://ipinfo.io/json?token=a3455d3185ba47");
 			let resp2 = await resp1.json();			
-			country_code = resp2.country;			
+			country_code = resp2.country || '';			
 		} catch(e){}
 
-		return country_code||'';
+		return country_code;
 		
 	},
 	
-	async search_in_crazygames(){
-		if(!window.CrazyGames.SDK)
-			return {};
+	async get_country_code2() {
+
+		let country_code = ''
+		try {
+			let resp1 = await fetch("https://api.ipgeolocation.io/ipgeo?apiKey=1efc1ba695434f2ab24129a98a72a1d4");
+			let resp2 = await resp1.json();			
+			country_code = resp2.country_code2 || '';			
+		} catch(e){}
+
+		return country_code;
 		
-		let token='';
-		try{
-			token = await window.CrazyGames.SDK.user.getUserToken();
-		}catch(e){
-			return {};
-		}
-		const user = window.jwt_decode(token);
-		return user || {};
 	},
 	
-	search_in_local_storage() {
+	search_in_local_storage () {
 		
 		//ищем в локальном хранилище
 		let local_uid = null;
@@ -5189,20 +5178,14 @@ auth2={
 			
 			my_data.uid = _player.getUniqueID().replace(/[\/+=]/g, '');
 			my_data.name = _player.getName();
-			my_data.pic_url = _player.getPhoto('medium');
+			my_data.orig_pic_url = _player.getPhoto('medium');
 			
-			if (my_data.pic_url === 'https://games-sdk.yandex.ru/games/api/sdk/v1/player/avatar/0/islands-retina-medium')
-				my_data.pic_url = 'https://api.dicebear.com/7.x/adventurer/svg?seed='+my_data.uid;	
+			if (my_data.orig_pic_url === 'https://games-sdk.yandex.ru/games/api/sdk/v1/player/avatar/0/islands-retina-medium')
+				my_data.orig_pic_url = 'mavatar'+my_data.uid;	
 			
 			if (my_data.name === '')
 				my_data.name = this.get_random_name(my_data.uid);
-			
-			//если английский яндекс до добавляем к имени страну
-			let country_code = await this.get_country_code();
-			my_data.name = my_data.name + ' (' + country_code + ')';			
-
-
-			
+		
 			return;
 		}
 		
@@ -5216,97 +5199,30 @@ auth2={
 				await vkBridge.send('VKWebAppInit');
 				_player = await vkBridge.send('VKWebAppGetUserInfo');				
 			} catch (e) {alert(e)};
+
 			
 			my_data.name 	= _player.first_name + ' ' + _player.last_name;
-			my_data.uid 	= "vk"+_player.id;
-			my_data.pic_url = _player.photo_100;
+			my_data.uid 	= 'vk'+_player.id;
+			my_data.orig_pic_url = _player.photo_100;
 			
-			return;			
+			return;
+			
 		}
 		
 		if (game_platform === 'GOOGLE_PLAY') {	
-		
-			let country_code = await this.get_country_code();
+
 			my_data.uid = this.search_in_local_storage() || this.get_random_uid_for_local('GP_');
-			my_data.name = this.get_random_name(my_data.uid) + ' (' + country_code + ')';
-			my_data.pic_url = 'https://api.dicebear.com/7.x/adventurer/svg?seed='+my_data.uid;		
+			my_data.name = this.get_random_name(my_data.uid);
+			my_data.orig_pic_url = 'mavatar'+my_data.uid;		
 			return;
-		}
-		
-		if (game_platform === 'MY_GAMES') {	
-
-			game_platform = 'MY_GAMES';
-			
-			try {await this.load_script('//store.my.games/app/19671/static/mailru.core.js')} catch (e) {alert(e)};													
-			try {my_games_api = await window.iframeApi({
-				appid: 19671,
-				getLoginStatusCallback: function(status) {auth2.my_games_login_status_resolve(status)},
-				userInfoCallback: function(info) {},
-				userProfileCallback: function(profile) {auth2.my_games_user_profile_resolve(profile)},
-				registerUserCallback: function(info) {auth2.my_games_register_user_resolve(info)},
-				paymentFrameUrlCallback: function(url) {},
-				getAuthTokenCallback: function(token) {},
-				paymentReceivedCallback: function(data) {},
-				paymentWindowClosedCallback: function() {},
-				userConfirmCallback: function() {},
-				paymentFrameItem: function(object) {},
-				adsCallback: function(context) {console.log(context)}
-			})} catch (e) {alert(e)};	
-					
-					
-			let res = await this.get_mygames_login_status();
-			console.log(res);
-			if (res.loginStatus ===0) {
-				my_games_api.authUser();				
-				return;				
-			}
-			
-			let player_data;
-			if (res.loginStatus ===1)
-				await this.register_mygames_user();	
-				
-			player_data = await this.get_mygames_user_data();			
-
-	
-			console.log(player_data);
-			
-			my_data.uid = 'MG_' + player_data.uid;
-			my_data.name = player_data.nick;
-			my_data.pic_url = player_data.avatar;	
-			
 		}
 		
 		if (game_platform === 'DEBUG') {		
 
 			my_data.name = my_data.uid = 'debug' + prompt('Отладка. Введите ID', 100);
-			my_data.pic_url = 'https://api.dicebear.com/7.x/adventurer/svg?seed='+my_data.uid;			
+			my_data.orig_pic_url = 'mavatar'+my_data.uid;		
 			return;
-		}
-		
-		if (game_platform === 'CRAZYGAMES') {
-			
-			try {await this.load_script('https://sdk.crazygames.com/crazygames-sdk-v2.js')} catch (e) {alert(e)};	
-			try {await this.load_script('https://akukamil.github.io/quoridor/jwt-decode.js')} catch (e) {alert(e)};		
-			let country_code = await this.get_country_code();
-			const cg_user_data=await this.search_in_crazygames();			
-		
-			my_data.uid = cg_user_data.userId || this.search_in_local_storage() || this.get_random_uid_for_local('CG_');
-			my_data.name = cg_user_data.username || this.get_random_name(my_data.uid) + ' (' + country_code + ')';
-			my_data.pic_url = cg_user_data.profilePictureUrl || ('https://api.dicebear.com/7.x/adventurer/svg?seed='+my_data.uid);	
-					
-
-			//перезапускаем если авторизация прошла
-			
-			window.CrazyGames.SDK.user.addAuthListener(function(user){	
-				if (user?.id&&user.id!==my_data.uid){
-					console.log('user changed',user);
-					location.reload();	
-				}	
-			});
-
-					
-			return;
-		}
+		}	
 		
 		if (game_platform === 'UNKNOWN') {
 			
@@ -5314,10 +5230,19 @@ auth2={
 			alert('Неизвестная платформа. Кто Вы?')
 			my_data.uid = this.search_in_local_storage() || this.get_random_uid_for_local('LS_');
 			my_data.name = this.get_random_name(my_data.uid);
-			my_data.pic_url = 'https://api.dicebear.com/7.x/adventurer/svg?seed='+my_data.uid;		
+			my_data.orig_pic_url = 'mavatar'+my_data.uid;		
 		}
-	}
+	},
 	
+	get_country_from_name(name){
+		
+		const have_country_code=/\(.{2}\)/.test(name);
+		if(have_country_code)
+			return name.slice(-3, -1);
+		return '';
+		
+	}
+
 }
 
 function resize() {
@@ -5466,7 +5391,10 @@ async function init_game_env(lang) {
 	//отображаем шкалу загрузки
 	document.body.innerHTML='<style>html,body {margin: 0;padding: 0;height: 100%;	}body {display: flex;align-items: center;justify-content: center;background-color: rgba(41,41,41,1);flex-direction: column	}#m_progress {	  background: #1a1a1a;	  justify-content: flex-start;	  border-radius: 5px;	  align-items: center;	  position: relative;	  padding: 0 5px;	  display: none;	  height: 50px;	  width: 70%;	}	#m_bar {	  box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;	  border-radius: 5px;	  background: rgb(119, 119, 119);	  height: 70%;	  width: 0%;	}	</style></div><div id="m_progress">  <div id="m_bar"></div></div>';
 							
-	await load_resources();		
+	await load_resources();	
+
+	//подгружаем библиотеку аватаров
+	await auth2.load_script('multiavatar.min.js');	
 		
 	//инициируем файербейс
 	if (firebase.apps.length===0) {
@@ -5573,12 +5501,7 @@ async function init_game_env(lang) {
 
 	await auth2.init();
 
-	//загружаем мои данные в кэш
-	await players_cache.update(my_data.uid);
-	await players_cache.update_avatar(my_data.uid)
 
-	//устанавливаем фотку в попап
-	objects.id_avatar.texture=players_cache.players[my_data.uid].texture;
 
 	//это разные события
 	document.addEventListener('visibilitychange', vis_change);
@@ -5600,12 +5523,30 @@ async function init_game_env(lang) {
 		fbs.ref('players/'+my_data.uid+'/s_msg').remove();
 	}
 
-	my_data.rating = (other_data && other_data.rating) || 1400;
-	my_data.games = (other_data && other_data.games) || 0;
-	my_data.nick_tm = (other_data && other_data.nick_tm) || 0;
-	my_data.name = (other_data && other_data.name)||my_data.name;
-	my_data.skin_id = (other_data && other_data.skin_id) || 0;
-	my_data.bcg_id = (other_data && other_data.bcg_id) || 0;
+	my_data.rating = (other_data?.rating) || 1400;
+	my_data.games = (other_data?.games) || 0;
+	my_data.nick_tm = (other_data?.nick_tm) || 0;
+	my_data.name = (other_data?.name)||my_data.name;
+	my_data.skin_id = (other_data?.skin_id) || 0;
+	my_data.bcg_id = (other_data?.bcg_id) || 0;
+	my_data.country = other_data?.country || await auth2.get_country_code() || await auth2.get_country_code2() 
+	
+	//правильно определяем аватарку
+	if (other_data?.pic_url && other_data.pic_url.includes('mavatar'))
+		my_data.pic_url=other_data.pic_url
+	else
+		my_data.pic_url=my_data.orig_pic_url
+	
+	//добавляем страну к имени если ее нет
+	if (!auth2.get_country_from_name(my_data.name)&&my_data.country)
+		my_data.name=`${my_data.name} (${my_data.country})`	
+	
+	//загружаем мои данные в кэш
+	await players_cache.update(my_data.uid,{pic_url:my_data.pic_url,country:my_data.country,name:my_data.name,rating:my_data.rating});
+	await players_cache.update_avatar(my_data.uid)
+
+	//устанавливаем фотку в попап
+	objects.id_avatar.texture=players_cache.players[my_data.uid].texture;
 	
 	//проверяем блокировку
 	check_blocked();
