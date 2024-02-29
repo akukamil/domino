@@ -5565,11 +5565,14 @@ async function init_game_env(lang) {
 			
 	//номер комнаты
 	//номер комнаты
-	let rooms_ranges = [0,1480,9999]
+	const rooms_ranges = [0,1400,1489,9999]
 	if (my_data.rating > rooms_ranges[0] && my_data.rating <= rooms_ranges[1])
-		room_name= 'states';			
+		room_name= 'states';
 	if (my_data.rating > rooms_ranges[1] && my_data.rating <= rooms_ranges[2])
-		room_name= 'states2';		
+		room_name= 'states2';
+	if (my_data.rating > rooms_ranges[2] && my_data.rating <= rooms_ranges[3])
+		room_name= 'states3';
+	
 	
 	//room_name= 'states5';	
 	//это путь к чату
