@@ -5596,6 +5596,7 @@ async function init_game_env(lang) {
 	fbs.ref('players/'+my_data.uid+'/pic_url').set(my_data.pic_url);
 	fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating);
 	fbs.ref('players/'+my_data.uid+'/games').set(my_data.games);
+	fbs.ref('players/'+my_data.uid+'/country').set(my_data.country||'');
 	fbs.ref('players/'+my_data.uid+'/tm').set(firebase.database.ServerValue.TIMESTAMP);
 				
 	//устанавливаем мой статус в онлайн
