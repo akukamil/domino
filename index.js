@@ -5565,7 +5565,7 @@ async function init_game_env(lang) {
 			
 	//номер комнаты
 	//номер комнаты
-	const rooms_ranges = [0,1410,1510,9999]
+	const rooms_ranges = [0,1410,1530,9999]
 	if (my_data.rating > rooms_ranges[0] && my_data.rating <= rooms_ranges[1])
 		room_name= 'states';
 	if (my_data.rating > rooms_ranges[1] && my_data.rating <= rooms_ranges[2])
