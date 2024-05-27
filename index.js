@@ -1267,10 +1267,10 @@ res_window={
 			fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating);
 			fbs.ref('players/'+my_data.uid+'/games').set(my_data.games);		
 
-			if(my_data.rating>1500||opp_data.rating>1500){
+			/*if(my_data.rating>1500||opp_data.rating>1500){
 				const duration = ~~((Date.now() - opponent.start_time)*0.001);
 				fbs.ref("finishes2").push({uid:my_data.uid,player1:objects.my_card_name.text,player2:objects.opp_card_name.text, res:result_type,fin_type:result,duration:duration, rating: [old_rating,my_data.rating], ts:firebase.database.ServerValue.TIMESTAMP});	
-			}
+			}*/
 		}
 		
 		//звуки
@@ -5396,10 +5396,9 @@ async function init_game_env(lang) {
 	
 	await define_platform_and_language();
 	console.log(game_platform, LANG);
-						
-	//отображаем шкалу загрузки
+				
 	document.body.innerHTML='<style>html,body {margin: 0;padding: 0;height: 100%;	}body {display: flex;align-items: center;justify-content: center;background-color: rgba(41,41,41,1);flex-direction: column	}#m_progress {	  background: #1a1a1a;	  justify-content: flex-start;	  border-radius: 5px;	  align-items: center;	  position: relative;	  padding: 0 5px;	  display: none;	  height: 50px;	  width: 70%;	}	#m_bar {	  box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;	  border-radius: 5px;	  background: rgb(119, 119, 119);	  height: 70%;	  width: 0%;	}	</style></div><div id="m_progress">  <div id="m_bar"></div></div>';
-							
+					
 	await load_resources();	
 
 	//подгружаем библиотеку аватаров
