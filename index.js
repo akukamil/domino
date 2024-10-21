@@ -3339,6 +3339,11 @@ var process_new_message = function(msg) {
 		if (msg.client_id !== client_id)
 			kill_game();
 
+	//сообщение о блокировке чата
+	if (msg.message==='CHAT_BLOCK'){
+		my_data.blocked=1;		
+	}
+
 
 	//получение сообщение в состояни игры
 	if (state==='p') {
@@ -3659,8 +3664,21 @@ chat={
 
 		anim2.add(objects.chat_cont,{alpha:[0, 1]}, true, 0.1,'linear');
 		objects.desktop.texture=gres.desktop.texture;
-		objects.chat_enter_button.visible=!my_data.blocked;
+		objects.chat_enter_button.visible=!my_data.blocked&&my_data.games>200;
 
+		objects.chat_rules.text=`Правила чата!\n\n1. Будьте вежливы! Избегайте угроз, грубых выражений, оскорблений, конфликтов.\n\n2. Писать в чат могут игроки сыгравшие более ${this.games_to_chat} онлайн партий.\n\n3. Нарушители правил попадают в черный список.`;
+		if(my_data.blocked) objects.chat_rules.text='Вы не можете писать в чат, так как вы находитесь в черном списке';
+
+	},
+	
+	block_player(uid){
+		
+		fbs.ref('blocked/'+uid).set(Date.now());
+		fbs.ref('inbox/'+uid).set({message:'CHAT_BLOCK',tm:Date.now()});
+		
+		//увеличиваем количество блокировок
+		fbs.ref('players/'+uid+'/block_num').transaction(val=> {return (val || 0) + 1});
+		
 	},
 	
 	init(){
