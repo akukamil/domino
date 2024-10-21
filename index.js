@@ -5393,16 +5393,6 @@ async function define_platform_and_language() {
 
 }
 
-async function check_blocked(){
-	
-	//загружаем остальные данные из файербейса
-	let _block_data = await fbs.ref("blocked/" + my_data.uid).once('value');
-	let block_data = _block_data.val();
-	
-	if (block_data) my_data.blocked=1;
-		
-}
-
 async function init_game_env(lang) {
 
 	document.body.style.webkitTouchCallout = "none";
@@ -5575,7 +5565,7 @@ async function init_game_env(lang) {
 	objects.id_avatar.texture=players_cache.players[my_data.uid].texture;
 	
 	//проверяем блокировку
-	check_blocked();
+	my_data.blocked=await fbs_once('blocked/'+my_data.uid)||0;
 		
 	//устанавлием имена
 	objects.id_name.set2(my_data.name,150);	
