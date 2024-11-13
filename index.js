@@ -2269,6 +2269,8 @@ my_player={
 		
 		//если и так есть чем ходить
 		if (game.have_move_to_go(my_player.chips)){
+			
+			anim2.add(objects.bazar_button_cont,{x:[objects.bazar_button_cont.x,objects.bazar_button_cont.x+3]}, true, 0.15,'shake');
 			sound.play('locked');
 			return;
 		}
