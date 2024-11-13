@@ -2730,7 +2730,6 @@ game={
 	connect_to_side(chip, side){		
 		
 		//находим кость в игровых костях
-		console.log(chip);
 		const next_chip=objects.game_chips.find(c=>c.v1===chip.v1&&c.v2===chip.v2);		
 						
 		//параметры расположения следующей костящки
