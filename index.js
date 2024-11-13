@@ -2947,6 +2947,11 @@ pref={
 	name_changed:0,
 	tex_loading:0,
 	
+	add_info(t){		
+		objects.pref_info.text=t;
+		anim2.add(objects.pref_info,{alpha:[0,1]}, true, 0.5,'flick',false);				
+	},
+	
 	activate(){
 				
 		//устанавливаем текущий скин
@@ -3140,6 +3145,11 @@ pref={
 			return;
 		}
 		
+		if (my_data.blocked){
+			this.add_info('Функция недоступна, так как вы находитесь в черном списке');
+			return;
+		}
+		
 		this.avatar_changed=1;
 		this.cur_pic_url=my_data.orig_pic_url;
 		this.tex_loading=1;
@@ -3154,6 +3164,11 @@ pref={
 		
 		if (anim2.any_on()||this.tex_loading) {
 			sound.play('blocked');
+			return;
+		}
+		
+		if (my_data.blocked){
+			this.add_info('Функция недоступна, так как вы находитесь в черном списке');
 			return;
 		}
 				
@@ -3203,6 +3218,11 @@ pref={
 		if(anim2.any_on()){
 			sound.play('locked');
 			return;			
+		}
+				
+		if (my_data.blocked){
+			this.add_info('Функция недоступна, так как вы находитесь в черном списке');
+			return;
 		}
 				
 		const rating_req=1450;
