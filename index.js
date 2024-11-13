@@ -501,11 +501,8 @@ class domino_class extends PIXI.Container{
 				
 	}
 	
-	pointerdown(){		
-		
-		my_player.try_make_move(this);
-		console.log(this.v1,this.v2)
-		
+	pointerdown(){			
+		my_player.try_make_move(this);		
 	}
 		
 }
@@ -1762,7 +1759,6 @@ bot={
 		//проверка завершения
 		if(!game.have_move(opponent.chips)){
 			my_turn=1				
-			console.log('соперник пропускает ход')
 		}			
 		
 	},
@@ -1969,7 +1965,6 @@ online_player={
 		
 		//если базар пуст и нет хода
 		if (!game.have_move(opponent.chips)){
-			console.log('Соперник пропускает ход')	
 			my_turn=1;	
 			opponent.reset_timer();
 			return;
@@ -2239,7 +2234,6 @@ my_player={
 		
 		//проверка выигрыша
 		if (!my_player.chips.length){
-			console.log('я выиграл')	
 			game.round_fin('my_win');
 			return;
 		}	
@@ -2763,7 +2757,6 @@ game={
 			//кость-поворот
 			const new_dir=side.line_next_turn[cur_line_id];
 			next_dir=cur_dir+'_'+new_dir;
-			console.log('ПОВОРОТ: ',next_dir)			
 			side.dir=new_dir;
 			turn_flag=1;
 		}
@@ -4966,7 +4959,7 @@ lobby={
 	async inst_message(data){
 		
 		//когда ничего не видно не принимаем сообщения
-		if(!objects.lobby_cont.visible) return;		
+		if(!objects.cards_cont.visible) return;		
 
 		await players_cache.update(data.uid);
 		await players_cache.update_avatar(data.uid);		
