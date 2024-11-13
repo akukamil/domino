@@ -1865,7 +1865,6 @@ online_player={
 	
 	timer_tick(){
 		
-		return;
 		//проверка таймера
 		const cur_time=Date.now();
 		if (cur_time-this.timer_prv_time>5000||cur_time<this.prv_tick_time){
