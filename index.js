@@ -4868,7 +4868,7 @@ lobby={
 		objects.invite_button.visible=objects.invite_button_title.visible=invite_available;
 
 		//заполняем карточу приглашения данными
-		objects.invite_avatar.texture=players_cache.players[card.uid].texture;
+		objects.invite_avatar.texture=players_cache.players[uid].texture;
 		objects.invite_name.set2(players_cache.players[uid].name,230);
 		objects.invite_rating.text=players_cache.players[uid].rating;
 	},
