@@ -3254,8 +3254,8 @@ pref={
 	close(){
 		
 		//убираем контейнер
-		anim2.add(objects.pref_cont,{x:[objects.pref_cont.x,-800]}, false, 0.2,'linear');
-		anim2.add(objects.pref_footer_cont,{y:[objects.pref_footer_cont.y,450]}, false, 0.2,'linear');	
+		anim2.add(objects.pref_cont,{x:[objects.pref_cont.x,-800]}, false, 0.4,'linear');
+		anim2.add(objects.pref_footer_cont,{y:[objects.pref_footer_cont.y,450]}, false, 0.4,'linear');	
 		
 	},
 		
