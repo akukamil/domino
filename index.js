@@ -5016,7 +5016,7 @@ lobby={
 											
 		this.show_feedbacks(lobby._opp_data.uid);
 		
-		objects.invite_button_title.text=['ПРИГЛАСИТЬ','SEND INVITE'][LANG];
+		//objects.invite_button_title.text=['ПРИГЛАСИТЬ','SEND INVITE'][LANG];
 
 		let invite_available = 	lobby._opp_data.uid !== my_data.uid;
 		invite_available=invite_available && lobby._opp_data.rating >= 50 && my_data.rating >= 50;
