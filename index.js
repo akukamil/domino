@@ -5004,8 +5004,6 @@ lobby={
 		
 		objects.invite_feedback.text = '';
 
-		//показыаем кнопку приглашения
-		objects.invite_button.texture=assets.invite_button;
 	
 		anim2.add(objects.invite_cont,{x:[800, objects.invite_cont.sx]}, true, 0.15,'linear');
 		
@@ -5028,7 +5026,8 @@ lobby={
 		if (this.rejected_invites[lobby._opp_data.uid] && Date.now()-this.rejected_invites[lobby._opp_data.uid]<60000) invite_available=false;
 
 		//показыаем кнопку приглашения только если это допустимо
-		objects.invite_button.visible=objects.invite_button_title.visible=invite_available;
+		objects.invite_button.texture=assets.invite_button;
+		objects.invite_button.visible=invite_available;
 
 		//заполняем карточу приглашения данными
 		objects.invite_avatar.texture=players_cache.players[uid].texture;
