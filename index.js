@@ -3335,7 +3335,7 @@ pref={
 			objects.pref_info.text=[`НУЖНО: Рейтинг >${rating_req}, Игры >${games_req}`,`NEED: Rating >${rating_req}, Games >${games_req}`][LANG];
 			anim2.add(objects.pref_info,{alpha:[0,1]}, false, 3,'easeBridge',false);
 			sound.play('locked');
-			//return;
+			return;
 		}
 				
 		//провряем можно ли менять ник
