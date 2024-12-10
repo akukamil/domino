@@ -6007,7 +6007,7 @@ async function init_game_env(lang) {
 	//коротко файрбейс
 	fbs=firebase.database();
 	
-	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x202020,autoDensity:true});
+	app = new PIXI.Application({width:M_WIDTH, height:M_HEIGHT,antialias:false,backgroundColor : 0x202020,autoDensity:true,resolution:1.2});
 	const c=document.body.appendChild(app.view);
 	c.style["boxShadow"] = "0 0 15px #000000";
 	
