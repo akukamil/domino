@@ -6064,6 +6064,11 @@ async function init_game_env(lang) {
 	}
 
 	await auth2.init();
+	
+	//убираем ё
+	my_data.name=my_data.name.replace(/ё/g, 'е');
+	my_data.name=my_data.name.replace(/Ё/g, 'Е');
+
 
 	//это разные события
 	document.addEventListener('visibilitychange', vis_change);
