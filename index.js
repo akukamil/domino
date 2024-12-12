@@ -5843,12 +5843,15 @@ main_loader={
 		for (let i=0;i<16;i++)
 			loader.add('sticker_texture_'+i, git_src+'stickers/'+i+'.png');
 		
-			
+		
+		//подпапка с ресурсами
+		const lang_pack = ['RUS','ENG'][LANG];	
+		
 		//добавляем из основного листа загрузки
 		const load_list=eval(assets.main_load_list);
 		for (let i = 0; i < load_list.length; i++)
 			if (load_list[i].class==='sprite' || load_list[i].class==='image')
-				loader.add(load_list[i].name, git_src+'res/RUS/' + load_list[i].name + "." +  load_list[i].image_format);
+				loader.add(load_list[i].name, git_src+`res/${lang_pack}/` + load_list[i].name + "." +  load_list[i].image_format);
 
 
 		loader.add("m2_font", git_src+"fonts/Bahnschrift/font.fnt");
