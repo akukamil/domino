@@ -5729,7 +5729,7 @@ async function define_platform_and_language() {
 	}	
 	
 	game_platform = 'UNKNOWN';	
-	LANG = 0//await language_dialog.show();
+	LANG = await language_dialog.show();
 		
 
 }
