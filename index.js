@@ -4031,7 +4031,7 @@ chat={
 				
 	async chat_updated(data, first_load) {		
 	
-		console.log('сообщение...',data);
+		//console.log('сообщение...',data);
 		if(data===undefined) return;
 				
 		//ждем пока процессинг пройдет
