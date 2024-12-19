@@ -817,7 +817,7 @@ class chat_record_class extends PIXI.Container {
 		this.name.set2(msg_data.name,150);
 		this.name.tint=this.nameToColor(msg_data.name);
 		this.msg_tm.text = new Date(msg_data.tm).toLocaleString();
-		
+		this.msg.text=msg_data.msg;
 		this.visible = true;
 		
 		if (msg_data.msg.startsWith('GIF')){			
@@ -861,7 +861,6 @@ class chat_record_class extends PIXI.Container {
 			this.msg.visible=true;
 			
 			//бэкграунд сообщения в зависимости от длины
-			this.msg.text=msg_data.msg;	
 			const msg_bcg_width=Math.max(this.msg.width,100)+100;			
 			this.msg_bcg.width=msg_bcg_width*1.5;				
 					
@@ -878,6 +877,7 @@ class chat_record_class extends PIXI.Container {
 			return 70;
 		}		
 	}		
+
 }
 
 class feedback_record_class extends PIXI.Container {
@@ -4031,23 +4031,23 @@ chat={
 				
 	async chat_updated(data, first_load) {		
 	
+		console.log('сообщение...',data);
 		if(data===undefined) return;
 				
 		//ждем пока процессинг пройдет
 		for (let i=0;i<10;i++){			
 			if (this.processing)
-				await new Promise(resolve => setTimeout(resolve, 250));				
+				await new Promise(resolve => setTimeout(resolve, 250));					
 			else
-				break;				
+				break;		
 		}
 		if (this.processing) return;
 				
 		//если это дубликат моего сообщения из-за таймстемпа
 		if (data.uid===my_data.uid)
 			if (objects.chat_records.find(obj => {return obj.msg.text===data.msg&&obj.index===data.index}))
-				return;			
-		
-		
+				return;					
+			
 		this.processing=1;
 		
 		//выбираем номер сообщения
