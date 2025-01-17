@@ -4543,6 +4543,10 @@ lobby={
 	rejected_invites:{},
 	fb_cache:{},
 	first_run:0,
+	on:0,
+	global_players:{},
+	state_listener_on:0,
+	state_listener_timeout:0,
 	
 	activate() {
 		
@@ -4579,7 +4583,7 @@ lobby={
 		anim2.add(objects.lobby_footer_cont,{y:[450, objects.lobby_footer_cont.sy]}, true, 0.1,'linear');
 		anim2.add(objects.lobby_header_cont,{y:[-50, objects.lobby_header_cont.sy]}, true, 0.1,'linear');
 		objects.cards_cont.x=0;
-
+		this.on=1;
 		
 		//отключаем все карточки
 		this.card_i=1;
@@ -4592,8 +4596,38 @@ lobby={
 		//добавляем карточку ии
 		this.add_card_ai();
 		
-		//подписываемся на изменения состояний пользователей
-		fbs.ref(room_name).on('value', (snapshot) => {lobby.players_list_updated(snapshot.val());});
+		//удаляем таймаут слушателя комнаты
+		clearTimeout(this.state_listener_timeout);
+		
+		this.players_list_updated(this.global_players);
+		
+		//включаем прослушивание если надо
+		if (!this.state_listener_on){
+			
+			//console.log('Подключаем прослушивание...');
+			fbs.ref(room_name).on('child_changed', snapshot => {	
+				const val=snapshot.val()
+				//console.log('child_changed',snapshot.key,val,JSON.stringify(val).length)
+				this.global_players[snapshot.key]=val;
+				lobby.players_list_updated(this.global_players);
+			});
+			fbs.ref(room_name).on('child_added', snapshot => {			
+				const val=snapshot.val()
+				//console.log('child_added',snapshot.key,val,JSON.stringify(val).length)
+				this.global_players[snapshot.key]=val;
+				lobby.players_list_updated(this.global_players);
+			});
+			fbs.ref(room_name).on('child_removed', snapshot => {			
+				const val=snapshot.val()
+				//console.log('child_removed',snapshot.key,val,JSON.stringify(val).length)
+				delete this.global_players[snapshot.key];
+				lobby.players_list_updated(this.global_players);
+			});
+			
+			fbs.ref(room_name+'/'+my_data.uid).onDisconnect().remove();	
+			
+			this.state_listener_on=1;						
+		}
 
 	},
 
@@ -5264,8 +5298,14 @@ lobby={
 		//больше ни ждем ответ ни от кого
 		pending_player="";
 		
-		//отписываемся от изменений состояний пользователей
-		fbs.ref(room_name).off();
+		this.on=0;
+		
+		//отписываемся от изменений состояний пользователей через 30 секунд
+		this.state_listener_timeout=setTimeout(()=>{
+			fbs.ref(room_name).off();
+			this.state_listener_on=0;
+			//console.log('Отключаем прослушивание...');
+		},30000);
 
 	},
 	
@@ -5791,17 +5831,44 @@ function set_state(params) {
 
 }
 
-function vis_change() {
-
-	if (document.hidden === true) {
-		hidden_state_start = Date.now();			
-		PIXI.sound.volumeAll=0;	
-	} else {
-		PIXI.sound.volumeAll=1;	
-	}		
-	set_state({hidden : document.hidden});
+tabvis={
+	
+	inactive_timer:0,
+	sleep:0,
+	
+	change(){
 		
+		if (document.hidden){
+			PIXI.sound.volumeAll=0;
+			//start wait for
+			this.inactive_timer=setTimeout(()=>{this.send_to_sleep()},120000);
+			
+		}else{
+			PIXI.sound.volumeAll=1;	
+			if(this.sleep){		
+				console.log('Проснулись');
+				my_ws.reconnect();
+				this.sleep=0;
+			}
+			
+			clearTimeout(this.inactive_timer);			
+		}		
 		
+		set_state({hidden : document.hidden});
+		
+	},
+	
+	send_to_sleep(){		
+		
+		console.log('погрузились в сон')
+		this.sleep=1;
+		if (lobby.on){
+			lobby.close()
+			main_menu.activate();				
+		}		
+		my_ws.send_to_sleep();		
+	}
+	
 }
 
 language_dialog = {
@@ -6218,7 +6285,7 @@ async function init_game_env(lang) {
 
 
 	//это разные события
-	document.addEventListener('visibilitychange', vis_change);
+	document.addEventListener("visibilitychange", function(){tabvis.change()});
 	window.addEventListener('wheel', (event) => {	
 		//lobby.wheel_event(Math.sign(event.deltaY));
 		chat.wheel_event(Math.sign(event.deltaY));
