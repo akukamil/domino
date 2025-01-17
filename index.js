@@ -3999,7 +3999,7 @@ my_ws={
 			fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'close',code:event.code,reason:event.reason});
 		
 			clearInterval(this.keep_alive_timer)
-			if(event.reason==='not_alive') return;
+			if(event.reason==='not_alive'||event.reason==='no_uid') return;
 			if(this.sleep) return;
 
 			this.reconnect_time=Math.min(60000,this.reconnect_time+5000)+(event.code===1006?60000:0);
@@ -6283,7 +6283,6 @@ async function init_game_env(lang) {
 	my_data.name=my_data.name.replace(/ё/g, 'е');
 	my_data.name=my_data.name.replace(/Ё/g, 'Е');
 
-
 	//это разные события
 	document.addEventListener("visibilitychange", function(){tabvis.change()});
 	window.addEventListener('wheel', (event) => {	
@@ -6291,8 +6290,7 @@ async function init_game_env(lang) {
 		chat.wheel_event(Math.sign(event.deltaY));
 	});	
 	window.addEventListener('keydown', function(event) { keyboard.keydown(event.key)});
-	
-	
+		
 	//загружаем остальные данные из файербейса
 	let _other_data = await fbs.ref('players/' + my_data.uid).once('value');
 	let other_data = _other_data.val();
