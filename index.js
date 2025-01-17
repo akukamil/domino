@@ -3909,6 +3909,150 @@ main_menu={
 
 }
 
+my_ws={
+	
+	socket:0,
+	
+	child_added:{},
+	child_changed:{},
+	child_removed:{},
+		
+	get_resolvers:{},
+	get_req_id:0,
+	reconnect_time:0,
+	connect_resolver:0,
+	sleep:0,
+	keep_alive_timer:0,
+		
+	init(){		
+	
+		if(this.socket.readyState===1) return;
+		return new Promise(resolve=>{
+			this.connect_resolver=resolve;
+			this.reconnect();
+		})
+	},
+	
+	send_to_sleep(){
+		
+	
+		this.sleep=1;	
+		this.socket.close(1000, "sleep");
+	},
+	
+	kill(){
+		
+		this.sleep=1;
+		this.socket.close(1000, "kill");
+		
+	},
+	
+	reconnect(){
+			
+	
+		this.sleep=0;
+
+		if (this.socket) {
+			this.socket.onopen = null;
+			this.socket.onmessage = null;
+			this.socket.onclose = null;
+			this.socket.onerror = null;	
+			this.socket.close();
+		}
+
+		this.socket = new WebSocket('wss://timewebmtgames.ru:8443/domino/'+my_data.uid);
+				
+		this.socket.onopen = () => {
+			console.log('Connected to server!');
+			this.connect_resolver();
+			this.reconnect_time=0;
+			
+			//обновляем подписки
+			for (const path in this.child_added)				
+				this.socket.send(JSON.stringify({cmd:'child_added',path}))					
+			
+			clearInterval(this.keep_alive_timer)
+			this.keep_alive_timer=setInterval(()=>{
+				this.socket.send('1');
+			},45000);
+		};			
+		
+		this.socket.onmessage = event => {
+			
+			const msg=JSON.parse(event.data);
+			//console.log("Получено от сервера:", msg);
+			
+			if (msg.event==='child_added')	
+				this.child_added[msg.node]?.(msg);
+			
+			if (msg.event==='get')
+				if (this.get_resolvers[msg.req_id])
+					this.get_resolvers[msg.req_id](msg.data);
+
+		};
+		
+		this.socket.onclose = event => {		
+
+			fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'close',code:event.code,reason:event.reason});
+		
+			clearInterval(this.keep_alive_timer)
+			if(event.reason==='not_alive') return;
+			if(this.sleep) return;
+
+			this.reconnect_time=Math.min(60000,this.reconnect_time+5000)+event.code===1006?60000:0;
+			console.log(`reconnecting in ${this.reconnect_time*0.001} seconds:`, event);
+			setTimeout(()=>{this.reconnect()},this.reconnect_time);				
+		};
+
+		this.socket.onerror = error => {
+			//console.error("WebSocket error:", error);
+		};
+		
+	},
+	
+	get(path,limit_last){		
+		return new Promise(resolve=>{
+			
+			const req_id=irnd(1,999999);
+						
+			const timeoutId = setTimeout(() => {
+				delete this.get_resolvers[req_id];
+				resolve(0);
+			}, 5000);			
+			
+			this.get_resolvers[req_id]=(data)=>{				
+				clearTimeout(timeoutId);
+				resolve(data);					
+			}
+			
+			this.socket.send(JSON.stringify({cmd:'get',path,req_id,limit_last}))				
+		
+		})	
+	},
+	
+	ss_child_added(path,callback){
+		
+		this.socket.send(JSON.stringify({cmd:'child_added',path}))	
+		this.child_added[path]=callback;
+		
+	},
+
+	ss_child_changed(path,callback){
+		
+		this.socket.send(JSON.stringify({cmd:'child_changed',node:path}))	
+		this.child_changed[path]=callback;
+		
+	},
+	
+	ss_child_removed(path,callback){
+		
+		this.socket.send(JSON.stringify({cmd:'child_removed',node:path}))	
+		this.child_removed[path]=callback;
+		
+	}	
+		
+}
+
 chat={
 	
 	last_record_end : 0,
@@ -3925,24 +4069,25 @@ chat={
 	delete_message_mode:0,
 	games_to_chat:200,
 	payments:0,
+	processing:0,
 	
 	activate() {	
 
 		anim2.add(objects.chat_cont,{alpha:[0, 1]}, true, 0.1,'linear');
-		objects.bcg.texture=assets.lobby_bcg;
-		objects.chat_enter_button.visible=my_data.games>=this.games_to_chat;
+		//objects.bcg.texture=assets.lobby_bcg;
+		objects.chat_enter_btn.visible=my_data.games>=this.games_to_chat;
 		
 		if(my_data.blocked)		
-			objects.chat_enter_button.texture=assets.chat_blocked_img;
+			objects.chat_enter_btn.texture=assets.chat_blocked_img;
 		else
-			objects.chat_enter_button.texture=assets.chat_enter_img;
+			objects.chat_enter_btn.texture=assets.chat_enter_btn;
 
 		objects.chat_rules.text='Правила чата!\n1. Будьте вежливы: Общайтесь с другими игроками с уважением. Избегайте угроз, грубых выражений, оскорблений, конфликтов.\n2. Отправлять сообщения в чат могут игроки сыгравшие более 200 онлайн партий.\n3. За нарушение правил игрок может попасть в черный список.'
 		if(my_data.blocked) objects.chat_rules.text='Вы не можете писать в чат, так как вы находитесь в черном списке';
 
 	},
 	
-	init(){
+	async init(){
 		
 		this.last_record_end = 0;
 		objects.chat_msg_cont.y = objects.chat_msg_cont.sy;		
@@ -3951,16 +4096,26 @@ chat={
 		objects.bcg.pointerdown=this.pointer_down.bind(this);
 		objects.bcg.pointerup=this.pointer_up.bind(this);
 		objects.bcg.pointerupoutside=this.pointer_up.bind(this);
+		
 		for(let rec of objects.chat_records) {
 			rec.visible = false;			
 			rec.msg_id = -1;	
 			rec.tm=0;
 		}		
 		
-		//загружаем чат		
-		fbs.ref(chat_path).orderByChild('tm').limitToLast(20).once('value', snapshot => {chat.chat_load(snapshot.val());});		
-		
 		this.init_yandex_payments();
+
+		await my_ws.init();	
+		
+		//загружаем чат		
+		const chat_data=await my_ws.get('domino/chat',25);
+		
+		await this.chat_load(chat_data);
+		
+		//подписываемся на новые сообщения
+		my_ws.ss_child_added('domino/chat',chat.chat_updated.bind(chat))
+		
+		console.log('Чат загружен!')
 	},		
 
 	init_yandex_payments(){
@@ -3975,16 +4130,6 @@ chat={
 		
 	},	
 
-	get_oldest_index () {
-		
-		let oldest = {tm:9671801786406 ,visible:true};		
-		for(let rec of objects.chat_records)
-			if (rec.tm < oldest.tm)
-				oldest = rec;	
-		return oldest.index;		
-		
-	},
-	
 	get_oldest_or_free_msg () {
 		
 		//проверяем пустые записи чата
@@ -4013,7 +4158,7 @@ chat={
 		
 	async chat_load(data) {
 		
-		if (data === null) return;
+		if (!data) return;
 		
 		//превращаем в массив
 		data = Object.keys(data).map((key) => data[key]);
@@ -4024,30 +4169,28 @@ chat={
 		//покаываем несколько последних сообщений
 		for (let c of data)
 			await this.chat_updated(c,true);	
-		
-		//подписываемся на новые сообщения
-		fbs.ref(chat_path).on('child_changed', snapshot => {chat.chat_updated(snapshot.val());});
 	},	
 				
 	async chat_updated(data, first_load) {		
 	
-		//console.log('сообщение...',data);
-		if(data===undefined) return;
+		//console.log('receive message',data)
+		if(data===undefined||!data.msg||!data.name||!data.uid) return;
 				
 		//ждем пока процессинг пройдет
 		for (let i=0;i<10;i++){			
 			if (this.processing)
-				await new Promise(resolve => setTimeout(resolve, 250));					
+				await new Promise(resolve => setTimeout(resolve, 250));				
 			else
-				break;		
+				break;				
 		}
 		if (this.processing) return;
 				
 		//если это дубликат моего сообщения из-за таймстемпа
 		if (data.uid===my_data.uid)
 			if (objects.chat_records.find(obj => {return obj.msg.text===data.msg&&obj.index===data.index}))
-				return;					
-			
+				return;			
+		
+		
 		this.processing=1;
 		
 		//выбираем номер сообщения
@@ -4064,7 +4207,7 @@ chat={
 		if (objects.chat_cont.visible)
 			await anim2.add(objects.chat_msg_cont,{y:[objects.chat_msg_cont.y,objects.chat_msg_cont.y-y_shift]},true, 0.05,'linear');		
 		else
-			objects.chat_msg_cont.y-=y_shift;
+			objects.chat_msg_cont.y-=y_shift
 		
 		this.processing=0;
 		
@@ -4124,7 +4267,7 @@ chat={
 		
 	},
 	
-	back_button_down(){
+	back_btn_down(){
 		
 		if (anim2.any_on()===true) {
 			sound.play('locked');
@@ -4201,24 +4344,14 @@ chat={
 			objects.chat_msg_cont.y=-chat_top;
 		
 	},
-	
-	make_hash() {
-	  let hash = '';
-	  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	  for (let i = 0; i < 6; i++) {
-		hash += characters.charAt(Math.floor(Math.random() * characters.length));
-	  }
-	  return hash;
-	},
 		
-	async write_button_down(){
+	async write_btn_down(){
 		
 		if (anim2.any_on()===true) {
 			sound.play('locked');
 			return
 		};
-		
-		
+				
 		//оплата разблокировки чата
 		if (my_data.blocked){	
 		
@@ -4247,8 +4380,7 @@ chat={
 				
 			return;
 		}
-		
-		
+				
 		sound.play('click');
 		
 		//убираем метки старых сообщений
@@ -4266,15 +4398,14 @@ chat={
 		//пишем сообщение в чат и отправляем его		
 		const msg = await keyboard.read(70);		
 		if (msg) {			
-			const index=irnd(1,999);
-			fbs.ref(chat_path+'/'+index).set({uid:my_data.uid,name:my_data.name,msg, tm:firebase.database.ServerValue.TIMESTAMP,index});
+			my_ws.socket.send(JSON.stringify({cmd:'push',path:'domino/chat',val:{uid:my_data.uid,name:my_data.name,msg,tm:'TMS'}}))
 		}	
 		
 	},
 	
 	unblock_chat(){
 		objects.chat_rules.text='Правила чата!\n1. Будьте вежливы: Общайтесь с другими игроками с уважением. Избегайте угроз, грубых выражений, оскорблений, конфликтов.\n2. Отправлять сообщения в чат могут игроки сыгравшие более 200 онлайн партий.\n3. За нарушение правил игрок может попасть в черный список.'
-		objects.chat_enter_button.texture=assets.chat_enter_img;	
+		objects.chat_enter_btn.texture=assets.send_message_btn;	
 		fbs.ref('blocked/'+my_data.uid).remove();
 		my_data.blocked=0;
 		message.add('Вы разблокировали чат');
@@ -4432,9 +4563,6 @@ lobby={
 					objects.mini_cards[i].x=15+ix*190;
 				}
 			}		
-
-			//запускаем чат
-			chat.init();			
 
 			this.activated=true;
 			
@@ -6157,9 +6285,7 @@ async function init_game_env(lang) {
 	//устанавливаем рейтинг в попап
 	objects.id_rating.text=my_data.rating;
 
-	//убираем лупу
-	some_process.loup_anim = function(){};
-	objects.id_loup.visible=false;
+
 
 	//обновляем почтовый ящик
 	fbs.ref('inbox/'+my_data.uid).set({sender:'-',message:'-',tm:'-',data:9});
@@ -6174,7 +6300,8 @@ async function init_game_env(lang) {
 	fbs.ref('players/'+my_data.uid+'/games').set(my_data.games);
 	fbs.ref('players/'+my_data.uid+'/country').set(my_data.country||'');
 	fbs.ref('players/'+my_data.uid+'/tm').set(firebase.database.ServerValue.TIMESTAMP);
-				
+	fbs.ref('players/'+my_data.uid+'/session_start').set(firebase.database.ServerValue.TIMESTAMP);
+	
 	//устанавливаем мой статус в онлайн
 	set_state({state:'o'});
 	
@@ -6188,7 +6315,15 @@ async function init_game_env(lang) {
 	//keep-alive сервис
 	setInterval(function()	{keep_alive()}, 40000);
 
-	//убираем попап
+	//ждем загрузки чата
+	await Promise.race([
+		chat.init(),
+		new Promise(resolve=> setTimeout(() => {console.log('chat is not loaded!');resolve()}, 5000))
+	]);	
+
+	//убираем попап и лупу
+	some_process.loup_anim = function(){};
+	objects.id_loup.visible=false;	
 	setTimeout(function(){anim2.add(objects.id_cont,{y:[objects.id_cont.sy, -200]}, false, 0.5,'easeInBack')},2000);
 	
 	//контроль за присутсвием
