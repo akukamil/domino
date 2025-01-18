@@ -3981,7 +3981,11 @@ my_ws={
 			
 			clearInterval(this.keep_alive_timer)
 			this.keep_alive_timer=setInterval(()=>{
-				this.socket.send('1');
+				try{
+					this.socket.send('1');
+				}catch(e){
+					fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'keep_alive_error'});
+				}
 			},45000);
 		};			
 		
