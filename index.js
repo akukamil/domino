@@ -2146,6 +2146,11 @@ online_player={
 			return
 		};	
 		
+		if (my_data.blocked){			
+			message.add('Вы в черном списке.');
+			return;
+		}
+		
 		const msg=await keyboard.read();
 		
 		//если есть данные то отправляем из сопернику
