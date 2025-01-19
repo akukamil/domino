@@ -3927,10 +3927,10 @@ my_ws={
 	reconnect_time:0,
 	connect_resolver:0,
 	sleep:0,
-	keep_alive_timer:0,
+	keep_alive_timer:0,	
+	keep_alive_time:45000,
 		
 	init(){		
-	
 		fbs.ref('WSDEBUG/'+my_data.uid).remove();
 		fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'init'});
 	
@@ -3941,23 +3941,27 @@ my_ws={
 		})
 	},
 	
-	send_to_sleep(){
+	send_to_sleep(){	
 		
-	
+		fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'send_to_sleep'});
+		
+		clearTimeout(this.keep_alive_timer);
 		this.sleep=1;	
-		this.socket.close(1000, "sleep");
+		this.socket.close(1000, 'sleep');
 	},
 	
 	kill(){
 		
+		clearTimeout(this.keep_alive_timer);
 		this.sleep=1;
-		this.socket.close(1000, "kill");
+		this.socket.close(1000, 'kill');
 		
 	},
 	
 	reconnect(){
-			
+				
 		fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'reconnect'});
+		
 		this.sleep=0;
 
 		if (this.socket) {
@@ -3974,23 +3978,17 @@ my_ws={
 			console.log('Connected to server!');
 			this.connect_resolver();
 			this.reconnect_time=0;
-			fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'onopen'});
+			
 			//обновляем подписки
 			for (const path in this.child_added)				
 				this.socket.send(JSON.stringify({cmd:'child_added',path}))					
 			
-			clearInterval(this.keep_alive_timer)
-			this.keep_alive_timer=setInterval(()=>{
-				try{
-					this.socket.send('1');
-				}catch(e){
-					fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'keep_alive_error'});
-				}
-			},45000);
+			this.reset_keep_alive('onopen');
 		};			
 		
 		this.socket.onmessage = event => {
 			
+			this.reset_keep_alive('onmessage');
 			const msg=JSON.parse(event.data);
 			//console.log("Получено от сервера:", msg);
 			
@@ -4007,19 +4005,37 @@ my_ws={
 
 			fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'close',code:event.code,reason:event.reason,type:event.type||'no_type'});
 		
-			clearInterval(this.keep_alive_timer)
-			if(event.reason==='not_alive'||event.reason==='no_uid') return;
-			if(this.sleep) return;
-
+			clearTimeout(this.keep_alive_timer)
+			if (['not_alive','no_uid','kill','sleep'].includes(event.reason)) return;
+		
+			if (event.code===1006) this.keep_alive_time=20000;
+			
 			this.reconnect_time=Math.min(60000,this.reconnect_time+5000)+(event.code===1006?60000:0);
 			console.log(`reconnecting in ${this.reconnect_time*0.001} seconds:`, event);
 			setTimeout(()=>{this.reconnect()},this.reconnect_time);				
 		};
 
 		this.socket.onerror = error => {
-			fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'error',error});
-			//console.error("WebSocket error:", error);
+			//fbs.ref('WSERRORS/'+my_data.uid).push({tm:Date.now(),event:'error'});
 		};
+		
+	},
+	
+	reset_keep_alive(reason){
+		console.log('reset_keep_alive',reason)
+		clearInterval(this.keep_alive_timer)
+		this.keep_alive_timer=setTimeout(()=>{
+			
+			try{
+				fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'keep_alive'});
+				this.socket.send('1');
+			}catch(e){
+				fbs.ref('WSDEBUG/'+my_data.uid).push({tm:Date.now(),event:'keep_alive_error'});
+			}
+			
+			this.reset_keep_alive('timer');
+			
+		},this.keep_alive_time);
 		
 	},
 	
@@ -4037,6 +4053,14 @@ my_ws={
 				clearTimeout(timeoutId);
 				resolve(data);					
 			}
+			
+			/*
+			this.get_resolvers[req_id] = {
+				resolve: (data) => {
+					clearTimeout(timeoutId);
+					resolve(data);
+				}
+			};*/
 			
 			this.socket.send(JSON.stringify({cmd:'get',path,req_id,limit_last}))				
 		
