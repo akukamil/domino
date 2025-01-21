@@ -4231,13 +4231,7 @@ chat={
 				break;				
 		}
 		if (this.processing) return;
-				
-		//если это дубликат моего сообщения из-за таймстемпа
-		if (data.uid===my_data.uid)
-			if (objects.chat_records.find(obj => {return obj.msg.text===data.msg&&obj.index===data.index}))
-				return;			
-		
-		
+					
 		this.processing=1;
 		
 		//выбираем номер сообщения
