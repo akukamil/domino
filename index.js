@@ -5689,7 +5689,7 @@ tabvis={
 			PIXI.sound.volumeAll=1;	
 			if(this.sleep){		
 				console.log('Проснулись');
-				my_ws.reconnect();
+				my_ws.reconnect('wakeup');;
 				this.sleep=0;
 			}
 			
