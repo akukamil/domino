@@ -5906,10 +5906,8 @@ main_loader={
 			if (load_list[i].class==='sprite' || load_list[i].class==='image')
 				loader.add(load_list[i].name, git_src+`res/${lang_pack}/` + load_list[i].name + "." +  load_list[i].image_format);
 
-
 		loader.add("m2_font", git_src+"fonts/Bahnschrift/font.fnt");
-		
-		
+				
 		loader.add('music',git_src+'sounds/music.mp3');
 
 		loader.add('receive_move',git_src+'sounds/receive_move.mp3');
@@ -5934,7 +5932,10 @@ main_loader={
 		loader.add('bazar',git_src+'sounds/bazar.mp3');
 
 		//добавляем библиотеку аватаров
-		loader.add('multiavatar', git_src+'multiavatar.min.txt');	
+		loader.add('multiavatar', 'https://akukamil.github.io/common/multiavatar.min.txt');	
+		
+		//добавляем смешные загрузки
+		loader.add('fun_logs', 'https://akukamil.github.io/common/fun_logs.txt');
 									
 		//прогресс
 		loader.onProgress.add((l,res)=>{
@@ -5959,59 +5960,58 @@ main_loader={
 		anim2.add(objects.load_bar_cont,{alpha:[1,0]}, false, 0.5,'linear');
 				
 		//создаем спрайты и массивы спрайтов и запускаем первую часть кода
-		const main_load_list=eval(assets.main_load_list);
-		for (var i = 0; i < main_load_list.length; i++) {
-			const obj_class = main_load_list[i].class;
-			const obj_name = main_load_list[i].name;
+		for (var i = 0; i < load_list.length; i++) {
+			const obj_class = load_list[i].class;
+			const obj_name = load_list[i].name;
 			console.log('Processing: ' + obj_name)
 
 			switch (obj_class) {
 			case "sprite":
 				objects[obj_name] = new PIXI.Sprite(assets[obj_name]);
-				eval(main_load_list[i].code0);
+				eval(load_list[i].code0);
 				break;
 
 			case "block":
-				eval(main_load_list[i].code0);
+				eval(load_list[i].code0);
 				break;
 
 			case "cont":
-				eval(main_load_list[i].code0);
+				eval(load_list[i].code0);
 				break;
 
 			case "array":
-				var a_size=main_load_list[i].size;
+				var a_size=load_list[i].size;
 				objects[obj_name]=[];
 				for (var n=0;n<a_size;n++)
-					eval(main_load_list[i].code0);
+					eval(load_list[i].code0);
 				break;
 			}
 		}
 
 		//обрабатываем вторую часть кода в объектах
-		for (var i = 0; i < main_load_list.length; i++) {
-			const obj_class = main_load_list[i].class;
-			const obj_name = main_load_list[i].name;
+		for (var i = 0; i < load_list.length; i++) {
+			const obj_class = load_list[i].class;
+			const obj_name = load_list[i].name;
 			console.log('Processing: ' + obj_name)
 			
 			
 			switch (obj_class) {
 			case "sprite":
-				eval(main_load_list[i].code1);
+				eval(load_list[i].code1);
 				break;
 
 			case "block":
-				eval(main_load_list[i].code1);
+				eval(load_list[i].code1);
 				break;
 
 			case "cont":	
-				eval(main_load_list[i].code1);
+				eval(load_list[i].code1);
 				break;
 
 			case "array":
-				var a_size=main_load_list[i].size;
+				var a_size=load_list[i].size;
 					for (var n=0;n<a_size;n++)
-						eval(main_load_list[i].code1);	;
+						eval(load_list[i].code1);	;
 				break;
 			}
 		}
@@ -6173,9 +6173,7 @@ async function init_game_env(lang) {
 	
 	//проверяем блокировку
 	my_data.blocked=await fbs_once('blocked/'+my_data.uid)||0;
-		
-			
-	//номер комнаты
+					
 	//номер комнаты в зависимости от рейтинга игрока
 	const rooms_bins=[0,1391,1460,1541,1723,9999];
 	for (let i=1;i<rooms_bins.length;i++){
@@ -6199,16 +6197,19 @@ async function init_game_env(lang) {
 	fbs.ref('inbox/'+my_data.uid).set({sender:'-',message:'-',tm:'-',data:9});
 
 	//подписываемся на новые сообщения
-	fbs.ref('inbox/'+my_data.uid).on('value', (snapshot) => { process_new_message(snapshot.val());});
+	fbs.ref('inbox/'+my_data.uid).on('value', data => {process_new_message(data.val())});
 
 	//обновляем данные в файербейс так как могли поменяться имя или фото
-	fbs.ref('players/'+my_data.uid+'/name').set(my_data.name);
-	fbs.ref('players/'+my_data.uid+'/pic_url').set(my_data.pic_url);
-	fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating);
-	fbs.ref('players/'+my_data.uid+'/games').set(my_data.games);
-	fbs.ref('players/'+my_data.uid+'/country').set(my_data.country||'');
-	fbs.ref('players/'+my_data.uid+'/tm').set(firebase.database.ServerValue.TIMESTAMP);
-	fbs.ref('players/'+my_data.uid+'/session_start').set(firebase.database.ServerValue.TIMESTAMP);
+	fbs.ref('players/'+my_data.uid).set({
+		name:my_data.name,
+		pic_url:my_data.pic_url,
+		rating:my_data.rating,
+		games:my_data.games,
+		country:my_data.country||'',
+		tm:firebase.database.ServerValue.TIMESTAMP,
+		session_start:firebase.database.ServerValue.TIMESTAMP		
+	})
+
 	
 	//устанавливаем мой статус в онлайн
 	set_state({state:'o'});
