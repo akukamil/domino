@@ -6175,7 +6175,7 @@ async function init_game_env(lang) {
 	my_data.blocked=await fbs_once('blocked/'+my_data.uid)||0;
 					
 	//номер комнаты в зависимости от рейтинга игрока
-	const rooms_bins=[0,1391,1460,1541,1723,9999];
+	const rooms_bins=[0,1377,1420,1490,1587,1675,9999];
 	for (let i=1;i<rooms_bins.length;i++){
 		const f=rooms_bins[i-1];
 		const t=rooms_bins[i];		
