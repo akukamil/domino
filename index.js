@@ -693,7 +693,6 @@ class chat_record_class extends PIXI.Container {
 		super();
 		
 		this.tm=0;
-		this.index=0;
 		this.uid='';	
 
 		
@@ -806,17 +805,22 @@ class chat_record_class extends PIXI.Container {
 		//получаем pic_url из фб
 		this.avatar.set_texture(PIXI.Texture.WHITE);
 				
-		await this.update_avatar(msg_data.uid, this.avatar);
+		if (msg_data.uid==='admin'){
+			this.msg_bcg.tint=0xffff55;
+			this.avatar.set_texture(assets.pc_icon);
+		}else{
+			this.msg_bcg.tint=0xffffff;
+			await this.update_avatar(msg_data.uid, this.avatar);
+		}			
 
 		this.uid=msg_data.uid;
 		this.tm = msg_data.tm;			
-		this.index = msg_data.index;		
 		
 		this.name.set2(msg_data.name,150);
 		this.name.tint=this.nameToColor(msg_data.name);
 		this.msg_tm.text = new Date(msg_data.tm).toLocaleString();
 		this.msg.text=msg_data.msg;
-		this.visible = true;
+		this.visible = true;		
 		
 		if (msg_data.msg.startsWith('GIF')){			
 			
@@ -3995,10 +3999,13 @@ chat={
 		
 	},
 		
-	block_player(uid){
+	async block_player(uid){
 		
 		fbs.ref('blocked/'+uid).set(Date.now());
 		fbs.ref('inbox/'+uid).set({message:'CHAT_BLOCK',tm:Date.now()});
+		const name=await fbs_once(`players/${uid}/name`);
+		const msg=`Игрок ${name} занесен в черный список.`;
+		my_ws.socket.send(JSON.stringify({cmd:'push',path:`${game_name}/chat`,val:{uid:'admin',name:'Админ',msg,tm:'TMS'}}));
 		
 		//увеличиваем количество блокировок
 		fbs.ref('players/'+uid+'/block_num').transaction(val=> {return (val || 0) + 1});
@@ -4202,8 +4209,7 @@ chat={
 			block_num=block_num||1;
 			block_num=Math.min(6,block_num);
 		
-			if(game_platform==='YANDEX'){
-				
+			if(game_platform==='YANDEX'){				
 				this.payments.purchase({ id: 'unblock'+block_num}).then(purchase => {
 					this.unblock_chat();
 				}).catch(err => {
@@ -4241,7 +4247,7 @@ chat={
 		//пишем сообщение в чат и отправляем его		
 		const msg = await keyboard.read(70);		
 		if (msg) {			
-			my_ws.socket.send(JSON.stringify({cmd:'push',path:`${game_name}/chat`,val:{uid:my_data.uid,name:my_data.name,msg,tm:'TMS'}}))
+			my_ws.socket.send(JSON.stringify({cmd:'push',path:`${game_name}/chat`,val:{uid:my_data.uid,name:my_data.name,msg,tm:'TMS'}}));
 		}	
 		
 	},
