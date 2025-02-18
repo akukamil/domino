@@ -4985,7 +4985,7 @@ lobby={
 
 		//заполняем карточу приглашения данными
 		objects.invite_avatar.set_texture(players_cache.players[card.uid].texture);
-		objects.invite_name.set2(lobby._opp_data.name,230);
+		objects.invite_name.set2(lobby._opp_data.name,210);
 		objects.invite_rating.text=card.rating_text.text;
 		
 		
