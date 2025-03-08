@@ -363,7 +363,7 @@ const map_next_place={
 let bazar_chips=[];
 
 fbs_once=async function(path){
-	const info=await fbs.ref(path).once('value');
+	const info=await fbs.ref(path).get();
 	return info.val();	
 }
 
