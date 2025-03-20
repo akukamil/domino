@@ -4010,6 +4010,7 @@ chat={
 		//увеличиваем количество блокировок
 		fbs.ref('players/'+uid+'/block_num').transaction(val=> {return (val || 0) + 1});
 		
+				
 	},
 		
 	async chat_load(data) {
@@ -4214,7 +4215,7 @@ chat={
 		
 			if(game_platform==='YANDEX'){				
 				this.payments.purchase({ id: 'unblock'+block_num}).then(purchase => {
-					this.unblock_chat();
+					this.unblock_chat(block_num);
 				}).catch(err => {
 					message.add('Ошибка при покупке!');
 				})				
@@ -4223,7 +4224,7 @@ chat={
 			if (game_platform==='VK') {
 				
 				vkBridge.send('VKWebAppShowOrderBox', { type: 'item', item: 'unblock'+block_num}).then(data =>{
-					this.unblock_chat();
+					this.unblock_chat(block_num);
 				}).catch((err) => {
 					message.add('Ошибка при покупке!');
 				});			
@@ -4255,13 +4256,16 @@ chat={
 		
 	},
 	
-	unblock_chat(){
+	unblock_chat(block_num){
 		objects.chat_rules.text='Правила чата!\n1. Будьте вежливы: Общайтесь с другими игроками с уважением. Избегайте угроз, грубых выражений, оскорблений, конфликтов.\n2. Отправлять сообщения в чат могут игроки сыгравшие более 200 онлайн партий.\n3. За нарушение правил игрок может попасть в черный список.'
 		objects.chat_enter_btn.texture=assets.send_message_btn;	
 		fbs.ref('blocked/'+my_data.uid).remove();
 		my_data.blocked=0;
 		message.add('Вы разблокировали чат');
 		sound.play('mini_dialog');	
+		
+		//отправляем на сервер
+		my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,block_num}});
 	},
 		
 	close() {
