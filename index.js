@@ -6221,6 +6221,10 @@ async function init_game_env(lang) {
 		pic_url:my_data.pic_url,
 		rating:my_data.rating,
 		games:my_data.games,
+		nick_tm:my_data.nick_tm,
+		avatar_tm:my_data.avatar_tm,
+		skin_id:my_data.skin_id,
+		bcg_id:my_data.bcg_id,
 		country:my_data.country||'',
 		tm:firebase.database.ServerValue.TIMESTAMP,
 		session_start:firebase.database.ServerValue.TIMESTAMP		
