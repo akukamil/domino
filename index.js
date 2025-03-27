@@ -3971,6 +3971,25 @@ chat={
 		console.log('Чат загружен!')
 	},		
 
+	async check_unconsumed_purchases(){
+		
+		
+		ysdk.getPayments({ signed: true }).then(_payments => {
+			chat.payments = _payments;
+			
+			chat.payments.getPurchases().then(purchases => purchases.forEach(purchase=>{
+				
+				if (purchase.productID === 'unblock1') {
+					my_data.blocked=0;
+					fbs.ref('blocked/'+my_data.uid).remove();
+					chat.payments.consumePurchase(purchase.purchaseToken);
+				}
+				
+			}));			
+			
+		}).catch(err => {})			
+	},
+
 	init_yandex_payments(){
 				
 		if (game_platform!=='YANDEX') return;			
@@ -5568,7 +5587,7 @@ auth2={
 		return undefined;	
 		
 	},
-	
+		
 	async init() {	
 				
 		if (game_platform === 'YANDEX') {			
