@@ -4234,6 +4234,7 @@ chat={
 		
 			if(game_platform==='YANDEX'){				
 				this.payments.purchase({ id: 'unblock'+block_num}).then(purchase => {
+					
 					this.unblock_chat(block_num);
 				}).catch(err => {
 					message.add('Ошибка при покупке!');
@@ -5610,6 +5611,8 @@ auth2={
 			
 			if (my_data.name === '')
 				my_data.name = this.get_random_name(my_data.uid);
+		
+			chat.check_unconsumed_purchases();
 		
 			return;
 		}
