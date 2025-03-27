@@ -6098,8 +6098,8 @@ async function init_game_env(lang) {
 	
 	const dw=M_WIDTH/document.body.clientWidth;
 	const dh=M_HEIGHT/document.body.clientHeight;
-	const resolution=Math.max(dw,dh,1);	
-	const opts={width:800, height:450,antialias:true,resolution,autoDensity:true};
+	const resolution=Math.min(1.5,Math.max(dw,dh,1));	
+	const opts={width:M_WIDTH, height:M_HEIGHT,antialias:false,resolution,autoDensity:true};
 	app = new PIXI.Application(opts);
 	const c=document.body.appendChild(app.view);
 	c.style["boxShadow"] = "0 0 15px #000000";
