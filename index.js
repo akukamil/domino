@@ -1245,8 +1245,11 @@ music={
 	
 	on:1,
 	
-	activate(){
+	activate(){		
 		
+		this.on=safe_ls('domino_music')??1;
+		objects.music_slider.x=this.on?130:91;
+
 		if (!this.on) return;
 	
 		if (!assets.music.isPlaying){
@@ -1267,6 +1270,8 @@ music={
 			assets.music.play();
 			objects.pref_info.text=['Музыка включена','Music is on'][LANG];
 		}
+		
+		safe_ls('domino_music',this.on);
 		anim2.add(objects.pref_info,{alpha:[0,1]}, false, 3,'easeBridge',false);			
 	}
 	
