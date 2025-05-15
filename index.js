@@ -3950,6 +3950,8 @@ chat={
 			if(r.visible&&r.gif.visible)
 				r.gif.texture.baseTexture.resource.source.play();
 		})
+	
+		this.shift(-2000);
 	},
 	
 	async init(){
