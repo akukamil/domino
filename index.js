@@ -4814,7 +4814,7 @@ lobby={
 		card.visible=true;
 	},
 
-	place_new_card(params={uid:0, state: "o", name: "XXX", rating: rating,uid:0}) {
+	place_new_card(params={uid:0, state: "o", name: "XXX", rating: rating}) {
 
 		for(let i=1;i<objects.mini_cards.length;i++) {
 
@@ -4876,7 +4876,7 @@ lobby={
 
 	async get_texture(pic_url) {
 		
-		if (!pic_url) PIXI.Texture.WHITE;
+		if (!pic_url) return PIXI.Texture.WHITE
 		
 		//меняем адрес который невозможно загрузить
 		if (pic_url==="https://vk.com/images/camera_100.png")
@@ -6022,7 +6022,7 @@ main_loader={
 		anim2.add(objects.load_bar_cont,{alpha:[1,0]}, false, 0.5,'linear');
 				
 		//создаем спрайты и массивы спрайтов и запускаем первую часть кода
-		for (var i = 0; i < load_list.length; i++) {
+		for (let i = 0; i < load_list.length; i++) {
 			const obj_class = load_list[i].class;
 			const obj_name = load_list[i].name;
 			console.log('Processing: ' + obj_name)
@@ -6051,7 +6051,7 @@ main_loader={
 		}
 
 		//обрабатываем вторую часть кода в объектах
-		for (var i = 0; i < load_list.length; i++) {
+		for (let i = 0; i < load_list.length; i++) {
 			const obj_class = load_list[i].class;
 			const obj_name = load_list[i].name;
 			console.log('Processing: ' + obj_name)
