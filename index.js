@@ -6042,9 +6042,9 @@ main_loader={
 				break;
 
 			case "array":
-				var a_size=load_list[i].size;
+				const a_size=load_list[i].size;
 				objects[obj_name]=[];
-				for (var n=0;n<a_size;n++)
+				for (let n=0;n<a_size;n++)
 					eval(load_list[i].code0);
 				break;
 			}
@@ -6071,8 +6071,8 @@ main_loader={
 				break;
 
 			case "array":
-				var a_size=load_list[i].size;
-					for (var n=0;n<a_size;n++)
+				const a_size=load_list[i].size;
+					for (let n=0;n<a_size;n++)
 						eval(load_list[i].code1);	;
 				break;
 			}
