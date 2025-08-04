@@ -2782,7 +2782,7 @@ game={
 		else
 			my_turn=0
 		
-		console.log({my_check_val,opp_check_val,my_turn})
+		//console.log({my_check_val,opp_check_val,my_turn})
 
 		//показываем и заполняем мою карточку
 		objects.my_card_cont.visible=true
