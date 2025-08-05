@@ -1419,7 +1419,7 @@ big_msg={
 			objects.big_msg_title2.text=')))'
 		
 		anim2.add(objects.big_msg_title2,{alpha:[0,1]}, true, 0.5,'linear')
-		objects.big_msg_fb_btn.visible=true
+		objects.big_msg_fb_btn.visible=!my_data.blocked
 
 
 		//если это онлайн игре
