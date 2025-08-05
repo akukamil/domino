@@ -3310,6 +3310,69 @@ game={
 
 }
 
+top3={
+	
+	async activate(path){
+		
+		const top3=await my_ws.get(path||'day_top3')
+		if(!top3) return
+		const uids=Object.keys(top3)
+		if (uids.length!==3) return
+		
+		const sorted_top3 = Object.entries(top3).sort((a, b) => b[1] - a[1])
+		const ordered_uids = [sorted_top3[1][0], sorted_top3[0][0], sorted_top3[2][0]]
+		
+		await players_cache.update(ordered_uids[0])		
+		objects.day_top3_name1.set2(players_cache.players[ordered_uids[0]].name,145)
+		
+		await players_cache.update(ordered_uids[1])		
+		objects.day_top3_name2.set2(players_cache.players[ordered_uids[1]].name,145)
+		
+		await players_cache.update(ordered_uids[2])
+		objects.day_top3_name3.set2(players_cache.players[ordered_uids[2]].name,145)
+			
+				
+		await players_cache.update_avatar(ordered_uids[0])		
+		objects.day_top3_avatar1.set_texture(players_cache.players[ordered_uids[0]].texture)
+		
+		await players_cache.update_avatar(ordered_uids[1])		
+		objects.day_top3_avatar2.set_texture(players_cache.players[ordered_uids[1]].texture)
+		
+		await players_cache.update_avatar(ordered_uids[2])
+		objects.day_top3_avatar3.set_texture(players_cache.players[ordered_uids[2]].texture)
+		
+		objects.day_top3_lights1.text=top3[ordered_uids[0]]
+		objects.day_top3_lights2.text=top3[ordered_uids[1]]
+		objects.day_top3_lights3.text=top3[ordered_uids[2]]
+		
+		some_process.top3_anim=()=>{this.process()}
+		sound.play('top3')
+		anim2.add(objects.day_top3_cont,{alpha:[0, 1]}, true, 0.5,'linear');
+		
+						
+	},
+	
+	process(){
+		
+		objects.day_top3_sunrays.rotation+=0.01
+		
+	},
+	
+	close(){
+		
+		if (anim2.any_on()) {
+			sound.play('locked')
+			return
+		}
+		
+		anim2.add(objects.day_top3_cont,{alpha:[1, 0]}, false, 0.5,'linear');
+		
+		
+	}	
+	
+}
+
+
 pref={
 
 	bcg_loader:null,
