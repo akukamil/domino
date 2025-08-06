@@ -3372,7 +3372,6 @@ top3={
 	
 }
 
-
 pref={
 
 	bcg_loader:null,
@@ -6511,7 +6510,6 @@ main_loader={
 
 		loader.add('music',git_src+'sounds/music.mp3');
 
-		loader.add('receive_move',git_src+'sounds/receive_move.mp3');
 		loader.add('receive_sticker',git_src+'sounds/receive_sticker.mp3');
 		loader.add('message',git_src+'sounds/message.mp3');
 		loader.add('lose',git_src+'sounds/lose.mp3');
@@ -6531,6 +6529,7 @@ main_loader={
 		loader.add('skip',git_src+'sounds/skip.mp3');
 		loader.add('progress',git_src+'sounds/progress.mp3');
 		loader.add('bazar',git_src+'sounds/bazar.mp3');
+		loader.add('top3',git_src+'sounds/top3.mp3');
 
 		//добавляем библиотеку аватаров
 		loader.add('multiavatar', 'https://akukamil.github.io/common/multiavatar.min.txt');
@@ -6843,6 +6842,9 @@ async function init_game_env(lang) {
 		chat.init(),
 		new Promise(resolve=> setTimeout(() => {console.log('chat is not loaded!');resolve()}, 5000))
 	]);
+
+	//отображаем лидеров вчерашнего дня
+	top3.activate()
 
 	//убираем попап и лупу
 	some_process.loup_anim = function(){};
