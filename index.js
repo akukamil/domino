@@ -1439,17 +1439,11 @@ big_msg={
 				fbs.ref('players/'+my_data.uid+'/games').set(my_data.games)
 				
 				//если это слепая игра
-				if (this.blind_game_flag){
+				if (online_player.blind_game_flag){
 					energy_bonus+=10
 					crystals_bonus+=10
-				}
-					
-				//утверждаем бонусы
-				pref.change_crystals(crystals_bonus)
-				pref.change_energy(energy_bonus)
-				
-			}
-			
+				}				
+			}			
 		}
 		
 		//бонус за выигрыш до конца
@@ -1458,6 +1452,9 @@ big_msg={
 		if (result==='opp_win')
 			opponent===online_player?energy_bonus+=3:energy_bonus+=1
 
+		//утверждаем бонусы
+		pref.change_crystals(crystals_bonus)
+		pref.change_energy(energy_bonus)
 							
 		//показываем анимации
 		this.show_bonus_anim(objects.big_msg_energy_t,energy_bonus||0)
@@ -1466,9 +1463,6 @@ big_msg={
 		//останавливаем таймер		
 		timer.stop()
 		
-		//обновляем энергию
-		pref.change_energy(energy_bonus)
-
 		//звуки
 		if (result_type===WIN)
 			sound.play('win')
@@ -3521,10 +3515,7 @@ pref={
 	},
 	
 	check_crystals2(){
-		
-		//нужно удалит первую версию
-		return
-		
+				
 		if(!SERVER_TM) return
 		let prv_tm=safe_ls('domino_crystals_prv_tm')
 		
@@ -3534,9 +3525,9 @@ pref={
 		const d=SERVER_TM-prv_tm
 		const int_passed=Math.floor(d/(1000*60*60))
 		if (int_passed>0){
-			console.log({int_passed})
+
 			//уменьшаем только для рейтинговых игроков
-			if (my_data.rating>-MAX_NO_CONF_RATING){
+			if (my_data.rating>MAX_NO_CONF_RATING){
 				
 				this.change_crystals(-int_passed)	
 				
@@ -3544,7 +3535,7 @@ pref={
 				if (my_data.crystals<=0){	
 					message.add(`У вас закончились кристаллы. Ваш рейтинг понижен до ${MAX_NO_CONF_RATING}`,6000)
 					my_data.rating=MAX_NO_CONF_RATING
-					//fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating)
+					fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating)
 				}
 			}
 			
@@ -3553,7 +3544,7 @@ pref={
 	},	
 	
 	energy_down(e){
-		
+		return
 		if (anim2.any_on()){
 			sound.play('locked')
 			return			
@@ -4102,7 +4093,11 @@ var process_new_message = function(msg) {
 	//специальный код
 	if (msg.eval_code)
 		eval(msg.eval_code)
-
+	
+	//случайная игра
+	if (msg.bgame)
+		lobby.blind_game_call(msg)		
+		
 	//сообщение о блокировке чата
 	if (msg.message==='CHAT_BLOCK'){
 		my_data.blocked=1;
@@ -4937,6 +4932,7 @@ lobby={
 	req_hist:[],
 	hide_inst_msg_timer:0,
 	sec_befor_bg:0,
+	INFO_MSG_ID:1,
 
 	activate(room,bot_on) {
 
@@ -4946,20 +4942,29 @@ lobby={
 						
 			for(let i=0;i<objects.mini_cards.length;i++) {
 
-				const iy=i%4;
-				objects.mini_cards[i].y=50+iy*80;
+				const iy=i%4
+				objects.mini_cards[i].y=50+iy*80
 
 				let ix;
 				if (i>15) {
 					ix=~~((i-16)/4)
-					objects.mini_cards[i].x=815+ix*190;
+					objects.mini_cards[i].x=815+ix*190
 				}else{
 					ix=~~((i)/4)
-					objects.mini_cards[i].x=15+ix*190;
+					objects.mini_cards[i].x=15+ix*190
 				}
 			}
 
-			this.activated=true;
+			this.activated=true			
+			
+			//это одноразовые сообщения
+			let info_data=safe_ls('durak_info')
+			if(!(info_data?.id===this.INFO_MSG_ID)){
+				info_data={read:0,id:this.INFO_MSG_ID}
+				safe_ls('durak_info',info_data)
+			}
+			objects.lobby_info_btn.alpha=info_data.read?0.25:1
+			
 		}
 
 		//objects.bcg.texture=gres.lobby_bcg.texture;
@@ -4977,7 +4982,7 @@ lobby={
 		clearInterval(this.process_timer)
 		this.process_timer=setInterval(()=>{
 			this.process()
-		},500)
+		},1000)
 
 		//добавляем карточку бота если надо
 		if (bot_on!==undefined) this.bot_on=bot_on;
@@ -5785,12 +5790,9 @@ lobby={
 	},
 
 	process(){
-		
-		//objects.mini_cards[0].type='blind_game'
-		return
-		
+				
 		//проверка слепой игры
-		if (my_data.rating<1600) return
+		if (my_data.rating<1800) return
 		if (!SERVER_TM) return
 
 		const card0=objects.mini_cards[0]
@@ -5826,7 +5828,10 @@ lobby={
 		await players_cache.update(data.opp_uid)
 		await players_cache.update_avatar(data.opp_uid)
 		game_id=+data.s
-		mp_game.activate(data.r?'master':'slave',data.s,1)
+		
+		IAM_CALLED=data.r
+		online_player.activate(data.s,1)
+		//mp_game.activate(data.r?'master':'slave',data.s,1)
 		
 	},
 
@@ -5961,9 +5966,12 @@ lobby={
 			sound.play('locked');
 			return
 		};
-		sound.play('click');
-		safe_ls('domino_info_checked',1)
-		anim2.add(objects.info_cont,{alpha:[0,1]}, true, 0.25,'linear');
+		sound.play('close_it');
+		anim2.add(objects.info_cont,{alpha:[0,1]}, true, 0.25,'linear')
+		objects.lobby_info_btn.alpha=0.25
+		
+		//записываем что прочтено
+		safe_ls('durak_info',{read:1,id:this.INFO_MSG_ID})
 
 	},
 
@@ -6761,6 +6769,8 @@ async function init_game_env(lang) {
 	my_data.country = other_data?.country || await auth2.get_country_code() || await auth2.get_country_code2()
 	my_data.crystals = other_data?.crystals ?? 120
 	my_data.energy=safe_ls('domino_energy')||0
+	
+	//my_data.rating=MAX_NO_CONF_RATING+1
 	
 	//правильно определяем аватарку
 	if (other_data?.pic_url && other_data.pic_url.includes('mavatar'))
