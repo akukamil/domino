@@ -5966,7 +5966,7 @@ lobby={
 			sound.play('locked');
 			return
 		};
-		sound.play('close_it');
+		sound.play('click')
 		anim2.add(objects.info_cont,{alpha:[0,1]}, true, 0.25,'linear')
 		objects.lobby_info_btn.alpha=0.25
 		
@@ -5981,9 +5981,9 @@ lobby={
 			sound.play('locked');
 			return
 		};
-		sound.play('close');
+		sound.play('close_it')
 
-		anim2.add(objects.info_cont,{alpha:[1,0]}, false, 0.25,'linear');
+		anim2.add(objects.info_cont,{alpha:[1,0]}, false, 0.25,'linear')
 
 	}
 
