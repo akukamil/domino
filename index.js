@@ -6825,6 +6825,7 @@ async function init_game_env(lang) {
 		avatar_tm:my_data.avatar_tm,
 		skin_id:my_data.skin_id,
 		bcg_id:my_data.bcg_id,
+		crystals:my_data.crystals,
 		country:my_data.country||'',
 		tm:firebase.database.ServerValue.TIMESTAMP,
 		session_start:firebase.database.ServerValue.TIMESTAMP
