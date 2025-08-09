@@ -358,11 +358,11 @@ function show_leaders() {
 		let uids = Object.keys(data);
 		let _data = [];
 		for (let i = 0 ; i < uids.length ; i++)
-			_data.push([uids[i], data[uids[i]].name, data[uids[i]].rating, data[uids[i]].games, data[uids[i]].tm])		
+			_data.push([uids[i], data[uids[i]].name, data[uids[i]].rating, data[uids[i]].games, data[uids[i]].crystals, data[uids[i]].tm])		
 
 		
 		//это заголовки
-		let header = ['uid','name','rating','games','last_seen'];
+		let header = ['uid','name','rating','games','crystals','last_seen'];
 
 		my_table.create(_data, header, 'none', 'list');	
 	})
