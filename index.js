@@ -3515,6 +3515,18 @@ pref={
 	},
 	
 	check_crystals2(){
+		
+
+		if (my_data.rating>2900){
+			
+			if(!my_data.c_checked){
+				let prv_tm_test=safe_ls('domino_crystals_prv_tm')
+				fbs.ref('C_CHECK/'+my_data.uid+'/SERVER_TM').set(SERVER_TM||'NO_SERVER_TM')
+				fbs.ref('C_CHECK/'+my_data.uid+'/prv_tm_test').set(prv_tm_test||'NO_prv_tm_test')
+				my_data.c_checked=1
+			}			
+			
+		}
 				
 		if(!SERVER_TM) return
 		let prv_tm=safe_ls('domino_crystals_prv_tm')
