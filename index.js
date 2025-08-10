@@ -3521,8 +3521,7 @@ pref={
 			
 			if(!my_data.c_checked){
 				let prv_tm_test=safe_ls('domino_crystals_prv_tm')
-				fbs.ref('C_CHECK/'+my_data.uid+'/SERVER_TM').set(SERVER_TM||'NO_SERVER_TM')
-				fbs.ref('C_CHECK/'+my_data.uid+'/prv_tm_testSTART').set(prv_tm_test||'NO_prv_tm_test')
+				fbs.ref('C_CHECK/'+my_data.uid).push({info:'start',serv_tm:SERVER_TM||'NO_SERVER_TM',prv_tm_test:prv_tm_test||'NO_prv_tm_test'})
 				my_data.c_checked=1
 			}			
 			
@@ -3532,7 +3531,13 @@ pref={
 		let prv_tm=safe_ls('domino_crystals_prv_tm')
 		
 		//если нет в локальном хранилище (новый игрок)
-		if (!prv_tm) {prv_tm=SERVER_TM;safe_ls('domino_crystals_prv_tm',SERVER_TM)}
+		if (!prv_tm) {
+			prv_tm=SERVER_TM;
+			const res=safe_ls('domino_crystals_prv_tm',SERVER_TM)
+			if (my_data.rating>2900)
+				fbs.ref('C_CHECK/'+my_data.uid).push({info:'no_prv_tm_write',res:res||'error'})
+		}
+			
 			
 		const d=SERVER_TM-prv_tm
 		const int_passed=Math.floor(d/(1000*60*60))
@@ -3550,9 +3555,14 @@ pref={
 					fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating)
 				}
 			}
-			if (my_data.rating>2900)
-				fbs.ref('C_CHECK/'+my_data.uid+'/prv_tm_testLAST').set(SERVER_TM||'NO_last_prv_tm_test')
-			safe_ls('domino_crystals_prv_tm',SERVER_TM)
+			
+			const safe_ls_res=safe_ls('domino_crystals_prv_tm',SERVER_TM)			
+			if (my_data.rating>2900){
+
+				fbs.ref('C_CHECK/'+my_data.uid).push({info:'tick',serv_tm:SERVER_TM||'NO_SERVER_TM',safe_ls_res:safe_ls_res||'safe_ls_error'})
+			}
+
+
 		}		
 	},	
 	
