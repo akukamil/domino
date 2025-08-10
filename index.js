@@ -3550,8 +3550,8 @@ pref={
 					fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating)
 				}
 			}
-			
-			fbs.ref('C_CHECK/'+my_data.uid+'/prv_tm_testLAST').set(SERVER_TM||'NO_last_prv_tm_test')
+			if (my_data.rating>2900)
+				fbs.ref('C_CHECK/'+my_data.uid+'/prv_tm_testLAST').set(SERVER_TM||'NO_last_prv_tm_test')
 			safe_ls('domino_crystals_prv_tm',SERVER_TM)
 		}		
 	},	
