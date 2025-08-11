@@ -3429,9 +3429,9 @@ pref={
 		let i=0
 		setInterval(()=>{
 			
-			if(i===5) this.update_server_tm()
-			if(i===15) this.check_crystals2()
-			if(i===20) this.check_energy2()
+			if(i===25) this.update_server_tm()
+			if(i===3) this.check_crystals2()
+			if(i===6) this.check_energy2()
 
 			i = (i + 1) % 60
 			
@@ -3482,7 +3482,7 @@ pref={
 
 		//тупо обновляем время
 		my_ws.get_tms().then(t=>{
-			SERVER_TM=t
+			SERVER_TM=t||SERVER_TM
 		})
 
 	},
@@ -3712,7 +3712,7 @@ pref={
 			//обновляем мое имя в разных системах
 			set_state({});
 
-			my_data.nick_tm=Date.now();
+			my_data.nick_tm=SERVER_TM
 			fbs.ref(`players/${my_data.uid}/nick_tm`).set(my_data.nick_tm);
 			fbs.ref(`players/${my_data.uid}/name`).set(my_data.name);
 
@@ -6750,7 +6750,8 @@ async function init_game_env(lang) {
 
 	//загрузка сокета
 	await auth2.load_script('https://akukamil.github.io/common/my_ws.js')
-
+	
+	SERVER_TM=await fbs_once('tm') 
 
 	//загружаем остальные данные из файербейса
 	const other_data = await fbs_once('players/' + my_data.uid)
@@ -6774,7 +6775,6 @@ async function init_game_env(lang) {
 	my_data.c_prv_tm = other_data?.c_prv_tm ||0
 	my_data.energy=safe_ls('domino_energy')||0
 	
-	//my_data.rating=MAX_NO_CONF_RATING+1
 	
 	//правильно определяем аватарку
 	if (other_data?.pic_url && other_data.pic_url.includes('mavatar'))
