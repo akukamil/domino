@@ -3425,6 +3425,24 @@ pref={
 	},
 
 	init(){
+		
+		//проврем устройство
+		if(my_data.rating>2900){
+			
+			let dev_id=safe_ls('domino_dev_id')
+			if (!dev_id){
+				const r_id=irnd(4,999999)
+				safe_ls('domino_dev_id',r_id)
+				fbs.ref('C_CHECK/'+my_data.uid).push({info:'new_dev_id',dev_id:dev_id||'NO_dev_id'})
+			}else{
+				fbs.ref('C_CHECK/'+my_data.uid).push({info:'dev_id',dev_id:dev_id||'NO_dev_id'})
+			}		
+			const fast_prv_tm=safe_ls('domino_crystals_prv_tm')
+			fbs.ref('C_CHECK/'+my_data.uid).push({info:'fast_prv_tm',fast_prv_tm:fast_prv_tm||'NO_fast_prv_tm'})			
+			
+		}
+
+					
 
 		let i=0
 		setInterval(()=>{
@@ -3530,6 +3548,7 @@ pref={
 		if(!SERVER_TM) return
 		let prv_tm=safe_ls('domino_crystals_prv_tm')
 		
+		//console.log({SERVER_TM,prv_tm})
 		//если нет в локальном хранилище (новый игрок)
 		if (!prv_tm) {
 			prv_tm=SERVER_TM;
