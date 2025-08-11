@@ -4962,10 +4962,10 @@ lobby={
 			this.activated=true			
 			
 			//это одноразовые сообщения
-			let info_data=safe_ls('durak_info')
+			let info_data=safe_ls('domino_info')
 			if(!(info_data?.id===this.INFO_MSG_ID)){
 				info_data={read:0,id:this.INFO_MSG_ID}
-				safe_ls('durak_info',info_data)
+				safe_ls('domino_info',info_data)
 			}
 			objects.lobby_info_btn.alpha=info_data.read?0.25:1
 			
