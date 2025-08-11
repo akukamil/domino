@@ -3425,36 +3425,18 @@ pref={
 	},
 
 	init(){
-		
-		//проврем устройство
-		if(my_data.rating>2900){
-			
-			let dev_id=safe_ls('domino_dev_id')
-			if (!dev_id){
-				const r_id=irnd(4,999999)
-				safe_ls('domino_dev_id',r_id)
-				fbs.ref('C_CHECK/'+my_data.uid).push({info:'new_dev_id',dev_id:dev_id||'NO_dev_id'})
-			}else{
-				fbs.ref('C_CHECK/'+my_data.uid).push({info:'dev_id',dev_id:dev_id||'NO_dev_id'})
-			}		
-			const fast_prv_tm=safe_ls('domino_crystals_prv_tm')
-			fbs.ref('C_CHECK/'+my_data.uid).push({info:'fast_prv_tm',fast_prv_tm:fast_prv_tm||'NO_fast_prv_tm'})			
-			
-		}
-
-					
 
 		let i=0
 		setInterval(()=>{
 			
-			if(i===5) this.update_server_tm();			
-			if(i===15) this.check_crystals2();			
-			if(i===20) this.check_energy2();	
+			if(i===5) this.update_server_tm()
+			if(i===15) this.check_crystals2()
+			if(i===20) this.check_energy2()
 
 			i = (i + 1) % 60
 			
 		},1000)
-
+		
 	},
 
 	change_crystals(amount){
@@ -3532,33 +3514,18 @@ pref={
 	
 	},
 	
-	check_crystals2(){
-		
-
-		if (my_data.rating>2900){
-			
-			if(!my_data.c_checked){
-				let prv_tm_test=safe_ls('domino_crystals_prv_tm')
-				fbs.ref('C_CHECK/'+my_data.uid).push({info:'start',serv_tm:SERVER_TM||'NO_SERVER_TM',prv_tm_test:prv_tm_test||'NO_prv_tm_test'})
-				my_data.c_checked=1
-			}			
-			
-		}
+	check_crystals2(){		
 				
 		if(!SERVER_TM) return
-		let prv_tm=safe_ls('domino_crystals_prv_tm')
 		
-		//console.log({SERVER_TM,prv_tm})
-		//если нет в локальном хранилище (новый игрок)
-		if (!prv_tm) {
-			prv_tm=SERVER_TM;
-			const res=safe_ls('domino_crystals_prv_tm',SERVER_TM)
-			if (my_data.rating>2900)
-				fbs.ref('C_CHECK/'+my_data.uid).push({info:'no_prv_tm_write',res:res||'error'})
-		}
+		//если нет данных (новый игрок)
+		if (!my_data.c_prv_tm) {
+			my_data.c_prv_tm=SERVER_TM
+			fbs.ref('players/'+my_data.uid+'/c_prv_tm').set(SERVER_TM)
+			return
+		}			
 			
-			
-		const d=SERVER_TM-prv_tm
+		const d=SERVER_TM-my_data.c_prv_tm
 		const int_passed=Math.floor(d/(1000*60*60))
 		if (int_passed>0){
 
@@ -3575,13 +3542,8 @@ pref={
 				}
 			}
 			
-			const safe_ls_res=safe_ls('domino_crystals_prv_tm',SERVER_TM)			
-			if (my_data.rating>2900){
-
-				fbs.ref('C_CHECK/'+my_data.uid).push({info:'tick',serv_tm:SERVER_TM||'NO_SERVER_TM',safe_ls_res:safe_ls_res||'safe_ls_error'})
-			}
-
-
+			my_data.c_prv_tm=SERVER_TM
+			fbs.ref('players/'+my_data.uid+'/c_prv_tm').set(SERVER_TM)
 		}		
 	},	
 	
@@ -6791,8 +6753,7 @@ async function init_game_env(lang) {
 
 
 	//загружаем остальные данные из файербейса
-	let _other_data = await fbs.ref('players/' + my_data.uid).once('value')
-	let other_data = _other_data.val()
+	const other_data = await fbs_once('players/' + my_data.uid)
 	if(!other_data) lobby.first_run=1
 
 	//сервисное сообщение
@@ -6810,6 +6771,7 @@ async function init_game_env(lang) {
 	my_data.bcg_id = (other_data?.bcg_id) || 0
 	my_data.country = other_data?.country || await auth2.get_country_code() || await auth2.get_country_code2()
 	my_data.crystals = other_data?.crystals ?? 120
+	my_data.c_prv_tm = other_data?.c_prv_tm ||0
 	my_data.energy=safe_ls('domino_energy')||0
 	
 	//my_data.rating=MAX_NO_CONF_RATING+1
@@ -6857,7 +6819,7 @@ async function init_game_env(lang) {
 	//подписываемся на новые сообщения
 	fbs.ref('inbox/'+my_data.uid).on('value', data => {process_new_message(data.val())});
 
-	//обновляем данные в файербейс так как могли поменяться имя или фото
+	//обновляем данные в файербейс так как могли поменяться имя или фото	
 	fbs.ref('players/'+my_data.uid).set({
 		name:my_data.name,
 		pic_url:my_data.pic_url,
@@ -6867,6 +6829,7 @@ async function init_game_env(lang) {
 		avatar_tm:my_data.avatar_tm,
 		skin_id:my_data.skin_id,
 		bcg_id:my_data.bcg_id,
+		c_prv_tm:my_data.c_prv_tm,
 		crystals:my_data.crystals,
 		country:my_data.country||'',
 		tm:firebase.database.ServerValue.TIMESTAMP,
