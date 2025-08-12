@@ -5975,7 +5975,7 @@ lobby={
 		objects.lobby_info_btn.alpha=0.25
 		
 		//записываем что прочтено
-		safe_ls('durak_info',{read:1,id:this.INFO_MSG_ID})
+		safe_ls('domino_info',{read:1,id:this.INFO_MSG_ID})
 
 	},
 
