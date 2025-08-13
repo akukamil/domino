@@ -2300,7 +2300,7 @@ online_player={
 
 	send_move(data){
 
-		my_log.add({e:'send_move',tm:Date.now(),data})
+		my_log.add({e:'send_move',data,tm:Date.now()})
 		this.me_conf_play=1
 
 		//отправляем ход онайлн сопернику (с таймаутом)
@@ -2520,6 +2520,9 @@ my_player={
 			this.timeout=setTimeout(function(){my_player.process_incoming_move(data)},250);
 			return;
 		}
+		
+		if (opponent===online_player)
+			my_log.add({e:'inc',data,tm:Date.now()})
 
 		//соперник сделал ход
 		online_player.opp_conf_play=1;
