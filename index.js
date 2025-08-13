@@ -2486,10 +2486,14 @@ online_player={
 
 	stop(res){
 		
-		my_log.add({e:'stop',tm:Date.now()})
+		
+		const my_chips=my_player.chips.length?my_player.chips.map(c=>c.v1+''+c.v2).join(' '):'no_chips'
+		const opp_chips=opponent.chips.length?opponent.chips.map(c=>c.v1+''+c.v2).join(' '):'no_chips'
+		
+		my_log.add({e:'stop',my_chips,opp_chips,tm:Date.now()})
 		clearTimeout(this.write_fb_timer)
 		if (res==='opp_timeout'&&my_data.rating>1700){
-			fbs.ref('BAD_CASE/'+my_data.uid+'/'+game_id).set(my_log.log_arr)			
+			fbs.ref('BAD_CASE/'+my_data.uid+'/'+game_id).set(my_log.log_arr)
 		}
 	},
 
