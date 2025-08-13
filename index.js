@@ -2279,12 +2279,12 @@ online_player={
 		
 	},
 	
-	start_move(){
+	start_move(seed){
 		
 		const my_chips=my_player.chips.length?my_player.chips.map(c=>c.v1+''+c.v2).join(' '):'no_chips'
 		const opp_chips=opponent.chips.length?opponent.chips.map(c=>c.v1+''+c.v2).join(' '):'no_chips'
 		
-		my_log.add({e:'start',my_chips,opp_chips,tm:Date.now()})
+		my_log.add({e:'start',seed:seed||'no_seed',my_chips,opp_chips,tm:Date.now()})
 		
 		//бот делает ход, в game.activate надо вызвать после определения очереди
 		this.reset_timer()
@@ -2534,8 +2534,8 @@ my_player={
 			return;
 		}
 		
-		if (opponent===online_player)
-			my_log.add({e:'inc',data,tm:Date.now()})
+		//if (opponent===online_player)
+		//	my_log.add({e:'inc',data,tm:Date.now()})
 
 		//соперник сделал ход
 		online_player.opp_conf_play=1;
@@ -2592,8 +2592,8 @@ my_player={
 		}
 
 		//меняем очередь и ход
-		my_turn=1;
-		opponent.reset_timer();
+		my_turn=1
+		opponent.reset_timer()
 
 	},
 
@@ -2881,7 +2881,7 @@ game={
 		objects.opp_chips_mask.visible=true
 		objects.opp_chips_cont.mask=objects.opp_chips_mask		
 		
-		opponent.start_move()
+		opponent.start_move(seed)
 		this.update_round()
 		this.update_cards()
 
@@ -3002,10 +3002,10 @@ game={
 
 	drop_chip(p,chip){
 
-		const player=p==='my'?my_player:opponent;
+		const player=p==='my'?my_player:opponent
 		const tar_y=p==='my'?500:-100;
 
-		player.chips=player.chips.filter(c=>c!==chip);
+		player.chips=player.chips.filter(c=>c!==chip)
 
 		//размещаем кости чтобы не было пустот
 		let iter=0;
@@ -4122,6 +4122,8 @@ var process_new_message = function(msg) {
 	//проверяем плохие сообщения
 	if (msg===null || msg===undefined)
 		return;
+	
+	my_log.add({e:'online_msg',msg,tm:Date.now()})
 
 	//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 	if (msg.message==='ACCEPT'  && pending_player===msg.sender && state !== "p") {
@@ -4153,7 +4155,6 @@ var process_new_message = function(msg) {
 	if (msg.message==='CHAT_BLOCK'){
 		my_data.blocked=1;
 	}
-
 
 	//получение сообщение в состояни игры
 	if (state==='p') {
