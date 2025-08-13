@@ -2439,6 +2439,7 @@ online_player={
 
 	connection_change(on){
 	
+		my_log.add({e:'connection',on:on||'no_on',tm:Date.now()})
 		clearInterval(this.no_connection_timer)
 		if (on) return
 		let no_con_time=0
