@@ -2269,7 +2269,7 @@ online_player={
 		opponent=this
 		
 		//выключаем бота если открыт
-		if (bot.on) bot.close()
+		if (bot.on) bot.stop()
 		
 		//начинаем основное
 		game.activate(this,seed,0)
