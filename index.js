@@ -2317,6 +2317,9 @@ online_player={
 		fbs.ref('inbox/'+opp_data.uid).set({message:'MOVE',sender:my_data.uid,data,tm:Date.now()}).then(()=>{
 			clearTimeout(this.write_fb_timer)
 		})
+		
+		//нужно заменить на более короткую версию
+		//fbs.ref('inbox/'+opp_data.uid).set({m:'M',s:my_data.uid.substring(0,8),d:data,tm:Date.now()})
 
 	},
 
@@ -4158,6 +4161,14 @@ var process_new_message = function(msg) {
 
 	//получение сообщение в состояни игры
 	if (state==='p') {
+
+
+		//новая версия
+		if (msg.s&&msg.s===opp_data.uid.substring(0,8)) {
+			//получение сообщение с ходом игорка оптимизированный вариант
+			if (msg.m==='M')
+				my_player.process_incoming_move(msg.d);
+		}
 
 		//учитываем только сообщения от соперника
 		if (msg.sender===opp_data.uid) {
