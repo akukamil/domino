@@ -1428,7 +1428,7 @@ big_msg={
 			//контрольные концовки логируем на виртуальной машине
 			if (my_data.rating>1990 || opp_data.rating>1990){
 				const duration = Math.floor((Date.now() - opponent.start_time)*0.001);
-				const data={uid:my_data.uid,player1:objects.my_card_name.text,player2:objects.opp_card_name.text, res:result_type,fin_type:result,duration,bg:opponent.blind_game_flag, rating: [old_rating,my_data.rating],game_id,client_id,tm:'TMS'}
+				const data={uid:my_data.uid,p1:objects.my_card_name.text,p2:objects.opp_card_name.text, res:result_type,f:result,d:duration,bg:opponent.blind_game_flag, r: [old_rating,my_data.rating],gid:game_id,cid:client_id,tm:'TMS'}
 				my_ws.safe_send({cmd:'log',logger:`${game_name}_games`,data});
 			}
 						
@@ -2416,7 +2416,7 @@ online_player={
 			no_con_time++
 			if (no_con_time>=5&&game.state!=='off'){
 				clearInterval(this.no_connection_timer)
-				game.stop('my_no_connection')				
+				game.stop('my_no_connection')
 			}
 
 		},1000)
@@ -4131,7 +4131,7 @@ var process_new_message = function(msg) {
 				game.stop('opp_giveup');
 
 			//получение сообщение с ходом игорка
-			if (msg.message==='MOVE')
+			if (msg.message==='MOVE'||msg.move)
 				my_player.process_incoming_move(msg.data);
 
 			//соперник подтвердил продолжение
