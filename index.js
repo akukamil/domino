@@ -14,6 +14,16 @@ const DOMINO_CEN_Y=200;
 const SHADOW_SHIFT=3;
 const SHADOW_DISP_XY={'0':[3,3],'90':[3,-3],'-90':[-3,3],'180':[-3,-3]}
 
+my_log={
+	log_arr:[],
+	add(data){
+		this.log_arr.push(data);
+		if (this.log_arr.length>40)
+			this.log_arr.shift();
+	}
+
+};
+
 SKINS_DATA={
 	0:{tint:0x262626,rating:0,games:0},
 	1:{tint:0xF2F2F2,rating:0,games:20},
@@ -1434,7 +1444,7 @@ big_msg={
 						
 			if (result_type === DRAW || result_type === LOSE || result_type === WIN) {
 										
-				my_data.games++;
+				my_data.games++
 				fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating)
 				fbs.ref('players/'+my_data.uid+'/games').set(my_data.games)
 				
@@ -1452,6 +1462,9 @@ big_msg={
 		if (result==='opp_win')
 			opponent===online_player?energy_bonus+=3:energy_bonus+=1
 
+		//разные моменты связанные с соперниками
+		opponent.stop(result)
+
 		//утверждаем бонусы
 		pref.change_crystals(crystals_bonus)
 		pref.change_energy(energy_bonus)
@@ -1468,13 +1481,11 @@ big_msg={
 			sound.play('win')
 		else
 			sound.play('lose')
-
-		game.state='off'
+		
 		this.game_end=1
 
 		//конпка ок
-		objects.big_msg_ok_btn.visible=true;
-
+		objects.big_msg_ok_btn.visible=true
 
 	},
 
@@ -2073,7 +2084,7 @@ bot={
 
 	},
 	
-	start_move(){	
+	start_move(){
 		//бот делает ход
 		if (!my_turn)
 			this.try_make_move()
@@ -2178,14 +2189,8 @@ bot={
 			return
 		}
 
-		clearTimeout(this.start_move_timer)
-		this.on=0
 		game.stop('my_giveup')
 
-	},
-
-	close(){
-		this.clear()
 	},
 
 	round_fin(){
@@ -2199,12 +2204,12 @@ bot={
 
 	},
 
-	clear(){
-
+	stop(){
+		
 		this.on=0
 		clearTimeout(this.start_move_timer)
-		anim2.add(objects.sbg_button,{x:[objects.sbg_button.x,850]}, false, 0.25,'linear');
-
+		anim2.add(objects.sbg_button,{x:[objects.sbg_button.x,850]}, false, 0.25,'linear');		
+		
 	}
 
 }
@@ -2225,6 +2230,7 @@ online_player={
 	tot_score:0,
 	no_connection_timer:0,
 	blind_game_flag:0,
+	write_fb_timer:0,
 
 	activate(seed,blind){
 
@@ -2268,6 +2274,9 @@ online_player={
 		//начинаем основное
 		game.activate(this,seed,0)
 		
+		my_log.log_arr=[]
+		my_log.add({e:'start',tm:Date.now()})
+		
 	},
 	
 	start_move(){	
@@ -2275,13 +2284,15 @@ online_player={
 		this.reset_timer()
 	},	
 	
-	reset_timer(){		
+	reset_timer(){
+		my_log.add({e:'reset_timer',tm:Date.now()})
 		const game_confirmed=this.me_conf_play&&this.opp_conf_play
 		timer.start({sec:game_confirmed?25:15})		
 	},
 
 	round_fin(){
 		
+		my_log.add({e:'round_fin',tm:Date.now()})
 		timer.stop()
 		this.conf_resume=0
 
@@ -2289,18 +2300,21 @@ online_player={
 
 	send_move(data){
 
+		my_log.add({e:'send_move',tm:Date.now(),data})
 		this.me_conf_play=1
 
 		//отправляем ход онайлн сопернику (с таймаутом)
-		const write_fb_timer=setTimeout(function(){game.stop('my_no_connection')}, 8000);
+		clearTimeout(this.write_fb_timer)
+		this.write_fb_timer=setTimeout(function(){game.stop('my_no_connection')}, 8000);
 		fbs.ref('inbox/'+opp_data.uid).set({message:'MOVE',sender:my_data.uid,data,tm:Date.now()}).then(()=>{
-			clearTimeout(write_fb_timer);
+			clearTimeout(this.write_fb_timer)
 		})
 
 	},
 
 	take_from_bazar(){
 
+		my_log.add({e:'take_from_bazar',tm:Date.now()})
 		//к сопернику приходят кости
 
 		//добавляем с базара
@@ -2328,6 +2342,8 @@ online_player={
 			return
 		};
 
+
+		my_log.add({e:'game_btn_down',tm:Date.now()})
 		let mx = e.data.global.x/app.stage.scale.x - objects.game_buttons.sx;
 		let my = e.data.global.y/app.stage.scale.y - objects.game_buttons.sy;
 
@@ -2375,8 +2391,9 @@ online_player={
 			return;
 		}
 
+		my_log.add({e:'exit_button_down',tm:Date.now()})
 		const res = await confirm_dialog.show(['Сдаетесь?','Giveup?'][LANG]);
-		if (res==='ok'){
+		if (res==='ok'&&game.state==='on'){
 			fbs.ref('inbox/'+opp_data.uid).set({message:'END',sender:my_data.uid,tm:Date.now()});
 			game.stop('my_giveup');
 		}
@@ -2395,6 +2412,7 @@ online_player={
 			return;
 		}
 
+		my_log.add({e:'send_message',tm:Date.now()})
 		const msg=await keyboard.read();
 
 		//если есть данные то отправляем из сопернику
@@ -2439,6 +2457,7 @@ online_player={
 
 	resume_game(){
 
+		my_log.add({e:'resume_game',tm:Date.now()})
 		//нажали на продолжение и ждем от соперника
 		my_turn=0
 		timer.start({sec:15,check_game_end:1})
@@ -2463,6 +2482,15 @@ online_player={
 
 		message.add(data, 10000,'online_message');
 
+	},
+
+	stop(res){
+		
+		my_log.add({e:'stop',tm:Date.now()})
+		clearTimeout(this.write_fb_timer)
+		if (res==='opp_timeout'&&my_data.rating>1700){
+			fbs.ref('BAD_CASE/'+my_data.uid+'/'+game_id).set(my_log.log_arr)			
+		}
 	},
 
 	close(){
@@ -2981,7 +3009,10 @@ game={
 	},
 
 	stop(result){
+
+		this.state='off'
 		big_msg.total_stop(result)
+		
 	},
 
 	close(){
