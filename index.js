@@ -18,7 +18,7 @@ my_log={
 	log_arr:[],
 	add(data){
 		this.log_arr.push(data);
-		if (this.log_arr.length>40)
+		if (this.log_arr.length>50)
 			this.log_arr.shift();
 	}
 
@@ -2272,10 +2272,8 @@ online_player={
 		if (bot.on) bot.stop()
 		
 		//начинаем основное
-		game.activate(this,seed,0)
-		
-		my_log.log_arr=[]
-		my_log.add({e:'start',tm:Date.now()})
+		game.activate(this,seed,0)	
+
 		
 	},
 	
@@ -2284,6 +2282,7 @@ online_player={
 		const my_chips=my_player.chips.length?my_player.chips.map(c=>c.v1+''+c.v2).join(' '):'no_chips'
 		const opp_chips=opponent.chips.length?opponent.chips.map(c=>c.v1+''+c.v2).join(' '):'no_chips'
 		
+		my_log.log_arr=[]
 		my_log.add({e:'start',seed:seed||'no_seed',my_chips,opp_chips,tm:Date.now()})
 		
 		//бот делает ход, в game.activate надо вызвать после определения очереди
@@ -2293,7 +2292,7 @@ online_player={
 	},	
 	
 	reset_timer(){
-		my_log.add({e:'reset_timer',tm:Date.now()})
+		//my_log.add({e:'reset_timer',tm:Date.now()})
 		const game_confirmed=this.me_conf_play&&this.opp_conf_play
 		timer.start({sec:game_confirmed?25:15})		
 	},
@@ -2576,7 +2575,7 @@ my_player={
 			game.connect_to_side(chip,game.uw_ext_place);
 		}
 
-		//убираем мою костяшку и перераспределяем
+		//убираем костяшку и перераспределяем
 		game.drop_chip('opp',chip);
 
 		//проверяем конец игры
@@ -2665,6 +2664,7 @@ my_player={
 
 		//отправляем данные сопернику
 		opponent.send_move({v1:chip.v1,v2:chip.v2,type:'CHIP',anchor:anchor_to_send});
+		//console.log(anchor_to_send)
 
 		my_turn=0
 		opponent.reset_timer()
