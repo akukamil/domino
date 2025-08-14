@@ -2559,24 +2559,34 @@ my_player={
 			return;
 		}
 
-		const chip=opponent.chips.find(c=>c.v1===data.v1&&c.v2===data.v2)
 
-		//получаем информацию о возможности коннекта
-		const [fit_dw,fit_uw,empty_board,fit]=game.get_available_connects(data);
+		try {
+			
+			const chip=opponent.chips.find(c=>c.v1===data.v1&&c.v2===data.v2)
 
-		//определяем как и куда ставить костяшку
-		if(data.anchor){
-			game.connect_to_side(chip,{'uw':game.uw_next_place,'dw':game.dw_next_place}[data.anchor]);
-		}else if (empty_board){
-			game.add_first_chip(chip);
-		}else if(fit_dw){
-			game.connect_to_side(chip,game.dw_ext_place);
-		}else if(fit_uw){
-			game.connect_to_side(chip,game.uw_ext_place);
+			//получаем информацию о возможности коннекта
+			const [fit_dw,fit_uw,empty_board,fit]=game.get_available_connects(data);
+
+			//определяем как и куда ставить костяшку
+			if(data.anchor){
+				game.connect_to_side(chip,{'uw':game.uw_next_place,'dw':game.dw_next_place}[data.anchor]);
+			}else if (empty_board){
+				game.add_first_chip(chip);
+			}else if(fit_dw){
+				game.connect_to_side(chip,game.dw_ext_place);
+			}else if(fit_uw){
+				game.connect_to_side(chip,game.uw_ext_place);
+			}
+
+			//убираем костяшку и перераспределяем
+			game.drop_chip('opp',chip);
+			//throw new TypeError("oops");
+						
+		} catch(err){					
+			my_log.add(err)
+			
 		}
 
-		//убираем костяшку и перераспределяем
-		game.drop_chip('opp',chip);
 
 		//проверяем конец игры
 		if(!opponent.chips.length){
