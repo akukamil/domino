@@ -2094,7 +2094,7 @@ bot={
 
 	send_move(data){
 
-		if (data.type==='BAZAR'){
+		if (data.type==='BAZAR'||data==='B'){
 			//если базар пуст и нет хода
 			if (!game.have_move(my_player.chips)){
 				this.try_make_move();
@@ -2135,11 +2135,11 @@ bot={
 
 		if (fit){
 			if (empty_board){
-				my_player.process_incoming_move({v1:chip.v1,v2:chip.v2,anchor:0});
+				my_player.process_incoming_move({c:chip.v1+''+chip.v2,a:0});
 			}else if(fit_dw){
-				my_player.process_incoming_move({v1:chip.v1,v2:chip.v2,anchor:'dw'});
+				my_player.process_incoming_move({c:chip.v1+''+chip.v2,a:'dw'});
 			}else if(fit_uw){
-				my_player.process_incoming_move({v1:chip.v1,v2:chip.v2,anchor:'uw'});
+				my_player.process_incoming_move({c:chip.v1+''+chip.v2,a:'uw'});
 			}
 
 			//повторный ход
@@ -2153,22 +2153,10 @@ bot={
 
 			//если база пуст то пропускаем ход
 			if(!bazar_chips.length) return
-			my_player.process_incoming_move({type:'BAZAR'})
+			my_player.process_incoming_move('B')
 			this.try_make_move()
 			return;
 
-		}
-
-	},
-
-	take_from_bazar(){
-
-		//добавляем с базара
-		my_player.process_incoming_move({type:'BAZAR'});
-
-		//проверка завершения
-		if(!game.have_move(opponent.chips)){
-			my_turn=1
 		}
 
 	},
@@ -2543,7 +2531,7 @@ my_player={
 		//соперник сделал ход
 		online_player.opp_conf_play=1;
 
-		if(data.type==='BAZAR'){
+		if(data.type==='BAZAR'||data==='B'){
 			game.take_from_bazar('opp');
 
 			//если базар пуст и нет хода
@@ -2561,6 +2549,14 @@ my_player={
 
 
 		try {
+			
+			//opponent.send_move({с:chip.v1+''+chip.v2,a:anchor_to_send});
+			
+			if (data.c){
+				data.v1=+data.c[0]
+				data.v2=+data.c[1]
+				data.anchor=data.a
+			}
 			
 			const chip=opponent.chips.find(c=>c.v1===data.v1&&c.v2===data.v2)
 
@@ -2673,6 +2669,8 @@ my_player={
 		game.drop_chip('my',chip);
 
 		//отправляем данные сопернику
+		//нужно заменить на 
+		//opponent.send_move({с:chip.v1+''+chip.v2,a:anchor_to_send})
 		opponent.send_move({v1:chip.v1,v2:chip.v2,type:'CHIP',anchor:anchor_to_send});
 		//console.log(anchor_to_send)
 
@@ -2718,8 +2716,9 @@ my_player={
 		//добавляем с базара
 		const res=game.take_from_bazar('my');
 
+		//if(res) opponent.send_move('B'); - это новая версия
 		if(res) opponent.send_move({type:'BAZAR'});
-
+		
 		//если базар пуст и нет хода
 		if (!game.have_move(opponent.chips)&&!game.have_move(my_player.chips)){
 			game.round_fin('fish');
@@ -2851,6 +2850,9 @@ game={
 
 			//если открыт чат то закрываем его
 			if (objects.chat_cont.visible) chat.close()
+				
+			//если открыт чат то закрываем его
+			if (objects.big_msg_cont.visible) big_msg.close()
 
 			//устанавливаем начальные позиции в окне
 			;[my_player,opponent].forEach(p=>{
