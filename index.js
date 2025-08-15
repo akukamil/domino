@@ -2830,8 +2830,10 @@ game={
 
 		if (my_check_val>opp_check_val)
 			my_turn=1
-		else
+		if (my_check_val<opp_check_val)
 			my_turn=0
+		if (my_check_val===opp_check_val)
+			my_turn=IAM_CALLED
 		
 		//console.log({my_check_val,opp_check_val,my_turn})
 
@@ -6879,7 +6881,7 @@ async function init_game_env(lang) {
 			break;
 		}
 	}
-
+    
 	//room_name= 'states9'
 
 	//устанавливаем рейтинг в попап
