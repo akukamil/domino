@@ -1949,7 +1949,6 @@ timer={
 
 	start({sec=30,check_game_end=1} = {}){
 
-
 		if (opponent===bot){
 			this.just_place()
 			return
@@ -2269,9 +2268,10 @@ online_player={
 		
 		const my_chips=my_player.chips.length?my_player.chips.map(c=>c.v1+''+c.v2).join(' '):'no_chips'
 		const opp_chips=opponent.chips.length?opponent.chips.map(c=>c.v1+''+c.v2).join(' '):'no_chips'
+		const b_chips=bazar_chips.length?bazar_chips.map(c=>c[0]+''+c[1]).join(' '):'no_chips'
 		
 		my_log.log_arr=[]
-		my_log.add({e:'start',seed:seed||'no_seed',my_chips,opp_chips,tm:Date.now()})
+		my_log.add({e:'start',seed:seed||'no_seed',my_chips,opp_chips,b_chips,tm:Date.now()})
 		
 		//бот делает ход, в game.activate надо вызвать после определения очереди
 		this.reset_timer()
@@ -2712,7 +2712,6 @@ my_player={
 			return;
 		}
 
-
 		//добавляем с базара
 		const res=game.take_from_bazar('my');
 
@@ -2774,7 +2773,7 @@ game={
 
 		objects.bcg.texture=pref.get_game_texture()
 		anim2.add(objects.bcg,{alpha:[0,1]}, true, 0.5,'linear')
-
+		//seed=954253
 		//не случайный сид
 		s_random.make_seed(seed)
 
