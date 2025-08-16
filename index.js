@@ -1452,7 +1452,11 @@ big_msg={
 				if (online_player.blind_game_flag){
 					energy_bonus+=10
 					crystals_bonus+=10
-				}				
+				}
+				
+				//бонус кристаллов за заход в зону подтверждения
+				if (my_data.rating>MAX_NO_CONF_RATING&&old_rating<=MAX_NO_CONF_RATING)
+					crystals_bonus+=30
 			}			
 		}
 		
@@ -2676,6 +2680,9 @@ my_player={
 
 		my_turn=0
 		opponent.reset_timer()
+		
+		//если у соперника нет ход, но есть на базаре, то берем сразу с базара
+		
 
 		//проверка выигрыша
 		if (!my_player.chips.length){
@@ -3593,11 +3600,11 @@ pref={
 		const int_passed=Math.floor(d/(1000*60*60))
 		if (int_passed>0){
 
+			this.change_crystals(-int_passed)	
+
 			//уменьшаем только для рейтинговых игроков
 			if (my_data.rating>MAX_NO_CONF_RATING){
-				
-				this.change_crystals(-int_passed)	
-				
+								
 				//закончились монеты
 				if (my_data.crystals<=0){	
 					message.add(`У вас закончились кристаллы. Ваш рейтинг понижен до ${MAX_NO_CONF_RATING}`,6000)
