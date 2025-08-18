@@ -2299,7 +2299,7 @@ online_player={
 
 	send_move(data){
 
-		my_log.add({...{e:'out',tm:Date.now()},...data})
+		my_log.add({e:'out',...data,tm:Date.now()})
 		this.me_conf_play=1
 
 		//отправляем ход онайлн сопернику (с таймаутом)
@@ -4148,7 +4148,7 @@ var process_new_message = function(msg) {
 		return;
 	
 	
-	my_log.add({...{e:'inc',tm:Date.now()},...msg?.data})
+	my_log.add({e:'inc',...msg?.data||'',tm:Date.now()})
 
 	//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 	if (msg.message==='ACCEPT'  && pending_player===msg.sender && state !== "p") {
