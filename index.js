@@ -2299,7 +2299,7 @@ online_player={
 
 	send_move(data){
 
-		my_log.add({e:'send_move',data,tm:Date.now()})
+		my_log.add({...{e:'out',tm:Date.now()},...data})
 		this.me_conf_play=1
 
 		//отправляем ход онайлн сопернику (с таймаутом)
@@ -2489,7 +2489,6 @@ online_player={
 	},
 
 	stop(res){
-		
 		
 		const my_chips=my_player.chips.length?my_player.chips.map(c=>c.v1+''+c.v2).join(' '):'no_chips'
 		const opp_chips=opponent.chips.length?opponent.chips.map(c=>c.v1+''+c.v2).join(' '):'no_chips'
@@ -2711,17 +2710,18 @@ my_player={
 			return
 		};
 
-		//если и так есть чем ходить
+ 		//если и так есть чем ходить
 		if (game.have_move_to_go(my_player.chips)){
 
 			anim2.add(objects.bazar_button_cont,{x:[objects.bazar_button_cont.x,objects.bazar_button_cont.x+3]}, true, 0.15,'shake');
 			sound.play('locked');
 			return;
-		}
+		} 
 
 		//добавляем с базара
 		const res=game.take_from_bazar('my');
-
+				
+		
 		//if(res) opponent.send_move('B'); - это новая версия
 		if(res) opponent.send_move({type:'BAZAR'});
 		
@@ -2903,7 +2903,7 @@ game={
 		//полка костей соперника
 		objects.opp_chips_shelf.visible=true
 		objects.opp_chips_mask.visible=true
-		objects.opp_chips_cont.mask=objects.opp_chips_mask		
+		objects.opp_chips_cont.mask=objects.opp_chips_mask
 		
 		opponent.start_move(seed)
 		this.update_round()
@@ -4147,7 +4147,8 @@ var process_new_message = function(msg) {
 	if (msg===null || msg===undefined)
 		return;
 	
-	my_log.add({e:'online_msg',msg,tm:Date.now()})
+	
+	my_log.add({...{e:'inc',tm:Date.now()},...msg?.data})
 
 	//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 	if (msg.message==='ACCEPT'  && pending_player===msg.sender && state !== "p") {
