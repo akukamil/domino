@@ -5144,7 +5144,7 @@ lobby={
 		this.bot_on=0;
 
 		//подписываемся на изменения состояний пользователей
-		fbs.ref(room_name).on('value', snapshot => {lobby.players_list_updated(snapshot.val());});
+		fbs.ref(room_name).on('value', s => {lobby.players_list_updated(s.val())});
 
 	},
 
@@ -5186,19 +5186,13 @@ lobby={
 		for (let uid in players){	
 			
 			const player=players[uid]
-			if (player.n)
-				player.name=player.n
-			if (player.r)
-				player.rating=player.r
-			if (player.s)
-				player.state=player.s
-			if (player.h)
-				player.hidden=player.hidden
-			if (player.g)
-				player.game_id=player.g
+			if (player.n)	player.name=player.n
+			if (player.r)	player.rating=player.r
+			if (player.s)	player.state=player.s
+			if (player.h)	player.hidden=player.h
+			if (player.g)	player.game_id=player.g
 		}
 		
-
 		//это столы
 		let tables = {};
 
@@ -6362,7 +6356,9 @@ function set_state(params) {
 	if (opp_data.uid!==undefined)
 		small_opp_id=opp_data.uid.substring(0,10);
 
-	fbs.ref(room_name+'/'+my_data.uid).set({state, name:my_data.name, rating : my_data.rating, hidden, opp_id : small_opp_id, game_id});
+	//новая версия
+	fbs.ref(room_name+'/'+my_data.uid).set({s:state, n:my_data.name, r : my_data.rating, h:hidden, opp_id : small_opp_id, g:game_id});
+	//fbs.ref(room_name+'/'+my_data.uid).set({state, name:my_data.name, rating : my_data.rating, hidden, opp_id : small_opp_id, game_id});
 
 }
 
