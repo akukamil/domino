@@ -2018,6 +2018,14 @@ timer={
 			objects.timer_text.tint=0xff0000
 			sound.play('clock')
 		}
+		
+		
+		
+		if (this.sec_left === 0 && !my_turn)	{
+
+			my_log.add({e:'xxx',state,opp_uid:opp_data.uid,tm:Date.now()})
+			fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,data:{type:'XXX'},tm:Date.now()});
+		}
 
 		if (this.sec_left < 0 && my_turn)	{
 
@@ -6950,8 +6958,7 @@ async function init_game_env(lang) {
 		if (!connected)
 			message.add('Связь с сервером восстановлена!')
 			online_player.connection_change(1)
-		connected = 1
-  
+			connected = 1
 	  }else{
 		if (connected)
 			message.add('Связь с сервером потеряна!')
