@@ -2021,10 +2021,11 @@ timer={
 		
 		
 		
-		if (this.sec_left === 0 && !my_turn)	{
+		if (this.sec_left === 0 && !my_turn){
 
-			my_log.add({e:'xxx',state,opp_uid:opp_data.uid,tm:Date.now()})
-			fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,data:{type:'XXX'},tm:Date.now()});
+			//my_log.add({e:'xxx',state,opp_uid:opp_data.uid,tm:Date.now()})
+			//fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,data:{type:'XXX'},tm:Date.now()});
+			online_player.forced_inbox_check()
 		}
 
 		if (this.sec_left < 0 && my_turn)	{
@@ -2467,6 +2468,16 @@ online_player={
 
 	},
 
+	async forced_inbox_check(){
+
+		const opp_inbox_data=await fbs_once('inbox/'+opp_data.uid)||'noinbox'
+		const my_inbox_data=await fbs_once('inbox/'+my_data.uid)||'noinbox'
+		
+		my_log.add({e:'opp_inbox',d:opp_inbox_data})
+		my_log.add({e:'my_inbox',d:my_inbox_data})
+
+	},
+
 	resume_game(){
 
 		my_log.add({e:'resume_game',tm:Date.now()})
@@ -2503,6 +2514,7 @@ online_player={
 		
 		my_log.add({e:'opp_timeout',my_chips,opp_chips,tm:Date.now()})
 		clearTimeout(this.write_fb_timer)
+		//console.log(my_log.log_arr)
 		if (res==='opp_timeout'&&my_data.rating>1700){
 			fbs.ref('BAD_CASE/'+my_data.uid+'/'+game_id).set(my_log.log_arr)
 		}
