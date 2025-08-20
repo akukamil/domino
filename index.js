@@ -2602,7 +2602,7 @@ my_player={
 			//throw new TypeError("oops");
 						
 		} catch(err){					
-			my_log.add(err)
+			my_log.add({d:'ERROR',tm:Date.now()})
 			
 		}
 
