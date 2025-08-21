@@ -2255,6 +2255,7 @@ online_player={
 		this.start_time=Date.now()
 		
 		this.blind_game_flag=blind||0
+		objects.bcg.tint=blind?0xffaaaa:0xffffff
 		
 		//показываем и заполняем карточку оппонента
 		const player_data=players_cache.players[opp_data.uid]
@@ -3100,7 +3101,8 @@ game={
 		//полка костей соперника и маска
 		objects.opp_chips_shelf.visible=false
 		objects.opp_chips_mask.visible=false
-
+		
+		objects.bcg.tint=0xffffff
 
 		set_state({state:'o'});
 
