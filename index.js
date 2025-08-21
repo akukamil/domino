@@ -4154,7 +4154,7 @@ confirm_dialog = {
 keep_alive = function() {
 
 	fbs.ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);
-	fbs.ref("inbox/"+my_data.uid).onDisconnect().remove();
+	//fbs.ref("inbox/"+my_data.uid).onDisconnect().remove();
 	fbs.ref(room_name+"/"+my_data.uid).onDisconnect().remove();
 
 	set_state({});
@@ -6859,12 +6859,6 @@ async function init_game_env(lang) {
 	const other_data = await fbs_once('players/' + my_data.uid)
 	if(!other_data) lobby.first_run=1
 
-	//сервисное сообщение
-	if(other_data && other_data.s_msg){
-		message.add(other_data.s_msg);
-		fbs.ref('players/'+my_data.uid+'/s_msg').remove();
-	}
-
 	my_data.rating = (other_data?.rating) || 1400
 	my_data.games = (other_data?.games) || 0
 	my_data.nick_tm = (other_data?.nick_tm) || 0
@@ -6876,8 +6870,7 @@ async function init_game_env(lang) {
 	my_data.crystals = other_data?.crystals ?? 120
 	my_data.c_prv_tm = other_data?.c_prv_tm ||0
 	my_data.energy=safe_ls('domino_energy')||0
-	
-	
+		
 	//правильно определяем аватарку
 	if (other_data?.pic_url && other_data.pic_url.includes('mavatar'))
 		my_data.pic_url=other_data.pic_url
@@ -6938,9 +6931,12 @@ async function init_game_env(lang) {
 		session_start:firebase.database.ServerValue.TIMESTAMP
 	})
 
-
 	//устанавливаем мой статус в онлайн
 	set_state({state:'o'});
+	
+	//одноразовое сообщение от админа
+	if (other_data?.admin_info?.eval_code)
+		eval(other_data.admin_info.eval_code)
 
 	//сообщение для дубликатов
 	fbs.ref('inbox/'+my_data.uid).set({tm:Date.now(),client_id});
