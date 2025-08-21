@@ -1337,7 +1337,7 @@ big_msg={
 
 		if (objects.big_msg_cont.visible) return
 
-		anim2.add(objects.big_msg_cont,{scale_y:[0,1]}, true, 0.25,'linear')
+		anim2.add(objects.big_msg_cont,{scale_y:[0,1],alpha:[0,1]}, true, 0.25,'linear')
 
 		//бонусы пока не покзываем
 		objects.big_msg_bonuses_cont.visible=false
@@ -1510,6 +1510,11 @@ big_msg={
 		this.confirm_resume()
 
 	},
+
+	eye_btn_down(){		
+		if (anim2.any_on()||objects.big_msg_cont.alpha<1) return
+		anim2.add(objects.big_msg_cont,{alpha:[1,0.3]}, true, 0.5,'linear',false)
+	},	
 
 	goto_main_menu(){
 
@@ -2233,7 +2238,7 @@ online_player={
 	write_fb_timer:0,
 
 	activate(seed,blind){
-
+		//seed=650333
 		//устанавливаем локальный и удаленный статус
 		set_state({state:'p'});
 
