@@ -2520,10 +2520,9 @@ online_player={
 		
 		my_log.add({e:'opp_timeout',my_chips,opp_chips,tm:Date.now()})
 		clearTimeout(this.write_fb_timer)
-		//console.log(my_log.log_arr)
-		if (res==='opp_timeout'&&my_data.rating>1700){
+/* 		if (res==='opp_timeout'&&my_data.rating>1700){
 			fbs.ref('BAD_CASE/'+my_data.uid+'/'+game_id).set(my_log.log_arr)
-		}
+		} */
 	},
 
 	close(){
