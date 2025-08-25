@@ -1269,8 +1269,8 @@ music={
 		if (!this.on) return;
 
 		if (!assets.music.isPlaying){
-			assets.music.play();
-			assets.music.loop=true;
+			assets.music.play()
+			assets.music.loop=true
 		}
 	},
 
@@ -1282,7 +1282,8 @@ music={
 			pref.send_info(['Музыка отключена','Music is off'][LANG])
 		} else{
 			this.on=1;
-			assets.music.play();
+			assets.music.play()
+			assets.music.loop=true
 			pref.send_info(['Музыка включена','Music is on'][LANG])
 		}
 
@@ -6935,9 +6936,7 @@ async function init_game_env(lang) {
 	//устанавливаем мой статус в онлайн
 	set_state({state:'o'});
 	
-	//одноразовое сообщение от админа
-	if (other_data?.admin_info?.eval_code)
-		eval(other_data.admin_info.eval_code)
+
 
 	//сообщение для дубликатов
 	fbs.ref('inbox/'+my_data.uid).set({tm:Date.now(),client_id});
@@ -6957,6 +6956,10 @@ async function init_game_env(lang) {
 		chat.init(),
 		new Promise(resolve=> setTimeout(() => {console.log('chat is not loaded!');resolve()}, 5000))
 	]);
+
+	//одноразовое сообщение от админа
+	if (other_data?.admin_info?.eval_code)
+		eval(other_data.admin_info.eval_code)
 
 	//отображаем лидеров вчерашнего дня
 	top3.activate()
