@@ -2315,18 +2315,19 @@ online_player={
 
 	send_move(data){
 
-		my_log.add({e:'out',...data,tm:Date.now()})
+		//my_log.add({e:'out',...data,tm:Date.now()})
 		this.me_conf_play=1
 
 		//отправляем ход онайлн сопернику (с таймаутом)
 		clearTimeout(this.write_fb_timer)
 		this.write_fb_timer=setTimeout(function(){game.stop('my_no_connection')}, 8000);
-		fbs.ref('inbox/'+opp_data.uid).set({message:'MOVE',sender:my_data.uid,data,tm:Date.now()}).then(()=>{
+		/*fbs.ref('inbox/'+opp_data.uid).set({message:'MOVE',sender:my_data.uid,data,tm:Date.now()}).then(()=>{
+			clearTimeout(this.write_fb_timer)
+		})*/
+		
+		fbs.ref('inbox/'+opp_data.uid).set({m:'M',s:my_data.uid.substring(0,8),d:data,tm:Date.now()}).then(()=>{
 			clearTimeout(this.write_fb_timer)
 		})
-		
-		//нужно заменить на более короткую версию
-		//fbs.ref('inbox/'+opp_data.uid).set({m:'M',s:my_data.uid.substring(0,8),d:data,tm:Date.now()})
 
 	},
 
@@ -2699,8 +2700,8 @@ my_player={
 
 		//отправляем данные сопернику
 		//нужно заменить на 
-		//opponent.send_move({с:chip.v1+''+chip.v2,a:anchor_to_send})
-		opponent.send_move({v1:chip.v1,v2:chip.v2,type:'CHIP',anchor:anchor_to_send});
+		opponent.send_move({c:chip.v1+''+chip.v2,a:anchor_to_send})
+		//opponent.send_move({v1:chip.v1,v2:chip.v2,type:'CHIP',anchor:anchor_to_send});
 		//console.log(anchor_to_send)
 
 		my_turn=0
@@ -2748,8 +2749,8 @@ my_player={
 		const res=game.take_from_bazar('my');
 				
 		
-		//if(res) opponent.send_move('B'); - это новая версия
-		if(res) opponent.send_move({type:'BAZAR'});
+		if(res) opponent.send_move('B')
+		//if(res) opponent.send_move({type:'BAZAR'});
 		
 		//если базар пуст и нет хода
 		if (!game.have_move(opponent.chips)&&!game.have_move(my_player.chips)){
@@ -2779,6 +2780,16 @@ s_random={
 
 	prv_val:1,
 	seed:0,
+	
+	set_version(v){
+	
+		if (v===1){
+			this.get=this.get2
+		}else{
+			this.get=this.get_old
+		}
+		
+	},
 
 	make_seed(v){
 
@@ -2790,7 +2801,21 @@ s_random={
 
 		this.prv_val=Math.round(Math.sin(this.prv_val*313.249)*1000);
 		return this.prv_val;
-	}
+	},
+
+	get2(){
+
+		this.prv_val=(9301 * this.prv_val + 49297) % 233280;
+		return this.prv_val;
+	},
+	
+	get_old(){
+
+		this.prv_val=Math.round(Math.sin(this.prv_val*313.249)*1000);
+		return this.prv_val;
+	},
+	
+	
 }
 
 game={
@@ -3630,7 +3655,7 @@ pref={
 			this.change_crystals(-int_passed)	
 
 			//уменьшаем только для рейтинговых игроков
-			if (my_data.rating>MAX_NO_CONF_RATING){
+			if (my_data.rating>MAX_NO_CONF_RATING){	
 								
 				//закончились монеты
 				if (my_data.crystals<=0){	
@@ -4179,6 +4204,12 @@ var process_new_message = function(msg) {
 
 	//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 	if (msg.message==='ACCEPT'  && pending_player===msg.sender && state !== "p") {
+		
+		//29.08.2025 - новый генератор
+		if (msg.v){
+			s_random.set_version(1)
+		}
+		
 		//в данном случае я мастер и хожу вторым
 		opp_data.uid=msg.sender;
 		game_id=msg.game_id;
@@ -4409,8 +4440,11 @@ req_dialog={
 		//отправляем информацию о согласии играть с идентификатором игры и сидом
 		game_id=irnd(1,9999)
 		const seed = irnd(1,999999)
+		//эту версию нужно скоро запускать начали 29,08,2025
+		//s_random.set_version(1)
+		//fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',v:1,tm:Date.now(),game_id,seed})
 		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',tm:Date.now(),game_id,seed})
-
+		
 		//заполняем карточку оппонента
 		objects.opp_card_name.set2(opp_data.name,150)
 		objects.opp_card_rating.text=objects.req_rating.text
