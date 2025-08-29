@@ -2094,7 +2094,7 @@ bot={
 		my_data.lose_rating = my_data.rating
 		my_data.win_rating = my_data.rating
 		
-		//s_random.set_version(1)
+		s_random.set_version(1)
 		opponent=this
 		game.activate(this,irnd(1,9999),0)
 		
@@ -4442,6 +4442,8 @@ req_dialog={
 		//эту версию нужно скоро запускать начали 29,08,2025
 		//s_random.set_version(1)
 		//fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',v:1,tm:Date.now(),game_id,seed})
+		
+		s_random.set_version(0)
 		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',tm:Date.now(),game_id,seed})
 		
 		//заполняем карточку оппонента
