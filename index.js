@@ -2094,6 +2094,7 @@ bot={
 		my_data.lose_rating = my_data.rating
 		my_data.win_rating = my_data.rating
 		
+		s_random.set_version(1)
 		opponent=this
 		game.activate(this,irnd(1,9999),0)
 		
