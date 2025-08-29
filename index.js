@@ -4205,10 +4205,8 @@ var process_new_message = function(msg) {
 	//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 	if (msg.message==='ACCEPT'  && pending_player===msg.sender && state !== "p") {
 		
-		//29.08.2025 - новый генератор
-		if (msg.v){
-			s_random.set_version(1)
-		}
+		//29.08.2025 - новый генератор еще не запущен
+		s_random.set_version(msg.v?1:0)
 		
 		//в данном случае я мастер и хожу вторым
 		opp_data.uid=msg.sender;
@@ -5962,12 +5960,15 @@ lobby={
 		//закрываем меню и начинаем игру
 		await lobby.close();
 
-		opp_data.uid=data.opp_uid		
+		opp_data.uid=data.opp_uid
 		
 		//устанаваем окончательные данные оппонента
 		await players_cache.update(data.opp_uid)
 		await players_cache.update_avatar(data.opp_uid)
 		game_id=+data.s
+		
+		//в определенный момент используем новый таймер
+		s_random.set_version(SERVER_TM>1757095982000?1:0)
 		
 		IAM_CALLED=data.r
 		online_player.activate(data.s,1)
