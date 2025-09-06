@@ -1436,19 +1436,12 @@ big_msg={
 		//если это онлайн игре
 		if (opponent===online_player){
 
-			//контрольные концовки логируем на виртуальной машине
-			if (my_data.rating>1990 || opp_data.rating>1990){
-				const duration = Math.floor((Date.now() - opponent.start_time)*0.001);
-				const data={uid:my_data.uid,p1:objects.my_card_name.text,p2:objects.opp_card_name.text, res:result_type,f:result,d:duration,bg:opponent.blind_game_flag, r: [old_rating,my_data.rating],gid:game_id,cid:client_id,tm:'TMS'}
-				my_ws.safe_send({cmd:'log',logger:`${game_name}_games`,data});
-			}
-						
 			if (result_type === DRAW || result_type === LOSE || result_type === WIN) {
-										
+
 				my_data.games++
 				fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating)
 				fbs.ref('players/'+my_data.uid+'/games').set(my_data.games)
-				
+
 				//если это слепая игра
 				if (online_player.blind_game_flag){
 					energy_bonus+=10
@@ -1458,7 +1451,14 @@ big_msg={
 				//бонус кристаллов за заход в зону подтверждения
 				if (my_data.rating>MAX_NO_CONF_RATING&&old_rating<=MAX_NO_CONF_RATING)
 					crystals_bonus+=30
-			}			
+			}
+
+			//контрольные концовки логируем на виртуальной машине
+			if (my_data.rating>1990 || opp_data.rating>1990){
+				const duration = Math.floor((Date.now() - opponent.start_time)*0.001);
+				const data={uid:my_data.uid,p1:objects.my_card_name.text,p2:objects.opp_card_name.text, res:result_type,f:result,d:duration,bg:opponent.blind_game_flag, r: [old_rating,my_data.rating],games:my_data.games,gid:game_id,cid:client_id,tm:'TMS'}
+				my_ws.safe_send({cmd:'log',logger:`${game_name}_games`,data});
+			}
 		}
 		
 		//бонус за выигрыш до конца
@@ -2321,11 +2321,7 @@ online_player={
 
 		//отправляем ход онайлн сопернику (с таймаутом)
 		clearTimeout(this.write_fb_timer)
-		this.write_fb_timer=setTimeout(function(){game.stop('my_no_connection')}, 8000);
-		/*fbs.ref('inbox/'+opp_data.uid).set({message:'MOVE',sender:my_data.uid,data,tm:Date.now()}).then(()=>{
-			clearTimeout(this.write_fb_timer)
-		})*/
-		
+		this.write_fb_timer=setTimeout(function(){game.stop('my_no_connection')}, 8000)		
 		fbs.ref('inbox/'+opp_data.uid).set({m:'M',s:my_data.uid.substring(0,8),d:data,tm:Date.now()}).then(()=>{
 			clearTimeout(this.write_fb_timer)
 		})
@@ -2700,17 +2696,11 @@ my_player={
 		game.drop_chip('my',chip);
 
 		//отправляем данные сопернику
-		//нужно заменить на 
 		opponent.send_move({c:chip.v1+''+chip.v2,a:anchor_to_send})
-		//opponent.send_move({v1:chip.v1,v2:chip.v2,type:'CHIP',anchor:anchor_to_send});
-		//console.log(anchor_to_send)
 
 		my_turn=0
 		opponent.reset_timer()
 		
-		//если у соперника нет ход, но есть на базаре, то берем сразу с базара
-		
-
 		//проверка выигрыша
 		if (!my_player.chips.length){
 			game.round_fin('my_win');
@@ -2751,7 +2741,6 @@ my_player={
 				
 		
 		if(res) opponent.send_move('B')
-		//if(res) opponent.send_move({type:'BAZAR'});
 		
 		//если базар пуст и нет хода
 		if (!game.have_move(opponent.chips)&&!game.have_move(my_player.chips)){
@@ -6910,6 +6899,8 @@ async function init_game_env(lang) {
 	my_data.crystals = other_data?.crystals ?? 120
 	my_data.c_prv_tm = other_data?.c_prv_tm ||0
 	my_data.energy=safe_ls('domino_energy')||0
+	my_data.block_num = other_data?.block_num ||0
+	
 		
 	//правильно определяем аватарку
 	if (other_data?.pic_url && other_data.pic_url.includes('mavatar'))
@@ -6965,6 +6956,7 @@ async function init_game_env(lang) {
 		skin_id:my_data.skin_id,
 		bcg_id:my_data.bcg_id,
 		c_prv_tm:my_data.c_prv_tm,
+		block_num:my_data.block_num,
 		crystals:my_data.crystals,
 		country:my_data.country||'',
 		tm:firebase.database.ServerValue.TIMESTAMP,
