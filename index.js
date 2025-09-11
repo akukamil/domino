@@ -2280,7 +2280,7 @@ online_player={
 		if (bot.on) bot.stop()
 		
 		//начинаем основное
-		game.activate(this,seed,0)	
+		game.activate(this,seed,0)
 
 		
 	},
@@ -4429,11 +4429,11 @@ req_dialog={
 		game_id=irnd(1,9999)
 		const seed = irnd(1,999999)
 		//эту версию нужно скоро запускать начали 29,08,2025
-		//s_random.set_version(1)
-		//fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',v:1,tm:Date.now(),game_id,seed})
+		s_random.set_version(1)
+		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',v:1,tm:Date.now(),game_id,seed})
 		
-		s_random.set_version(0)
-		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',tm:Date.now(),game_id,seed})
+		//s_random.set_version(0)
+		//fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',tm:Date.now(),game_id,seed})
 		
 		//заполняем карточку оппонента
 		objects.opp_card_name.set2(opp_data.name,150)
@@ -5960,7 +5960,7 @@ lobby={
 		game_id=+data.s
 		
 		//в определенный момент используем новый таймер
-		s_random.set_version(SERVER_TM>1757095982000?1:0)
+		s_random.set_version(1)
 		
 		IAM_CALLED=data.r
 		online_player.activate(data.s,1)
