@@ -684,7 +684,7 @@ class lb_player_card_class extends PIXI.Container{
 		this.avatar.width=this.avatar.height=44
 
 
-		this.name=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});
+		this.name=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 23,align: 'center'});
 		this.name.tint=0xcceeff;
 		this.name.x=105;
 		this.name.y=22;
