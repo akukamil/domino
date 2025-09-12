@@ -684,17 +684,17 @@ class lb_player_card_class extends PIXI.Container{
 		this.avatar.width=this.avatar.height=44
 
 
-		this.name=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 23,align: 'center'});
-		this.name.tint=0xcceeff;
-		this.name.x=105;
-		this.name.y=22;
+		this.name=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 23,align: 'center'})
+		this.name.tint=0xcceeff
+		this.name.x=95
+		this.name.y=22
 
-		this.rating=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});
-		this.rating.x=305;
-		this.rating.tint=0xFFFF00;
-		this.rating.y=22;
+		this.rating=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'})
+		this.rating.x=305
+		this.rating.tint=0xFFFF00
+		this.rating.y=22
 
-		this.addChild(this.bcg,this.place, this.avatar, this.name, this.rating);
+		this.addChild(this.bcg,this.place, this.avatar, this.name, this.rating)
 	}
 
 
