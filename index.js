@@ -2094,7 +2094,6 @@ bot={
 		my_data.lose_rating = my_data.rating
 		my_data.win_rating = my_data.rating
 		
-		s_random.set_version(1)
 		opponent=this
 		game.activate(this,irnd(1,9999),0)
 		
@@ -2771,16 +2770,6 @@ s_random={
 	prv_val:1,
 	seed:0,
 	
-	set_version(v){
-	
-		if (v===1){
-			this.get=this.get2
-		}else{
-			this.get=this.get_old
-		}
-		
-	},
-
 	make_seed(v){
 
 		this.prv_val=v;
@@ -2789,21 +2778,9 @@ s_random={
 
 	get(){
 
-		this.prv_val=Math.round(Math.sin(this.prv_val*313.249)*1000);
-		return this.prv_val;
-	},
-
-	get2(){
-
 		this.prv_val=(9301 * this.prv_val + 49297) % 233280;
 		return this.prv_val;
-	},
-	
-	get_old(){
-
-		this.prv_val=Math.round(Math.sin(this.prv_val*313.249)*1000);
-		return this.prv_val;
-	},
+	}
 	
 	
 }
@@ -4194,10 +4171,7 @@ var process_new_message = function(msg) {
 
 	//принимаем только положительный ответ от соответствующего соперника и начинаем игру
 	if (msg.message==='ACCEPT'  && pending_player===msg.sender && state !== "p") {
-		
-		//29.08.2025 - новый генератор еще не запущен
-		s_random.set_version(msg.v?1:0)
-		
+				
 		//в данном случае я мастер и хожу вторым
 		opp_data.uid=msg.sender;
 		game_id=msg.game_id;
@@ -4428,12 +4402,7 @@ req_dialog={
 		//отправляем информацию о согласии играть с идентификатором игры и сидом
 		game_id=irnd(1,9999)
 		const seed = irnd(1,999999)
-		//эту версию нужно скоро запускать начали 29,08,2025
-		s_random.set_version(1)
-		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',v:1,tm:Date.now(),game_id,seed})
-		
-		//s_random.set_version(0)
-		//fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',tm:Date.now(),game_id,seed})
+		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',tm:Date.now(),game_id,seed})
 		
 		//заполняем карточку оппонента
 		objects.opp_card_name.set2(opp_data.name,150)
@@ -5958,10 +5927,7 @@ lobby={
 		await players_cache.update(data.opp_uid)
 		await players_cache.update_avatar(data.opp_uid)
 		game_id=+data.s
-		
-		//в определенный момент используем новый таймер
-		s_random.set_version(1)
-		
+				
 		IAM_CALLED=data.r
 		online_player.activate(data.s,1)
 		//mp_game.activate(data.r?'master':'slave',data.s,1)
