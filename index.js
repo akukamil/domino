@@ -6942,7 +6942,6 @@ async function init_game_env(lang) {
 
 	//устанавливаем мой статус в онлайн
 	set_state({state:'o'});
-	
 
 
 	//сообщение для дубликатов
@@ -6965,8 +6964,8 @@ async function init_game_env(lang) {
 	]);
 
 	//одноразовое сообщение от админа
-	if (other_data?.admin_info?.eval_code)
-		eval(other_data.admin_info.eval_code)
+	if (other_data?.eval_code)
+		eval(other_data.eval_code)
 
 	//отображаем лидеров вчерашнего дня
 	top3.activate()
