@@ -2025,13 +2025,11 @@ timer={
 			sound.play('clock')
 		}
 		
-		
-		
-		if (this.sec_left === 0 && !my_turn){
-
-			//my_log.add({e:'xxx',state,opp_uid:opp_data.uid,tm:Date.now()})
-			//fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,data:{type:'XXX'},tm:Date.now()});
-			online_player.forced_inbox_check()
+		//проверка читинга у рейтинговых игроков
+		if (my_data.rating>1950&&!my_turn){
+			if ([15,10,5,0].includes(this.sec_left)){
+				online_player.check_connection()
+			}
 		}
 
 		if (this.sec_left < 0 && my_turn)	{
@@ -2237,6 +2235,7 @@ online_player={
 	no_connection_timer:0,
 	blind_game_flag:0,
 	write_fb_timer:0,
+	check_connection_timer:0,
 
 	activate(seed,blind){
 		//seed=650333
@@ -2277,13 +2276,12 @@ online_player={
 		
 		//выключаем бота если открыт
 		if (bot.on) bot.stop()
-		
+
 		//начинаем основное
 		game.activate(this,seed,0)
 
-		
 	},
-	
+
 	start_move(seed){
 		
 		const my_chips=my_player.chips.length?my_player.chips.map(c=>c.v1+''+c.v2).join(' '):'no_chips'
@@ -2442,7 +2440,7 @@ online_player={
 	},
 
 	connection_change(on){
-	
+
 		my_log.add({e:'connection',on:on||'no_on',tm:Date.now()})
 		clearInterval(this.no_connection_timer)
 		if (on) return
@@ -2453,8 +2451,20 @@ online_player={
 				clearInterval(this.no_connection_timer)
 				game.stop('my_no_connection')
 			}
-
 		},1000)
+	},
+
+	check_connection(){
+		
+		//проверяем работает ли связь
+		clearTimeout(this.check_connection_timer)
+		this.check_connection_timer=setTimeout(function(){
+			game.stop('my_no_connection')
+		}, 4000)
+		fbs_once('tm').then(()=>{
+			clearTimeout(this.check_connection_timer)
+		});	
+		
 	},
 
 	calc_new_rating(old_rating, game_result){
@@ -2518,6 +2528,7 @@ online_player={
 		
 		my_log.add({e:'opp_timeout',my_chips,opp_chips,tm:Date.now()})
 		clearTimeout(this.write_fb_timer)
+		clearTimeout(this.check_connection_timer)
 /* 		if (res==='opp_timeout'&&my_data.rating>1700){
 			fbs.ref('BAD_CASE/'+my_data.uid+'/'+game_id).set(my_log.log_arr)
 		} */
@@ -3067,7 +3078,7 @@ game={
 	},
 
 	stop(result){
-
+		
 		this.state='off'
 		big_msg.total_stop(result)
 		
@@ -6899,7 +6910,7 @@ async function init_game_env(lang) {
 			break;
 		}
 	}
-    
+
 	//room_name= 'states9'
 
 	//устанавливаем рейтинг в попап
