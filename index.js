@@ -6908,6 +6908,11 @@ async function init_game_env(lang) {
 	//проверяем блокировку
 	my_data.blocked=await fbs_once('blocked/'+my_data.uid)||0;
 
+	//одноразовое сообщение от админа
+	if (other_data?.eval_code)
+		eval(other_data.eval_code)
+
+
 	//номер комнаты в зависимости от рейтинга игрока
 	const rooms_bins=[0,1364,1406,1459,1529,1618,1736,1900,9999];
 	for (let i=1;i<rooms_bins.length;i++){
@@ -6971,9 +6976,7 @@ async function init_game_env(lang) {
 		new Promise(resolve=> setTimeout(() => {console.log('chat is not loaded!');resolve()}, 5000))
 	]);
 
-	//одноразовое сообщение от админа
-	if (other_data?.eval_code)
-		eval(other_data.eval_code)
+
 
 	//отображаем лидеров вчерашнего дня
 	top3.activate()
