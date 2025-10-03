@@ -1449,8 +1449,8 @@ big_msg={
 				}
 				
 				//бонус кристаллов за заход в зону подтверждения
-				if (my_data.rating>MAX_NO_CONF_RATING&&old_rating<=MAX_NO_CONF_RATING)
-					crystals_bonus+=30
+				//if (my_data.rating>MAX_NO_CONF_RATING&&old_rating<=MAX_NO_CONF_RATING)
+				//pref.set_crystals(30)
 			}
 
 			//контрольные концовки логируем на виртуальной машине
@@ -3547,7 +3547,15 @@ pref={
 		if (my_data.crystals<0) my_data.crystals=0
 		
 		objects.pref_crystals_info.text=my_data.crystals
-		fbs.ref('players/'+my_data.uid+'/crystals').set(my_data.crystals)	
+		if (amount)
+			fbs.ref('players/'+my_data.uid+'/crystals').set(my_data.crystals)	
+		
+	},
+	
+	set_crystals(amount){
+		
+		my_data.crystals=amount
+		this.change_crystals(0)
 		
 	},
 	
@@ -3630,13 +3638,13 @@ pref={
 		const int_passed=Math.floor(d/(1000*60*60))
 		if (int_passed>0){
 
-			this.change_crystals(-int_passed)	
-
 			//уменьшаем только для рейтинговых игроков
 			if (my_data.rating>MAX_NO_CONF_RATING){	
-								
+			
+				this.change_crystals(-int_passed)
+				
 				//закончились монеты
-				if (my_data.crystals<=0){	
+				if (my_data.crystals<=0){
 					message.add(`У вас закончились кристаллы. Ваш рейтинг понижен до ${MAX_NO_CONF_RATING}`,6000)
 					my_data.rating=MAX_NO_CONF_RATING
 					fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating)
