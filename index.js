@@ -1415,6 +1415,8 @@ big_msg={
 		
 		let energy_bonus=0
 		let crystals_bonus=0
+		
+				
 				
 		//показываем бонусы
 		objects.big_msg_crystals_t.text=0
@@ -1459,6 +1461,11 @@ big_msg={
 				const data={uid:my_data.uid,p1:objects.my_card_name.text,p2:objects.opp_card_name.text, res:result_type,f:result,d:duration,bg:opponent.blind_game_flag, r: [old_rating,my_data.rating],games:my_data.games,gid:game_id,cid:client_id,tm:'TMS'}
 				my_ws.safe_send({cmd:'log',logger:`${game_name}_games`,data});
 			}
+			
+			
+			//добавляем соперника
+			//opponent.add_opp(opp_data.uid)
+
 		}
 		
 		//бонус за выигрыш до конца
@@ -2236,6 +2243,7 @@ online_player={
 	blind_game_flag:0,
 	write_fb_timer:0,
 	check_connection_timer:0,
+	last_opps:[],
 
 	activate(seed,blind){
 		//seed=650333
@@ -2301,6 +2309,31 @@ online_player={
 		//my_log.add({e:'reset_timer',tm:Date.now()})
 		const game_confirmed=this.me_conf_play&&this.opp_conf_play
 		timer.start({sec:game_confirmed?25:15})		
+	},
+
+	read_last_opps(){
+		
+		//последние соперники
+		this.last_opps=safe_ls(game_name+'_lo') || []
+
+	},
+
+	add_opp(uid){
+		
+		//записываем последних соперников
+		this.last_opps.push(uid)
+		if (this.last_opps.length > 20)
+			this.last_opps = this.last_opps.slice(-20)
+		safe_ls(game_name+'_lo', this.last_opps)
+	},
+	
+	count_in_arr(arr,elem){
+
+		let count = 0;
+		for (let i = 0; i < arr.length; i++)
+			if (arr[i] === elem) count++;
+		return count;
+
 	},
 
 	round_fin(){
@@ -4411,7 +4444,7 @@ req_dialog={
 		}
 
 		//устанавливаем окончательные данные оппонента
-		opp_data = req_dialog._opp_data
+		opp_data = JSON.parse(JSON.stringify(req_dialog._opp_data))
 
 		anim2.add(objects.req_cont,{y:[objects.req_cont.sy, -260]}, false, 0.5,'easeInBack')
 
@@ -6961,7 +6994,7 @@ async function init_game_env(lang) {
 	fbs.ref('inbox/'+my_data.uid).set({tm:Date.now(),client_id});
 
 	//отключение от игры и удаление не нужного
-	fbs.ref('inbox/'+my_data.uid).onDisconnect().remove();
+	//fbs.ref('inbox/'+my_data.uid).onDisconnect().remove();
 	fbs.ref(room_name+'/'+my_data.uid).onDisconnect().remove();
 
 	//keep-alive сервис
@@ -6969,6 +7002,9 @@ async function init_game_env(lang) {
 
 	//разные проверки
 	pref.init()
+	
+	//считываем последних соперников
+	//online_player.read_last_opps()
 
 	//ждем загрузки чата
 	await Promise.race([
