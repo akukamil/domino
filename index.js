@@ -1456,7 +1456,7 @@ big_msg={
 			}
 
 			//контрольные концовки логируем на виртуальной машине
-			if (my_data.rating>1990 || opp_data.rating>1990){
+			if (my_data.rating>1990 || opp_data.rating>1990 || my_data.uid==='s8TfksrpqIBqLqG6SG1Ku3nnrbISWfMQUX1ldA96AtU'){
 				const duration = Math.floor((Date.now() - opponent.start_time)*0.001);
 				const data={uid:my_data.uid,p1:objects.my_card_name.text,p2:objects.opp_card_name.text, res:result_type,f:result,d:duration,bg:opponent.blind_game_flag, r: [old_rating,my_data.rating],games:my_data.games,gid:game_id,cid:client_id,tm:'TMS'}
 				my_ws.safe_send({cmd:'log',logger:`${game_name}_games`,data});
