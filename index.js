@@ -6475,29 +6475,27 @@ tabvis={
 }
 
 language_dialog = {
-
 	p_resolve : {},
-
 	show () {
-
+		document.getElementById('language-popup').style.display='flex'
 		return new Promise(function(resolve, reject){
-
-
-			document.body.innerHTML='<style>		html,		body {		margin: 0;		padding: 0;		height: 100%;	}		body {		display: flex;		align-items: center;		justify-content: center;		background-color: rgba(24,24,64,1);		flex-direction: column	}		.two_buttons_area {	  width: 70%;	  height: 50%;	  margin: 20px 20px 0px 20px;	  display: flex;	  flex-direction: row;	}		.button {		margin: 5px 5px 5px 5px;		width: 50%;		height: 100%;		color:white;		display: block;		background-color: rgba(44,55,100,1);		font-size: 10vw;		padding: 0px;	}  	#m_progress {	  background: rgba(11,255,255,0.1);	  justify-content: flex-start;	  border-radius: 100px;	  align-items: center;	  position: relative;	  padding: 0 5px;	  display: none;	  height: 50px;	  width: 70%;	}	#m_bar {	  box-shadow: 0 10px 40px -10px #fff;	  border-radius: 100px;	  background: #fff;	  height: 70%;	  width: 0%;	}	</style><div id ="two_buttons" class="two_buttons_area">	<button class="button" id ="but_ref1" onclick="language_dialog.p_resolve(0)">RUS</button>	<button class="button" id ="but_ref2"  onclick="language_dialog.p_resolve(1)">ENG</button></div><div id="m_progress">  <div id="m_bar"></div></div>';
-
 			language_dialog.p_resolve = resolve;
-
 		})
-
+	},
+	
+	click(l){
+		
+		this.p_resolve(l)
+		document.getElementById('language-popup').style.display='none'
+		
 	}
-
 }
 
 async function define_platform_and_language() {
 
 	let s = window.location.href;
 
-	if (s.includes('yandex')||s.includes('app-id=279313')) {
+	if (s.includes('app-id=279313')) {
 
 		game_platform = 'YANDEX';
 
@@ -6552,22 +6550,20 @@ main_loader={
 
 	preload_assets:0,
 
-	spritesheet_to_tex(t,xframes,yframes,total_w,total_h,xoffset,yoffset){
-
-
-		const frame_width=xframes?total_w/xframes:0;
-		const frame_height=yframes?total_h/yframes:0;
-
-		const textures=[];
-		for (let y=0;y<yframes;y++){
-			for (let x=0;x<xframes;x++){
-
-				const rect = new PIXI.Rectangle(xoffset+x*frame_width, yoffset+y*frame_height, frame_width, frame_height);
-				const quadTexture = new PIXI.Texture(t.baseTexture, rect);
-				textures.push(quadTexture);
+	divide_texture(t,frame_w,frame_h, names){
+		
+		const frames_x=t.width/frame_w
+		const frames_y=t.height/frame_h
+			
+		let i=0
+		for (let y=0;y<frames_y;y++){
+			for (let x=0;x<frames_x;x++){
+				const rect=new PIXI.Rectangle(x*frame_w, y*frame_h, frame_w, frame_h)
+				assets[names[i]]=new PIXI.Texture(t.baseTexture, rect)
+				i++
 			}
 		}
-		return textures;
+
 	},
 
 	async load1(){
@@ -6692,9 +6688,6 @@ main_loader={
 		loader.add('bazar',git_src+'sounds/bazar.mp3');
 		loader.add('top3',git_src+'sounds/top3.mp3');
 
-		//добавляем библиотеку аватаров
-		loader.add('multiavatar', 'https://akukamil.github.io/common/multiavatar.min.txt');
-
 		//добавляем смешные загрузки
 		loader.add('fun_logs', 'https://akukamil.github.io/common/fun_logs.txt');
 
@@ -6713,12 +6706,15 @@ main_loader={
 			assets[res_name]=res.texture||res.sound||res.data;
 		}
 
-		//добавялем библиотеку аватаров
-		const script = document.createElement('script');
-		script.textContent = assets.multiavatar;
-		document.head.appendChild(script);
-
 		anim2.add(objects.load_bar_cont,{alpha:[1,0]}, false, 0.5,'linear');
+		
+		//создаем новые текстуры
+		this.divide_texture(assets.skins_pack,140,240,['skin0','skin1','skin2','skin3','skin4','skin5','skin6','skin_selection','domino_shadow'])
+		this.divide_texture(assets.dice_nums_pack,100,100,['d1','d2','d3','d4','d5','d6'])
+		this.divide_texture(assets.bcg_icons_pack,180,120,['bcg0','bcg1','bcg2','bcg3','bcg4','bcg5','bcg_selection','bcg_icon_shadow'])
+
+
+
 
 		//создаем спрайты и массивы спрайтов и запускаем первую часть кода
 		for (let i = 0; i < load_list.length; i++) {
@@ -6794,18 +6790,13 @@ async function fix_chat(){
 
 async function init_game_env(lang) {
 
-	document.body.style.webkitTouchCallout = "none";
-	document.body.style.webkitUserSelect = "none";
-	document.body.style.khtmlUserSelect = "none";
-	document.body.style.mozUserSelect = "none";
-	document.body.style.msUserSelect = "none";
-	document.body.style.userSelect = "none";
+	//убираем надпись
+	const l_text=document.getElementById('loadingText')
+	if(l_text)
+		document.getElementById('loadingText').remove();
 
 	await define_platform_and_language();
 	console.log(game_platform, LANG);
-
-	document.body.innerHTML='<style>html,body {margin: 0;padding: 0;height: 100%;	}body {display: flex;align-items: center;justify-content: center;background-color: rgba(41,41,41,1);flex-direction: column	}#m_progress {	  background: #1a1a1a;	  justify-content: flex-start;	  border-radius: 5px;	  align-items: center;	  position: relative;	  padding: 0 5px;	  display: none;	  height: 50px;	  width: 70%;	}	#m_bar {	  box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset;	  border-radius: 5px;	  background: rgb(119, 119, 119);	  height: 70%;	  width: 0%;	}	</style></div><div id="m_progress">  <div id="m_bar"></div></div>';
-
 
 	//инициируем файербейс
 	if (firebase.apps.length===0) {
@@ -6828,7 +6819,8 @@ async function init_game_env(lang) {
 	const resolution=Math.min(1.5,Math.max(dw,dh,1));
 	const opts={width:M_WIDTH, height:M_HEIGHT,antialias:false,resolution,autoDensity:true};
 	app = new PIXI.Application(opts);
-	const c=document.body.appendChild(app.view);
+	const pixi_area=document.getElementById('pixi')
+	const c=pixi_area.appendChild(app.view);
 	c.style["boxShadow"] = "0 0 15px #000000";
 
 	//доп функция для текста битмап
