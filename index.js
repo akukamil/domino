@@ -6489,6 +6489,7 @@ language_dialog = {
 		document.getElementById('language-popup').style.display='none'
 		
 	}
+
 }
 
 async function define_platform_and_language() {
@@ -6506,7 +6507,7 @@ async function define_platform_and_language() {
 		return;
 	}
 
-	if (s.includes('vk.com')) {
+	if (s.includes('vk.com')||s.includes('vk.ru')||s.includes('vk_app_id')||s.includes('ok.ru')) {
 		game_platform = 'VK';
 		LANG = 0;
 		return;
@@ -6712,8 +6713,6 @@ main_loader={
 		this.divide_texture(assets.skins_pack,140,240,['skin0','skin1','skin2','skin3','skin4','skin5','skin6','skin_selection','domino_shadow'])
 		this.divide_texture(assets.dice_nums_pack,100,100,['d1','d2','d3','d4','d5','d6'])
 		this.divide_texture(assets.bcg_icons_pack,180,120,['bcg0','bcg1','bcg2','bcg3','bcg4','bcg5','bcg_selection','bcg_icon_shadow'])
-
-
 
 
 		//создаем спрайты и массивы спрайтов и запускаем первую часть кода
