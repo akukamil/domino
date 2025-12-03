@@ -905,22 +905,35 @@ class feedback_record_class extends PIXI.Container {
 		super();
 		this.text=new PIXI.BitmapText('Николай: хорошая игра', {lineSpacing:42,fontName: 'mfont',fontSize: 19,align: 'left'});
 		this.text.maxWidth=290;
-		this.text.tint=0xFFFF00;
+		this.text.tint=0xEEEEEE;
 
 		this.name_text=new PIXI.BitmapText('Николай:', {fontName: 'mfont',fontSize: 19,align: 'left'});
-		this.name_text.tint=0xFFFFFF;
+		this.name_text.tint=0xFFFF00;
 
 
 		this.addChild(this.text,this.name_text)
 	}
 
-	set(name, feedback_text){
-		this.text.text=name+': '+feedback_text;
-		this.name_text.text=name+':';
+	set(fb){		
+	
+		//метка что отзывов нет
+		if (fb.nofb){
+			this.text.visible=false
+			this.name_text.text='Нет отзывов'
+			this.name_text.tint=0xAAAADD
+			return
+		}
+		
+		let sender_name = fb.name || 'Неизв.'
+		if (sender_name.length > 10) sender_name = sender_name.substring(0, 10)
+				
+		this.text.visible=true
+		this.text.text=sender_name+': '+fb.f
+		
+		this.name_text.tint=0xFFFF00
+		this.name_text.text=sender_name+':'
 
 	}
-
-
 }
 
 class slider_class extends PIXI.Container{
@@ -1540,10 +1553,9 @@ big_msg={
 		}
 
 		//пишем отзыв и отправляем его
-		const msg = await keyboard.read();
-		if (msg) {
-			let fb_id = irnd(0,50);
-			await fbs.ref('fb/'+opp_data.uid+'/'+fb_id).set([msg, firebase.database.ServerValue.TIMESTAMP, my_data.name]);
+		const fb = await keyboard.read();
+		if (fb.length>0) {			
+			my_ws.safe_send({cmd:'push',path:'fb/'+opp_data.uid,val:{uid:my_data.uid.substring(0,7),name:my_data.name,f:fb,tm:'TMS'}})
 		}
 
 		//закрываем как следует
@@ -5803,13 +5815,14 @@ lobby={
 	fb_delete_down(){
 
 		objects.fb_delete_btn.visible=false;
-		fbs.ref('fb/' + my_data.uid).remove();
+		
+		my_ws.safe_send({cmd:'remove',path:'fb/'+my_data.uid})
 		this.fb_cache[my_data.uid].fb_obj={0:['***нет отзывов***',999,' ']};
 		this.fb_cache[my_data.uid].tm=Date.now();
 		objects.feedback_records.forEach(fb=>fb.visible=false);
 
 		message.add('Отзывы удалены')
-
+		
 	},
 
 	async show_feedbacks(uid) {
@@ -5818,15 +5831,15 @@ lobby={
 		let fb_obj;
 		if (!this.fb_cache[uid] || (Date.now()-this.fb_cache[uid].tm)>120000) {
 
-			fb_obj =await fbs_once("fb/" + uid);
+			fb_obj =await my_ws.get('fb/' + uid)
 
 			//сохраняем в кэше отзывов
-			this.fb_cache[uid]={};
-			this.fb_cache[uid].tm=Date.now();
+			this.fb_cache[uid]={}
+			this.fb_cache[uid].tm=Date.now()
 			if (fb_obj){
 				this.fb_cache[uid].fb_obj=fb_obj;
 			}else{
-				fb_obj={0:['***нет отзывов***',999,' ']};
+				fb_obj=[{nofb:1}];
 				this.fb_cache[uid].fb_obj=fb_obj;
 			}
 
@@ -5837,39 +5850,32 @@ lobby={
 			//console.log('фидбэки из кэша ,ура')
 		}
 
-
-
-		var fb = Object.keys(fb_obj).map((key) => [fb_obj[key][0],fb_obj[key][1],fb_obj[key][2]]);
-
 		//сортируем отзывы по дате
-		fb.sort(function(a,b) {
-			return b[1]-a[1]
+		fb_obj.sort(function(a,b) {
+			return b.tm-a.tm
 		});
-
 
 		//сначала убираем все фидбэки
 		objects.feedback_records.forEach(fb=>fb.visible=false)
 
 		let prv_fb_bottom=0;
-		const fb_cnt=Math.min(fb.length,objects.feedback_records.length);
+		const fb_cnt=Math.min(fb_obj.length,objects.feedback_records.length);
 		for (let i = 0 ; i < fb_cnt;i++) {
 			const fb_place=objects.feedback_records[i];
 
-			let sender_name =  fb[i][2] || 'Неизв.';
-			if (sender_name.length > 10) sender_name = sender_name.substring(0, 10);
-			fb_place.set(sender_name,fb[i][0]);
+			//устанаваем отзыв
+			fb_place.set(fb_obj[i])
 
-
-			const fb_height=fb_place.text.textHeight*0.85;
-			const fb_end=prv_fb_bottom+fb_height;
+			const fb_height=fb_place.text.textHeight*0.95
+			const fb_end=prv_fb_bottom+fb_height
 
 			//если отзыв будет выходить за экран то больше ничего не отображаем
-			const fb_end_abs=fb_end+objects.invite_cont.y+objects.invite_feedback.y;
+			const fb_end_abs=fb_end+objects.invite_cont.y+objects.invite_feedback.y
 			if (fb_end_abs>450) return;
 
-			fb_place.visible=true;
-			fb_place.y=prv_fb_bottom;
-			prv_fb_bottom+=fb_height;
+			fb_place.visible=true
+			fb_place.y=prv_fb_bottom
+			prv_fb_bottom+=fb_height
 		}
 
 	},
