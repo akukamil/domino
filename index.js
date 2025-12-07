@@ -903,11 +903,11 @@ class feedback_record_class extends PIXI.Container {
 	constructor() {
 
 		super();
-		this.text=new PIXI.BitmapText('Николай: хорошая игра', {lineSpacing:46,fontName: 'mfont',fontSize: 19,align: 'left'});
+		this.text=new PIXI.BitmapText('...', {lineSpacing:46,fontName: 'mfont',fontSize: 19,align: 'left'});
 		this.text.maxWidth=290;
 		this.text.tint=0xEEEEEE;
 
-		this.name_text=new PIXI.BitmapText('Николай:', {fontName: 'mfont',fontSize: 19,align: 'left'});
+		this.name_text=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 19,align: 'left'});
 		this.name_text.tint=0xFFFF00;
 
 
@@ -5930,20 +5930,6 @@ lobby={
 		this.hide_inst_msg_timer=setTimeout(()=>{
 			anim2.add(objects.inst_msg_cont,{alpha:[1, 0]},false,0.4,'linear')
 		},7000)
-	},
-
-	get_room_index_from_rating(){
-		//номер комнаты в зависимости от рейтинга игрока
-		const rooms_bins=[0,1366,1437,1580,9999];
-		let room_to_go='state1';
-		for (let i=1;i<rooms_bins.length;i++){
-			const f=rooms_bins[i-1];
-			const t=rooms_bins[i];
-			if (my_data.rating>f&&my_data.rating<=t)
-				return i;
-		}
-		return 1;
-
 	},
 
 	process(){
