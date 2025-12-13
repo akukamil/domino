@@ -5831,7 +5831,7 @@ lobby={
 		let fb_obj;
 		if (!this.fb_cache[uid] || (Date.now()-this.fb_cache[uid].tm)>120000) {
 
-			fb_obj =await my_ws.get('fb/' + uid)
+			fb_obj=await my_ws.get('fb/' + uid)
 
 			//сохраняем в кэше отзывов
 			this.fb_cache[uid]={}
@@ -6929,8 +6929,9 @@ async function init_game_env(lang) {
 		eval(other_data.eval_code)
 
 
+
 	//номер комнаты в зависимости от рейтинга игрока
-	const rooms_bins=[0,1364,1406,1459,1529,1618,1736,1900,9999];
+	const rooms_bins=[0,1256,1325,1391,1422,1478,1555,1667,1807,9999];
 	for (let i=1;i<rooms_bins.length;i++){
 		const f=rooms_bins[i-1];
 		const t=rooms_bins[i];
