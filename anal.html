@@ -98,6 +98,11 @@
 				<button class="button" id ="but_ref8"  onclick="states_room('states8')">Комната №8</button>
 			</div>	
 			
+			<div class="button_with_text">
+				<button class="button" id ="but_ref9"  onclick="states_room('states9')">Комната №9</button>
+			</div>		
+			
+			
 		</div>
 		
 
@@ -213,8 +218,12 @@ async function update_room_quick_stat() {
 		document.getElementById("but_ref7").textContent = Object.keys(snapshot.val()).length;
 	})
 	
-	firebase.database().ref('states8').once('value').then((snapshot) => {
-		document.getElementById("but_ref8").textContent = Object.keys(snapshot.val()).length;
+	firebase.database().ref('states8').once('value').then(s => {
+		document.getElementById("but_ref8").textContent = Object.keys(s.val()).length;
+	})
+	
+	firebase.database().ref('states9').once('value').then(s => {
+		document.getElementById("but_ref9").textContent = Object.keys(s.val()).length;
 	})
 }
 
