@@ -3715,26 +3715,6 @@ pref={
 
 	},
 
-	check_time(last_time){
-
-
-		//провряем можно ли менять
-		const tm=Date.now();
-		const days_since_nick_change=~~((tm-last_time)/86400000);
-		const days_befor_change=30-days_since_nick_change;
-		const ln=days_befor_change%10;
-		const opt=[0,5,6,7,8,9].includes(ln)*0+[2,3,4].includes(ln)*1+(ln===1)*2;
-		const day_str=['дней','дня','день'][opt];
-
-		if (days_befor_change>0){
-			this.send_info([`Поменять можно через ${days_befor_change} ${day_str}`,`Wait ${days_befor_change} days`][LANG])
-			sound.play('locked');
-			return 0;
-		}
-
-		return 1;
-	},
-
 	send_info(t){
 		objects.pref_info.text=t
 		anim2.add(objects.pref_info,{alpha:[0,1]}, false, 3,'easeBridge',false);
@@ -3856,6 +3836,13 @@ pref={
 
 	conf_photo_down(){
 		
+		
+		if (!SERVER_TM){
+			sound.play('locked')
+			this.add_info('Ошибка определения серверного времени!');
+			return;
+		}
+		
 		fbs.ref(`players/${my_data.uid}/pic_url`).set(this.cur_pic_url);
 
 		my_data.avatar_tm=SERVER_TM
@@ -3967,6 +3954,13 @@ pref={
 
 		if (my_data.blocked){
 			this.add_info('Функция недоступна, так как вы находитесь в черном списке');
+			return;
+		}
+
+
+		if (!SERVER_TM){
+			sound.play('locked')
+			this.add_info('Ошибка определения серверного времени!');
 			return;
 		}
 
