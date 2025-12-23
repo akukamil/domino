@@ -1,4 +1,4 @@
-var M_WIDTH=800, M_HEIGHT=450;
+const M_WIDTH=800, M_HEIGHT=450;
 var app, fbs, assets={},client_id, IAM_CALLED=0, objects={},SERVER_TM=0,state='',game_tick=0, game_id=0, my_turn=0, connected = 1,opponent=0, LANG = 0, hidden=0, game_platform="", git_src = '',room_name = 'room0', pending_player='',tm={}, some_process = {}, my_data={opp_id : ''},opp_data={}, game_name='domino';
 
 const WIN = 1, DRAW = 0, LOSE = -1, NOSYNC = 2
@@ -29,7 +29,7 @@ SKINS_DATA={
 	1:{tint:0xF2F2F2,rating:0,games:20},
 	2:{tint:0xF2F2F2,rating:1450,games:50},
 	3:{tint:0xffffff,rating:1550,games:150},
-	4:{tint:0x77370B,rating:1700,games:300},
+	4:{tint:0x55370B,rating:1700,games:300},
 	5:{tint:0x333333,rating:1900,games:500},
 	6:{tint:0x203864,rating:2000,games:700}
 }
@@ -1254,56 +1254,30 @@ sound={
 
 	},
 
-	switch(){
-
-		if (this.on){
-			this.on=0;
-			pref.send_info(['Звуки отключены','Sounds is off'][LANG])
-
-		} else{
-			this.on=1;
-			pref.send_info(['Звуки включены','Sounds is on'][LANG])
-		}
-		anim2.add(objects.pref_info,{alpha:[0,1]}, false, 3,'easeBridge',false);
-
-	}
-
 }
 
 music={
-
-	on:1,
-
-	activate(){
-
-		this.on=safe_ls('domino_music')??1;
-		objects.music_slider.x=this.on?119:80;//-39
-
-		if (!this.on) return;
-
-		if (!assets.music.isPlaying){
-			assets.music.play()
-			assets.music.loop=true
-		}
+	
+	on:0,
+	
+	
+	
+	start(){
+		this.on=1
+		assets.music.play()
+		assets.music.loop=true
 	},
-
-	switch(){
-
-		if (this.on){
-			this.on=0;
-			assets.music.stop();
-			pref.send_info(['Музыка отключена','Music is off'][LANG])
-		} else{
-			this.on=1;
-			assets.music.play()
-			assets.music.loop=true
-			pref.send_info(['Музыка включена','Music is on'][LANG])
-		}
-
-		safe_ls('domino_music',this.on);
-		anim2.add(objects.pref_info,{alpha:[0,1]}, false, 3,'easeBridge',false);
+	
+	stop(){
+		this.on=0
+		assets.music.stop()
+	},
+	
+	set(on){
+		if (on===1) this.start()
+		if (on===0) this.stop()		
 	}
-
+	
 }
 
 big_msg={
@@ -3571,6 +3545,13 @@ pref={
 	},
 
 	init(){
+		
+		//проверяем музыку
+		let music_on=safe_ls('domino_music')
+		if (music_on===null) music_on=1		
+		if (music_on) music.start()
+		this.music_icon_update()
+		
 
 		let i=0
 		setInterval(()=>{
@@ -3716,6 +3697,8 @@ pref={
 	update_buttons(){
 
 		if (!SERVER_TM){
+			this.hours_to_nick_change=999
+			this.hours_to_photo_change=999
 			this.send_info('Ошибка получения серверного времени(((')
 			return
 		}
@@ -3788,6 +3771,19 @@ pref={
 		sound.play('click2');
 		this.select_bcg(bcg);
 	},
+	
+	main_bcg_down(e){
+		
+		const mx = e.data.global.x/app.stage.scale.x
+		const my = e.data.global.y/app.stage.scale.y
+		
+		if (mx>51&&my>310&&mx<181&&my<350)
+			this.sound_switch_down()
+
+		if (mx>213&&my>310&&mx<343&&my<350)
+			this.music_switch_down()
+		
+	},
 
 	get_game_texture(){
 
@@ -3809,29 +3805,31 @@ pref={
 
 	music_switch_down(){
 
-		if(anim2.any_on()){
-			sound.play('locked');
-			return;
-		}
+		music.set(1-music.on)		
+		this.music_icon_update()		
+		safe_ls('domino_music',music.on)
 
-		music.switch();
-		sound.play('click3');
-		const tar_x=music.on?119:80;//-39
-		anim2.add(objects.music_slider,{x:[objects.music_slider.x,tar_x]}, true, 0.1,'linear');
-
+	},
+	
+	music_icon_update(){
+		
+		if (music.on)
+			objects.pref_msc_bcg.texture=assets.pref_snd_on_img
+		else
+			objects.pref_msc_bcg.texture=assets.pref_snd_off_img
+		
 	},
 
 	sound_switch_down(){
 
-		if(anim2.any_on()){
-			sound.play('locked');
-			return;
+		if (sound.on){
+			sound.on=0
+			objects.pref_snd_bcg.texture=assets.pref_snd_off_img
+		}else{
+			sound.on=1
+			objects.pref_snd_bcg.texture=assets.pref_snd_on_img
+			sound.play('click')
 		}
-
-		sound.switch();
-		sound.play('click3');
-		const tar_x=sound.on?280:241;//-39
-		anim2.add(objects.sound_slider,{x:[objects.sound_slider.x,tar_x]}, true, 0.1,'linear');
 
 	},
 
@@ -3844,35 +3842,6 @@ pref={
 
 		sound.play('close_it');
 
-		if (this.avatar_changed){
-
-			fbs.ref(`players/${my_data.uid}/pic_url`).set(this.cur_pic_url);
-
-			my_data.avatar_tm=SERVER_TM
-			fbs.ref(`players/${my_data.uid}/avatar_tm`).set(SERVER_TM);
-
-			//обновляем аватар в кэше
-			players_cache.update_avatar_forced(my_data.uid,this.cur_pic_url).then(()=>{
-				const my_card=objects.mini_cards.find(card=>card.uid===my_data.uid);
-				my_card.avatar.set_texture(players_cache.players[my_data.uid].texture);
-			})
-
-		}
-
-		if (this.name_changed){
-
-			my_data.name=this.name_changed;
-
-			//обновляем мое имя в разных системах
-			set_state({});
-
-			my_data.nick_tm=SERVER_TM
-			fbs.ref(`players/${my_data.uid}/nick_tm`).set(my_data.nick_tm);
-			fbs.ref(`players/${my_data.uid}/name`).set(my_data.name);
-
-		}
-
-
 		this.switch_to_lobby();
 		fbs.ref('players/'+my_data.uid+'/skin_id').set(my_data.skin_id);
 		fbs.ref('players/'+my_data.uid+'/bcg_id').set(my_data.bcg_id);
@@ -3883,6 +3852,26 @@ pref={
 			chip.set_skin(my_data.skin_id);
 		})
 
+	},
+
+	conf_photo_down(){
+		
+		fbs.ref(`players/${my_data.uid}/pic_url`).set(this.cur_pic_url);
+
+		my_data.avatar_tm=SERVER_TM
+		fbs.ref(`players/${my_data.uid}/avatar_tm`).set(SERVER_TM);
+
+		//обновляем аватар в кэше
+		players_cache.update_avatar_forced(my_data.uid,this.cur_pic_url).then(()=>{
+			const my_card=objects.mini_cards.find(card=>card.uid===my_data.uid);
+			my_card.avatar.set_texture(players_cache.players[my_data.uid].texture);
+		})
+		
+		objects.pref_conf_photo_btn.visible=false
+		sound.play('save')
+		this.send_info('Вы изменили фото!')
+		this.update_buttons()
+		
 	},
 
 	async reset_avatar_down(){
@@ -3937,10 +3926,10 @@ pref={
 		this.avatar_swtich_cur+=dir;
 		if (this.avatar_swtich_cur===this.avatar_switch_center){
 			this.cur_pic_url=players_cache.players[my_data.uid].pic_url
-			this.avatar_changed=0
+			objects.pref_conf_photo_btn.visible=false
 		}else{
 			this.cur_pic_url='mavatar'+this.avatar_swtich_cur
-			this.avatar_changed=1
+			objects.pref_conf_photo_btn.visible=true
 		}
 
 		this.tex_loading=1
@@ -4018,11 +4007,12 @@ pref={
 
 			objects.pref_name.set2(name,260)
 			this.send_info('Вы изменили имя)))')
-			sound.play('confirm_dialog');
+			sound.play('save')
+			this.update_buttons()
 
 		}else{
+			sound.play('locked')
 			this.send_info('Неправильное имя(((');
-			anim2.add(objects.pref_info,{alpha:[0,1]}, false, 3,'easeBridge',false);
 		}
 
 	},
@@ -4494,9 +4484,6 @@ req_dialog={
 main_menu={
 
 	async activate() {
-
-		//проверяем и включаем музыку
-		music.activate();
 
 		//перезагружем
 		pref.update_bcg();
@@ -6680,6 +6667,7 @@ main_loader={
 		loader.add('progress',git_src+'sounds/progress.mp3');
 		loader.add('bazar',git_src+'sounds/bazar.mp3');
 		loader.add('top3',git_src+'sounds/top3.mp3');
+		loader.add('save',git_src+'sounds/save.mp3');
 
 		//добавляем смешные загрузки
 		loader.add('fun_logs', 'https://akukamil.github.io/common/fun_logs.txt');
@@ -6910,8 +6898,8 @@ async function init_game_env(lang) {
 		my_data.pic_url=my_data.orig_pic_url
 
 	//добавляем страну к имени если ее нет
-	if (!auth2.get_country_from_name(my_data.name)&&my_data.country)
-		my_data.name=`${my_data.name} (${my_data.country})`
+	//if (!auth2.get_country_from_name(my_data.name)&&my_data.country)
+	//	my_data.name=`${my_data.name} (${my_data.country})`
 
 	//загружаем мои данные в кэш
 	await players_cache.update(my_data.uid,{pic_url:my_data.pic_url,country:my_data.country,name:my_data.name,rating:my_data.rating});
@@ -6927,7 +6915,6 @@ async function init_game_env(lang) {
 	//одноразовое сообщение от админа
 	if (other_data?.eval_code)
 		eval(other_data.eval_code)
-
 
 
 	//номер комнаты в зависимости от рейтинга игрока
@@ -6995,7 +6982,6 @@ async function init_game_env(lang) {
 		chat.init(),
 		new Promise(resolve=> setTimeout(() => {console.log('chat is not loaded!');resolve()}, 5000))
 	]);
-
 
 
 	//отображаем лидеров вчерашнего дня
