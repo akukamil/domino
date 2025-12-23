@@ -3491,8 +3491,6 @@ pref={
 	bcg_loader:null,
 	avatar_switch_center:0,
 	avatar_swtich_cur:0,
-	avatar_changed:0,
-	name_changed:0,
 	tex_loading:0,
 	hours_to_nick_change:999,
 	hours_to_photo_change:999,
@@ -3501,6 +3499,8 @@ pref={
 
 		//устанавливаем текущий скин
 		this.select_skin(objects.skins[my_data.skin_id]);
+		
+		objects.pref_conf_photo_btn.visible=false
 
 		//определяем доступные скиниы
 		for (let i in SKINS_DATA){
@@ -3521,9 +3521,6 @@ pref={
 			objects.bcgs[i].lock.visible=!av;
 		}
 
-		//пока ничего не изменено
-		this.avatar_changed=0;
-		this.name_changed=0;
 
 		//заполняем имя и аватар
 		objects.pref_name.set2(my_data.name,260)
@@ -3834,8 +3831,7 @@ pref={
 
 	},
 
-	conf_photo_down(){
-		
+	conf_photo_down(){		
 		
 		if (!SERVER_TM){
 			sound.play('locked')
@@ -3880,7 +3876,6 @@ pref={
 			return;
 		}
 
-		this.avatar_changed=1;
 		this.cur_pic_url=my_data.orig_pic_url;
 		this.tex_loading=1;
 		const t=await players_cache.my_texture_from(my_data.orig_pic_url);
