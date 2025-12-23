@@ -530,7 +530,7 @@ class bcg_class extends PIXI.Container{
 		this.shadow.y=-10;
 
 
-		this.bcg=new PIXI.Sprite(assets.bcg_0);
+		this.bcg=new PIXI.Sprite(assets.bcg0);
 		this.bcg.width=120;
 		this.bcg.height=80;
 		this.bcg.x=-10;
@@ -557,7 +557,7 @@ class bcg_class extends PIXI.Container{
 
 	set_bcg(id){
 		this.id=id;
-		this.bcg.texture=assets['bcg_'+id];
+		this.bcg.texture=assets['bcg'+id];
 	}
 
 }
@@ -6704,7 +6704,7 @@ main_loader={
 		//создаем новые текстуры
 		this.divide_texture(assets.skins_pack,140,240,['skin0','skin1','skin2','skin3','skin4','skin5','skin6','skin_selection','domino_shadow'])
 		this.divide_texture(assets.dice_nums_pack,100,100,['d1','d2','d3','d4','d5','d6'])
-		this.divide_texture(assets.bcg_icons_pack,180,120,['bcg0','bcg1','bcg2','bcg3','bcg4','bcg5','bcg_selection','bcg_icon_shadow'])
+		this.divide_texture(assets.bcg_icons_pack,180,120,['bcg0','bcg1','bcg2','bcg3','bcg4','bcg5','bcg_icon_shadow','bcg_selection'])
 
 
 		//создаем спрайты и массивы спрайтов и запускаем первую часть кода
