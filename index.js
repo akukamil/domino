@@ -3879,7 +3879,7 @@ pref={
 		const t=await players_cache.my_texture_from(my_data.orig_pic_url);
 		objects.pref_avatar.set_texture(t);
 		this.tex_loading=0;
-		objects.pref_conf_photo_btn.visible=false
+		objects.pref_conf_photo_btn.visible=true
 		this.send_info(['Нажмите сохранить','Press save to confirm'][LANG])
 
 	},
