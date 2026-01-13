@@ -1258,9 +1258,7 @@ sound={
 
 music={
 	
-	on:0,
-	
-	
+	on:0,	
 	
 	start(){
 		this.on=1
@@ -3881,7 +3879,8 @@ pref={
 		const t=await players_cache.my_texture_from(my_data.orig_pic_url);
 		objects.pref_avatar.set_texture(t);
 		this.tex_loading=0;
-		this.send_info(['Нажмите ОК чтобы сохранить','Press OK to confirm'][LANG])
+		objects.pref_conf_photo_btn.visible=false
+		this.send_info(['Нажмите сохранить','Press save to confirm'][LANG])
 
 	},
 
