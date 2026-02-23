@@ -4057,7 +4057,7 @@ ad={
 			})
 		}
 
-		if (game_platform==="VK") {
+		if (game_platform==='VK' || game_platform==='OK') {
 
 			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
 			.then(data => console.log(data.result))
