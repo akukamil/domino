@@ -1595,6 +1595,7 @@ big_msg={
 		this.close()
 		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'RESUME',tm:Date.now()})
 		opponent.resume_game()
+		ad.show()
 	}
 
 }
@@ -4049,7 +4050,7 @@ ad={
 
 		if (game_platform==="YANDEX") {
 			await new Promise(res=>{
-				const timeout=setTimeout(()=>{res()},5000)
+				const timeout=setTimeout(()=>{res()},10000)
 				window.ysdk.adv.showFullscreenAdv({
 				callbacks: {
 					onClose: function() {res(1);clearTimeout(timeout)},
@@ -4062,7 +4063,7 @@ ad={
 		if (game_platform==='VK' || game_platform==='OK') {
 
 			await new Promise(res => {
-				const timeoutId = setTimeout(() => {res(1)}, 5000)
+				const timeoutId = setTimeout(() => {res(1)}, 10000)
 				vkBridge.send("VKWebAppShowNativeAds", { ad_format: "interstitial" })
 					.then(data => {
 						clearTimeout(timeoutId);
