@@ -1349,8 +1349,7 @@ big_msg={
 		clearTimeout(big_msg.wait_init_timer);
 		clearInterval(big_msg.timer);
 		anim2.add(objects.big_msg_cont,{scale_y:[1,0]}, false, 0.25,'linear');
-		some_process.big_msg_process=function(){};
-		ad.show();
+		some_process.big_msg_process=function(){}		
 	},
 
 	show_bonus_anim(text_obj,tar_val){
@@ -1509,10 +1508,11 @@ big_msg={
 		anim2.add(objects.big_msg_cont,{alpha:[1,0.3]}, true, 0.5,'linear',false)
 	},	
 
-	goto_main_menu(){
+	async goto_main_menu(){
 
-		this.close();
-		game.close();
+		this.close()
+		game.close()
+		await ad.show()
 		main_menu.activate();
 
 	},
@@ -4037,44 +4037,46 @@ pref={
 }
 
 ad={
-
+	
 	prv_show : -9999,
+	
+	async show() {
 
-	show(){
-
-		if ((Date.now() - this.prv_show) < 150000 )
-			return;
-		this.prv_show = Date.now();
+		if ((Date.now() - this.prv_show) < 150000 ) return
+		this.prv_show = Date.now()
+		
+		PIXI.sound.muteAll()
 
 		if (game_platform==="YANDEX") {
-			//показываем рекламу
-			PIXI.sound.volumeAll=0;
-			window.ysdk.adv.showFullscreenAdv({
-			  callbacks: {
-				onClose: function() {PIXI.sound.volumeAll=1;},
-				onError: function() {PIXI.sound.volumeAll=1;}
-						}
+			await new Promise(res=>{
+				const timeout=setTimeout(()=>{res()},5000)
+				window.ysdk.adv.showFullscreenAdv({
+				callbacks: {
+					onClose: function() {res(1);clearTimeout(timeout)},
+					onError: function() {res(0);clearTimeout(timeout)}
+					}
+				})
 			})
 		}
 
 		if (game_platform==='VK' || game_platform==='OK') {
 
-			vkBridge.send("VKWebAppShowNativeAds", {ad_format:"interstitial"})
-			.then(data => console.log(data.result))
-			.catch(error => console.log(error));
+			await new Promise(res => {
+				const timeoutId = setTimeout(() => {res(1)}, 5000)
+				vkBridge.send("VKWebAppShowNativeAds", { ad_format: "interstitial" })
+					.then(data => {
+						clearTimeout(timeoutId);
+						res(1)
+				})
+				.catch(error => {
+						clearTimeout(timeoutId)
+						res(0)
+				})
+			})
 		}
-
-		if (game_platform==="MY_GAMES") {
-
-			my_games_api.showAds({interstitial:true});
-		}
-
-		if (game_platform==='GOOGLE_PLAY') {
-			if (typeof Android !== 'undefined') {
-				Android.showAdFromJs();
-			}
-		}
-
+		
+		PIXI.sound.unmuteAll()
+		
 
 	},
 
@@ -6762,7 +6764,8 @@ async function init_game_env(lang) {
 	if(l_text)
 		document.getElementById('loadingText').remove();
 
-	await define_platform_and_language();
+	await define_platform_and_language()
+	await auth2.init()
 	console.log(game_platform, LANG);
 
 	//инициируем файербейс
@@ -6842,7 +6845,7 @@ async function init_game_env(lang) {
 		objects.id_loup.y=20*Math.cos(game_tick*8)+150;
 	}
 
-	await auth2.init();
+	
 
 	//убираем ё
 	my_data.name=my_data.name.replace(/ё/g, 'е');
