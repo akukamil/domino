@@ -6312,7 +6312,7 @@ auth2={
 			return;
 		}
 
-		if (game_platform === 'VK') {
+		if (game_platform === 'VK' || game_platform==='OK') {
 
 			try {
 				await this.load_script('https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js')||await this.load_script('https://akukamil.github.io/common/vkbridge.js');
@@ -6326,8 +6326,8 @@ auth2={
 			} catch (e) {alert(e)};
 
 
-			my_data.name 	= _player.first_name + ' ' + _player.last_name;
-			my_data.uid 	= 'vk'+_player.id;
+			my_data.name=_player.first_name + ' ' + _player.last_name;
+			my_data.uid=game_platform.toLowerCase()+_player.id;
 			my_data.orig_pic_url = _player.photo_100;
 
 			return;
