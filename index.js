@@ -6477,7 +6477,15 @@ async function define_platform_and_language() {
 		return;
 	}
 
-	if (s.includes('vk.com')||s.includes('vk.ru')||s.includes('vk_app_id')||s.includes('ok.ru')) {
+	if (s.includes('vk_ok_app_id')||s.includes('vk_ok_user_id')) {
+
+		game_platform = 'OK';
+		LANG = 0;
+		return;
+	}
+
+	if (s.includes('vk.com')||s.includes('vk.ru')||s.includes('vk_app_id')) {
+
 		game_platform = 'VK';
 		LANG = 0;
 		return;
