@@ -5005,6 +5005,11 @@ chat={
 
 	},
 
+	check_unconsumed_purchases(){
+		
+		
+	},
+
 	close() {
 
 		anim3.add(objects.chat_cont,{alpha:[1, 0,'linear']}, false, 0.1);
