@@ -3762,7 +3762,7 @@ pref={
 
 	send_info(t){
 		objects.pref_info.text=t
-		anim3.add(objects.pref_info,{alpha:[0,1]}, false, 3,'easeBridge',false);
+		anim3.add(objects.pref_info,{alpha:[0,1,'easeBridge']}, false, 3,false);
 	},
 
 	skin_down(skin){
