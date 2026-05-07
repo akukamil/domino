@@ -2320,6 +2320,7 @@ online_player={
 		this.blind_game_flag=blind||0
 		objects.bcg.tint=blind?0xffaaaa:0xffffff
 		
+		//фиксируем рейтинг соперника из кэша
 		opp_data.rating=players_cache[opp_data.uid].rating
 		
 		//вычиcляем рейтинг при проигрыше и устанавливаем его в базу он потом изменится
@@ -4559,7 +4560,7 @@ req_dialog = {
 		if (objects.req_cont.ready===false || objects.req_cont.visible===false)
 			return;
 
-		sound.play('close');
+		sound.play('close_it');
 
 		//подсветка
 		//objects.req_btn_hl.x=objects.req_deny_btn.x;
@@ -4578,9 +4579,8 @@ req_dialog = {
 			return;
 		}
 
-		//устанавливаем окончательные данные оппонента
+		//фиксируем ИД соперника
 		opp_data.uid=this.uid
-		opp_data.rating=players_cache[this.uid].rating
 
 		anim3.add(objects.req_cont,{y:[objects.req_cont.sy, -260,'easeInBack']}, false, 0.5)
 
@@ -6144,6 +6144,8 @@ lobby={
 		
 		//обновляем данные соперника
 		await players_cache.update(data.opp_uid)
+		
+		
 		game_id=+data.s
 				
 		IAM_CALLED=data.r
@@ -6331,7 +6333,7 @@ stickers={
 
 	hide_panel() {
 
-		sound.play('close');
+		sound.play('close_it');
 
 		if (objects.stickers_cont.ready===false)
 			return;
