@@ -6501,7 +6501,7 @@ auth2={
 			if (my_data.name === '')
 				my_data.name = this.get_random_name(my_data.uid);
 
-			chat.check_unconsumed_purchases();
+			//chat.check_unconsumed_purchases();
 
 			return;
 		}
