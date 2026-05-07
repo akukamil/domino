@@ -2320,6 +2320,8 @@ online_player={
 		this.blind_game_flag=blind||0
 		objects.bcg.tint=blind?0xffaaaa:0xffffff
 		
+		opp_data.rating=players_cache[opp_data.uid].rating
+		
 		//вычиcляем рейтинг при проигрыше и устанавливаем его в базу он потом изменится
 		my_data.lose_rating = this.calc_new_rating(my_data.rating, LOSE)
 		my_data.win_rating = this.calc_new_rating(my_data.rating, WIN)
