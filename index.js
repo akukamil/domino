@@ -4567,7 +4567,7 @@ req_dialog = {
 		//objects.req_btn_hl.y=objects.req_deny_btn.y;
 		//anim3.add(objects.req_btn_hl, {alpha: [0, 1, 'ease3peaks']}, false, 0.25, false);
 
-		anim3.add(objects.req_cont, {y: [objects.req_cont.sy, -260, 'easeInBack']}, false, 0.5);
+		anim3.add(objects.req_cont, {y: [objects.req_cont.sy, -260, 'easeInBack']}, false, 0.25);
 
 		fbs.ref("inbox/"+this.uid).set({sender:my_data.uid,message:'REJECT',tm:Date.now()});
 	},
@@ -5791,6 +5791,11 @@ lobby={
 					card.avatar2.set_texture(pdata.texture)
 			}
 		}
+		
+		
+		//обновляем сообщение
+		if(objects.inst_msg_cont.visible&&objects.inst_msg_cont.uid===uid)
+			objects.inst_msg_avatar.set_texture(pdata.texture||PIXI.Texture.WHITE)
 	},
 
 	card_down(card_id) {
@@ -6090,17 +6095,18 @@ lobby={
 		clearTimeout(this.hide_inst_msg_timer)
 
 		//когда ничего не видно не принимаем сообщения
-		if(!objects.cards_cont.visible) return;
-
-		await players_cache.update(data.uid);
+		if(!objects.cards_cont.visible) return
 
 		const pdata=players_cache[data.uid]
+		if (pdata)
+			objects.inst_msg_avatar.set_texture(pdata.texture||PIXI.Texture.WHITE)
 		
 		sound.play('inst_msg');
 		anim3.add(objects.inst_msg_cont,{alpha:[0,1,'linear']},true,0.4,false);
-		objects.inst_msg_avatar.set_texture(pdata.texture||PIXI.Texture.WHITE)
+		
 		objects.inst_msg_text.set2(data.msg,290);
 		objects.inst_msg_cont.tm=Date.now()
+		objects.inst_msg_cont.uid=data.uid
 		
 		this.hide_inst_msg_timer=setTimeout(()=>{
 			anim3.add(objects.inst_msg_cont,{alpha:[1,0,'linear']},false,0.4)
@@ -6150,7 +6156,6 @@ lobby={
 				
 		IAM_CALLED=data.r
 		online_player.activate(data.s,1)
-		//mp_game.activate(data.r?'master':'slave',data.s,1)
 		
 	},
 
@@ -6718,7 +6723,6 @@ function resize() {
 
 function set_state(params) {
 
-
 	if (params.state!==undefined)
 		state=params.state;
 
@@ -6729,8 +6733,9 @@ function set_state(params) {
 	if (opp_data.uid!==undefined)
 		small_opp_id=opp_data.uid.substring(0,10);
 
-	//новая версия
-	fbs.ref(room_name+'/'+my_data.uid).set({s:state, n:my_data.name, r : my_data.rating, h:hidden, opp_id : small_opp_id, g:game_id});
+	//новая версия.
+	if(connected)
+		fbs.ref(room_name+'/'+my_data.uid).set({s:state, n:my_data.name, r : my_data.rating, h:hidden, opp_id : small_opp_id, g:game_id});
 	//fbs.ref(room_name+'/'+my_data.uid).set({state, name:my_data.name, rating : my_data.rating, hidden, opp_id : small_opp_id, game_id});
 
 }
@@ -7201,14 +7206,18 @@ async function init_game_env(lang) {
 	window.addEventListener('keydown', function(event) { keyboard.keydown(event.key)});
 
 	//загрузка сокета
+	objects.id_log.text='Загрузка библиотеки my_ws...'
 	await auth2.load_script('https://akukamil.github.io/common/my_ws.js')
 	
 	//подключение сокета
+	objects.id_log.text='Подключение к серверу my_ws...'
 	await my_ws.init()
 	
+	objects.id_log.text='Запрос к Google... '
 	SERVER_TM=await fbs_once('tm') 
 
 	//загружаем остальные данные из файербейса
+	objects.id_log.text='Получение данных игрока... '
 	const other_data = await fbs_once('players/' + my_data.uid)
 	if(!other_data) lobby.first_run=1
 
@@ -7237,6 +7246,7 @@ async function init_game_env(lang) {
 	//	my_data.name=`${my_data.name} (${my_data.country})`
 
 	//загружаем и получаем мои данные из кэша
+	objects.id_log.text='Загрузка данных игрока... '
 	players_cache.update_params(my_data.uid,{pic_url:my_data.pic_url,rating:my_data.rating,name:my_data.name});
 	await players_cache.update(my_data.uid);
 
@@ -7245,6 +7255,7 @@ async function init_game_env(lang) {
 	objects.id_name.set2(my_data.name,150);
 
 	//проверяем блокировку
+	objects.id_log.text='Проверка ЧС... '
 	my_data.blocked=await fbs_once('blocked/'+my_data.uid)||0;
 
 	//одноразовое сообщение от админа
@@ -7313,12 +7324,12 @@ async function init_game_env(lang) {
 	//online_player.read_last_opps()
 
 	//ждем загрузки чата
-	await Promise.race([
-		chat.init(),
-		new Promise(resolve=> setTimeout(() => {console.log('chat is not loaded!');resolve()}, 5000))
-	]);
-
-	//отображаем лидеров вчерашнего дня
+	objects.id_log.text='Загрузка общего чата... '
+	await chat.init()
+	objects.id_log.text=''
+	
+	
+	//отображаем лидеров вчерашнего дня	
 	top3.activate()
 
 	//убираем попап и лупу
@@ -7331,12 +7342,12 @@ async function init_game_env(lang) {
 	  if (snap.val()){
 		if (!connected)
 			pmsg.add({t:'Связь с сервером восстановлена!'})
-			online_player.connection_change(1)
-			connected = 1
+		online_player.connection_change(1)
+		connected = 1
 	  }else{
 		if (connected)
 			pmsg.add({t:'Связь с сервером потеряна!'})
-			online_player.connection_change(0)
+		online_player.connection_change(0)
 		connected = 0;		  
 	  }
 
