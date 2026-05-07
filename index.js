@@ -3563,8 +3563,9 @@ top3={
 			sound.play('locked')
 			return
 		}
-
-		anim3.add(objects.day_top3_cont, {alpha: [1, 0, 'linear']}, false, 0.5);
+		
+		sound.play('close_it')
+		anim3.add(objects.day_top3_cont, {alpha: [1, 0, 'linear']}, false, 0.25);
 
 
 	}
@@ -4979,7 +4980,7 @@ chat={
 			return
 		};
 
-		sound.play('click');
+		sound.play('close_it');
 		this.close();
 		lobby.activate();
 
@@ -5178,7 +5179,7 @@ lb={
 		};
 
 
-		sound.play('click');
+		sound.play('close_it');
 		this.close();
 		main_menu.activate();
 
@@ -5942,7 +5943,7 @@ lobby={
 	
 	close_invite_dialog() {
 
-		sound.play('click');
+		sound.play('close_it');
 
 		//очищаем ожидание на всякий случай
 		if (bg.on) bg.stop()
@@ -5987,7 +5988,7 @@ lobby={
 	},
 
 	close_table_dialog() {
-		sound.play('click');
+		sound.play('close_it');
 		anim3.add(objects.td_cont,{x:[objects.td_cont.x, 800,'linear']}, false, 0.1);
 	},
 
