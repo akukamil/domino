@@ -6581,7 +6581,7 @@ gif_sel={
 	
 	activate(){
 		
-		if (!this.ids) this.ids=this.get_unique_int(100,307,new Date(SERVER_TM).getDate(),my_data.uid)
+		if (!this.ids) this.ids=this.get_unique_int(100,364,new Date(SERVER_TM).getDate(),my_data.uid)
 		this.sel_id=-1
 		objects.gif_sel_hl.visible=false
 		objects.gif_sel_send_btn.visible=false
