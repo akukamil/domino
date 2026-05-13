@@ -6959,7 +6959,7 @@ main_loader={
 		loader.add('music',git_src+'sounds/music.mp3');
 
 		loader.add('receive_sticker',git_src+'sounds/receive_sticker.mp3');
-		loader.add('message',git_src+'sounds/pmsg.mp3');
+		loader.add('message',git_src+'sounds/message.mp3');
 		loader.add('lose',git_src+'sounds/lose.mp3');
 		loader.add('win',git_src+'sounds/win.mp3');
 		loader.add('click',git_src+'sounds/click.mp3');
