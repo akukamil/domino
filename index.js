@@ -47,7 +47,6 @@ hf={
 	
 }
 
-
 SKINS_DATA={
 	0:{tint:0x262626,rating:0,games:0},
 	1:{tint:0xF2F2F2,rating:0,games:20},
@@ -2952,9 +2951,6 @@ game={
 		if (my_check_val===opp_check_val)
 			my_turn=IAM_CALLED
 		
-		//console.log({my_check_val,opp_check_val,my_turn})
-
-
 
 		//если это начало игры
 		if(!resume){
@@ -4727,8 +4723,6 @@ chat={
 	games_to_gif:1000,
 	payments:0,
 	processing:0,
-	remote_socket:0,
-	ss:[],
 
 	activate() {
 
@@ -5111,7 +5105,7 @@ chat={
 		objects.chat_enter_btn.texture=assets.chat_enter_img;
 		fbs.ref('blocked/'+my_data.uid).remove();
 		my_data.blocked=0;
-		message.add('Вы разблокировали чат');
+		pmsg.add({t:'Вы разблокировали чат'});
 		sound.play('mini_dialog');
 	},
 
@@ -5205,19 +5199,26 @@ lb={
 
 		//создаем сортированный массив лидеров
 		const leaders_array=[];
-		Object.keys(leaders).forEach(uid => {
+		for (const uid in leaders){
 
 			const leader_data=leaders[uid];
 			const leader_params={uid,name:leader_data.name, rating:leader_data.rating, pic_url:leader_data.pic_url};
 			leaders_array.push(leader_params);
-
-			//добавляем в кэш
-			players_cache.update(uid,leader_params);
-		});
+		};
+		
 
 		//сортируем....
 		leaders_array.sort(function(a,b) {return b.rating - a.rating});
 
+		//обновляем данные
+		const load_promises=[]
+		for (let i=0;i<10;i++){
+			const leader_data=leaders_array[i];
+			players_cache.update_params(leader_data.uid,leader_data);
+			const p=players_cache.update(leader_data.uid,{source:'lb'});
+			load_promises.push(p)
+		}
+		
 		//заполняем имя и рейтинг
 		for (let place in top){
 			const target=top[place];
@@ -5225,12 +5226,13 @@ lb={
 			target.t_name.set2(leader.name,place>2?190:130);
 			target.t_rating.text=leader.rating;
 		}
+		
+		await Promise.all(load_promises)
 
 		//заполняем аватар
 		for (let place in top){
 			const target=top[place];
 			const leader=leaders_array[place];
-			await players_cache.update(leader.uid,{rating:1});
 			target.avatar.set_texture(players_cache[leader.uid].texture)
 		}
 
@@ -5766,15 +5768,6 @@ lobby={
 
 	},
 
-	async load_avatar2 (params={}) {
-
-		//обновляем или загружаем аватарку
-		await players_cache.update_avatar(params.uid);
-
-		//устанавливаем если это еще та же карточка
-		params.tar_obj.set_texture(players_cache[params.uid].texture);
-	},
-
 	cache_updated(uid,pdata){
 
 		for (const card of objects.mini_cards){
@@ -6081,11 +6074,10 @@ lobby={
 		anim3.add(objects.lobby_footer_cont,{y:[objects.lobby_footer_cont.y,450,'linear']}, false, 0.2);
 		anim3.add(objects.lobby_header_cont,{y:[objects.lobby_header_cont.y,-50,'linear']}, false, 0.2);
 
-		this.on=0;
-
 		//больше ни ждем ответ ни от кого
-		pending_player="";
-
+		pending_player=""
+		this.on=0
+		
 		//отписываемся от изменений состояний пользователей
 		fbs.ref(room_name).off();
 
@@ -6161,23 +6153,6 @@ lobby={
 	},
 
 	wheel_event(dir) {
-
-	},
-
-	async fb_my_down() {
-
-
-		if (this._opp_data.uid !== my_data.uid || objects.feedback_cont.visible === true)
-			return;
-
-		let fb = await feedback.show(this._opp_data.uid);
-
-		//перезагружаем отзывы если добавили один
-		if (fb[0] === 'sent') {
-			let fb_id = irnd(0,50);
-			await fbs.ref("fb/"+this._opp_data.uid+"/"+fb_id).set([fb[1], firebase.database.ServerValue.TIMESTAMP, my_data.name]);
-			this.show_feedbacks(this._opp_data.uid);
-		}
 
 	},
 
