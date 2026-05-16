@@ -1468,7 +1468,7 @@ big_msg={
 		
 		
 		//если не начали играть в слепой игре то снимаем очки
-		if (result_type==='my_no_sync'&&online_player.blind_game_flag){
+		if (result==='my_no_sync'&&online_player.blind_game_flag){
 			my_data.rating=my_data.lose_rating
 			fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating)
 		}
