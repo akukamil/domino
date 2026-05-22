@@ -15,7 +15,7 @@ const SHADOW_SHIFT=3;
 const SHADOW_DISP_XY={'0':[3,3],'90':[3,-3],'-90':[-3,3],'180':[-3,-3]}
 const TM={s:0,ms:0}
 
-const COM_URL='https://akukamil.github.io/common'
+const COM_URL='https://akukamil.github.io/com'
 
 my_log={
 	log_arr:[],
@@ -26,26 +26,6 @@ my_log={
 	}
 
 };
-
-hf={
-	
-	randIntInc(min,max){
-		min = Math.ceil(min)
-		max = Math.floor(max)
-		return Math.floor(Math.random() * (max - min + 1) + min)
-	},
-
-	hash(s){
-		
-		let h = 0;
-		for (let i = 0; i < s.length; i++) {
-			h = (h << 5) - h + s.charCodeAt(i)
-			h |= 0
-		}
-		return h
-	}	
-	
-}
 
 SKINS_DATA={
 	0:{tint:0x262626,rating:0,games:0},
@@ -413,12 +393,6 @@ my_log={
 
 };
 
-irnd = function(min,max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 class domino_class extends PIXI.Container{
 
 	constructor(is_skin){
@@ -619,14 +593,14 @@ class player_mini_card_class extends PIXI.Container {
 		this.avatar_frame.width=this.avatar_frame.height=81.48;
 
 		this.name="";
-		this.name_text=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 22,align: 'center'});
+		this.name_text=new PIXI.BitmapText('', {fontName: 'bahnschrift48',fontSize: 22,align: 'center'});
 		this.name_text.anchor.set(1,0);
 		this.name_text.x=180;
 		this.name_text.y=20;
 		this.name_text.tint=0xffffff;
 
 		this.rating=0;
-		this.rating_text=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 30,align: 'center'});
+		this.rating_text=new PIXI.BitmapText('', {fontName: 'bahnschrift48',fontSize: 30,align: 'center'});
 		this.rating_text.tint=0xffff00;
 		this.rating_text.anchor.set(1,0.5);
 		this.rating_text.x=180;
@@ -657,19 +631,19 @@ class player_mini_card_class extends PIXI.Container {
 		this.avatar2_frame.y=this.avatar2.y-11.64;
 		this.avatar2_frame.width=this.avatar2_frame.height=81.48;
 
-		this.t_country=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});
+		this.t_country=new PIXI.BitmapText('', {fontName: 'bahnschrift48',fontSize: 25,align: 'center'});
 		this.t_country.anchor.set(1,0.5);
 		this.t_country.x=100;
 		this.t_country.y=60;
 		this.t_country.tint=0xFFE699;
 
-		this.rating_text1=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24,align: 'center'});
+		this.rating_text1=new PIXI.BitmapText('', {fontName: 'bahnschrift48',fontSize: 24,align: 'center'});
 		this.rating_text1.tint=0xffff00;
 		this.rating_text1.anchor.set(0.5,0);
 		this.rating_text1.x=48.1;
 		this.rating_text1.y=56;
 
-		this.rating_text2=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 24,align: 'center'});
+		this.rating_text2=new PIXI.BitmapText('', {fontName: 'bahnschrift48',fontSize: 24,align: 'center'});
 		this.rating_text2.tint=0xffff00;
 		this.rating_text2.anchor.set(0.5,0);
 		this.rating_text2.x=150.1;
@@ -695,7 +669,7 @@ class lb_player_card_class extends PIXI.Container{
 		this.bcg.width = 370;
 		this.bcg.height = 70;
 
-		this.place=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'});
+		this.place=new PIXI.BitmapText('', {fontName: 'bahnschrift48',fontSize: 25,align: 'center'});
 		this.place.tint=0xffffff;
 		this.place.x=20;
 		this.place.y=22;
@@ -707,12 +681,12 @@ class lb_player_card_class extends PIXI.Container{
 		this.avatar.width=this.avatar.height=44
 
 
-		this.name=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 23,align: 'center'})
+		this.name=new PIXI.BitmapText('', {fontName: 'bahnschrift48',fontSize: 23,align: 'center'})
 		this.name.tint=0xcceeff
 		this.name.x=95
 		this.name.y=22
 
-		this.rating=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'})
+		this.rating=new PIXI.BitmapText('', {fontName: 'bahnschrift48',fontSize: 25,align: 'center'})
 		this.rating.x=305
 		this.rating.tint=0xFFFF00
 		this.rating.y=22
@@ -754,7 +728,7 @@ class chat_record_class extends PIXI.Container {
 		this.avatar_frame.x=this.avatar.x-10;
 		this.avatar_frame.y=this.avatar.y-10;
 
-		this.name = new PIXI.BitmapText('Имя Фамил', {fontName: 'mfont',fontSize: 17});
+		this.name = new PIXI.BitmapText('Имя Фамил', {fontName: 'bahnschrift48',fontSize: 17});
 		this.name.anchor.set(0,0.5);
 		this.name.x=this.avatar.x+72;
 		this.name.y=this.avatar.y-1;
@@ -780,14 +754,14 @@ class chat_record_class extends PIXI.Container {
 		this.msg_bcg.x=this.avatar.x+45;
 		this.msg_bcg.y=this.avatar.y+2;
 
-		this.msg = new PIXI.BitmapText('Имя Фамил', {fontName: 'mfont',fontSize: 19,lineSpacing:55,align: 'left'});
+		this.msg = new PIXI.BitmapText('Имя Фамил', {fontName: 'bahnschrift48',fontSize: 19,lineSpacing:45,align: 'left'});
 		this.msg.x=this.avatar.x+75;
 		this.msg.y=this.avatar.y+30;
 		this.msg.maxWidth=450;
 		this.msg.anchor.set(0,0.5);
 		this.msg.tint = 0xffffff;
 
-		this.msg_tm = new PIXI.BitmapText('28.11.22 12:31', {fontName: 'mfont',fontSize: 15});
+		this.msg_tm = new PIXI.BitmapText('28.11.22 12:31', {fontName: 'bahnschrift48',fontSize: 15});
 		this.msg_tm.tint=0x999999;
 		this.msg_tm.anchor.set(1,0);
 
@@ -922,11 +896,11 @@ class feedback_record_class extends PIXI.Container {
 	constructor() {
 
 		super();
-		this.text=new PIXI.BitmapText('...', {lineSpacing:46,fontName: 'mfont',fontSize: 19,align: 'left'});
+		this.text=new PIXI.BitmapText('...', {lineSpacing:46,fontName: 'bahnschrift48',fontSize: 19,align: 'left'});
 		this.text.maxWidth=290;
 		this.text.tint=0xEEEEEE;
 
-		this.name_text=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 19,align: 'left'});
+		this.name_text=new PIXI.BitmapText('', {fontName: 'bahnschrift48',fontSize: 19,align: 'left'});
 		this.name_text.tint=0xFFFF00;
 
 
@@ -980,7 +954,7 @@ class slider_class extends PIXI.Container{
 		this.frame.height=70
 		if (invert) this.frame.scale_y*=-1
 
-		this.t_score=new PIXI.BitmapText('', {fontName: 'mfont',fontSize: 25,align: 'center'})
+		this.t_score=new PIXI.BitmapText('', {fontName: 'bahnschrift48',fontSize: 25,align: 'center'})
 		this.t_score.anchor.set(0,0.5)
 		this.t_score.tint=0xffffff
 		this.t_score.x=30
@@ -2160,7 +2134,7 @@ bot={
 		my_data.win_rating = my_data.rating
 		
 		opponent=this
-		game.activate(this,irnd(1,9999),0)
+		game.activate(this,hf.randIntInc(1,9999),0)
 		
 		objects.timer_text.text='---'		
 		objects.timer_cont.visible=true
@@ -3622,7 +3596,7 @@ pref={
 		objects.pref_crystals_info.text=my_data.crystals
 		objects.pref_energy_info.text=my_data.energy
 		
-		this.avatar_switch_center=this.avatar_swtich_cur=irnd(9999,999999)
+		this.avatar_switch_center=this.avatar_swtich_cur=hf.randIntInc(9999,999999)
 
 		//обновляем кнопки
 		this.update_buttons()
@@ -4416,7 +4390,7 @@ players_cache={
 
 		while(Object.keys(this.loading).length>5){
 			console.log('Много загрузок, ждем...')
-			await new Promise(r => setTimeout(r, irnd(400,800)));
+			await new Promise(r => setTimeout(r, hf.randIntInc(400,800)));
 		}
 
 		this.loading[uid]=1
@@ -4491,18 +4465,31 @@ players_cache={
 
 	},
 
-	async my_texture_from(pic_url){
+	my_texture_from(pic_url){
 
-		if(!pic_url) return PIXI.Texture.WHITE
+		const white_tex = PIXI.Texture.WHITE;
+
+		if (!pic_url) return white_tex
 		
-		//если это мультиаватар
-		if(pic_url.includes('mavatar')) pic_url=multiavatar(pic_url);
+		// Handle multiavatar
+		if (pic_url.includes('mavatar')) pic_url = multiavatar(pic_url)
+		
+		return new Promise(res => {
+			const timeout = setTimeout(() => {
+			console.log('Timeout to load: ', pic_url);
+			res(white_tex);
+		}, 3000);
 
-		try{
-			return await PIXI.Texture.fromURL(pic_url);
-		}catch(er){
-			return PIXI.Texture.WHITE;
-		}
+		PIXI.Texture.fromURL(pic_url).then(t => {
+				clearTimeout(timeout);
+				res(t||white_tex);
+			})
+			.catch((error) => {
+				clearTimeout(timeout);
+				console.error('Failed to load texture:', error);
+				res(white_tex);
+			});
+		});
 
 	},
 
@@ -4591,8 +4578,8 @@ req_dialog = {
 		IAM_CALLED=0
 
 		//отправляем информацию о согласии играть с идентификатором игры и сидом
-		game_id=irnd(1,9999)
-		const seed = irnd(1,999999)
+		game_id=hf.randIntInc(1,9999)
+		const seed = hf.randIntInc(1,999999)
 		fbs.ref('inbox/'+opp_data.uid).set({sender:my_data.uid,message:'ACCEPT',tm:Date.now(),game_id,seed})
 		
 		main_menu.close()
@@ -6389,7 +6376,7 @@ auth2={
 	get_random_char() {
 
 		const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-		return chars[irnd(0,chars.length-1)];
+		return chars[hf.randIntInc(0,chars.length-1)];
 
 	},
 
@@ -6422,8 +6409,8 @@ auth2={
 
 		} else {
 
-			let rnd_num = irnd(0, rnd_names.length - 1);
-			let rand_uid = irnd(0, 999999)+ 100;
+			let rnd_num = hf.randIntInc(0, rnd_names.length - 1);
+			let rand_uid = hf.randIntInc(0, 999999)+ 100;
 			let name_postfix = rand_uid.toString().substring(0, 3);
 			let name =	rnd_names[rnd_num] + name_postfix;
 			return name;
@@ -6879,7 +6866,7 @@ main_loader={
 		else
 			loader.add('game_title', git_src+'res/'+'common/game_title_eng.png');
 
-		loader.add('mfont2',git_src+'fonts/Bahnschrift/font.fnt');
+		loader.add('1',COM_URL+'/fonts/bahnschrift48/f.fnt');
 		loader.add('bcg',git_src+'bcg.jpg');
 
 		//добавляем основной загрузочный манифест
@@ -6928,7 +6915,7 @@ main_loader={
 		loader_bar_progress.height=50;
 		loader_bar_progress.mask=objects.loader_progress_mask;
 
-		objects.t_loader_progress=new PIXI.BitmapText('',{fontName: 'mfont',fontSize: 22});
+		objects.t_loader_progress=new PIXI.BitmapText('',{fontName: 'bahnschrift48',fontSize: 22});
 		objects.t_loader_progress.anchor.set(0.5,0.5);
 		objects.t_loader_progress.x=400;
 		objects.t_loader_progress.y=385;
@@ -6959,8 +6946,6 @@ main_loader={
 		for (let i = 0; i < load_list.length; i++)
 			if (load_list[i].class==='sprite' || load_list[i].class==='image')
 				loader.add(load_list[i].name, git_src+`res/${lang_pack}/` + load_list[i].name + "." +  load_list[i].image_format);
-
-		loader.add("m2_font", git_src+"fonts/Bahnschrift/font.fnt");
 
 		loader.add('music',git_src+'sounds/music.mp3');
 
@@ -7159,7 +7144,7 @@ async function init_game_env(lang) {
 	window.addEventListener("resize", resize);
 
 	//идентификатор клиента
-	client_id = irnd(10,999999);
+	client_id = hf.randIntInc(10,999999);
 
 	//загружаем
 	await main_loader.load1()
@@ -7187,9 +7172,6 @@ async function init_game_env(lang) {
 	});
 	window.addEventListener('keydown', function(event) { keyboard.keydown(event.key)});
 
-	//загрузка сокета
-	objects.id_log.text='Загрузка библиотеки my_ws...'
-	await auth2.load_script('https://akukamil.github.io/common/my_ws.js')
 	
 	//подключение сокета
 	objects.id_log.text='Подключение к серверу my_ws...'
