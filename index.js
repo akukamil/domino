@@ -5049,11 +5049,14 @@ chat={
 			let block_num=await fbs_once('players/'+my_data.uid+'/block_num');
 			block_num=block_num||1;
 			block_num=Math.min(9,block_num);
-
+			const item_id='unblock'+block_num
+			
 			if(game_platform==='YANDEX'){
-
-				this.payments.purchase({ id: 'unblock'+block_num}).then(purchase => {
-					this.unblock_chat(block_num);
+				
+				
+				this.payments.purchase({id:item_id}).then(purchase => {
+					this.unblock_chat(block_num)
+					my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id}});
 				}).catch(err => {
 					pmsg.add({t:'Ошибка при покупке!'});
 				})
@@ -5061,8 +5064,9 @@ chat={
 
 			if (game_platform==='VK') {
 
-				vkBridge.send('VKWebAppShowOrderBox', { type: 'item', item: 'unblock'+block_num}).then(data =>{
-					this.unblock_chat(block_num);
+				vkBridge.send('VKWebAppShowOrderBox', {type:'item',item:item_id}).then(data =>{
+					this.unblock_chat(block_num)
+					my_ws.safe_send({cmd:'log_inst',logger:'payments',data:{game_name,uid:my_data.uid,name:my_data.name,item_id}});
 				}).catch((err) => {
 					pmsg.add({t:'Ошибка при покупке!'});
 				});
