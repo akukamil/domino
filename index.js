@@ -1152,7 +1152,7 @@ anim3={
 
 	},
 
-	add (obj, inp_params, vis_on_end, time, block) {
+	add(obj, inp_params, vis_on_end, time, block) {
 
 		//если уже идет анимация данного спрайта то отменяем ее
 		anim3.kill_anim(obj)
@@ -1682,6 +1682,57 @@ pmsg={
 		pmsg.promise_resolve()
 	}
 
+}
+
+hintMsg={
+	
+	resolver:null,
+
+	async add({t='text', timeout=3000,snd='message'}={}) {
+
+		if (this.resolver) this.resolver('forced')
+				
+		//воспроизводим звук
+		sound.play(snd);
+
+		objects.hintMsgText.text=t
+		const animRes=await anim3.add(objects.hintMsgCont,{alpha:[0,1,'linear']}, true, 3);
+
+		if (animRes===2){
+			console.log('hintMsg stopped, promise not started, new arrived')
+			return
+		} 
+		
+		const res=await new Promise(r => {
+			
+			const timer = setTimeout(()=>{
+				if(!this.resolver) return
+				this.resolver(1)
+				console.log('hintMsg resolved on timeout')
+			},timeout)	
+			
+			this.resolver=(v)=>{
+				r(v)
+				this.resolver=null
+				clearTimeout(timer)
+				console.log('hintMsg resolved on msg')
+			}	
+		})
+
+		if (res==='forced'){
+			console.log('hintMsg stopped forced and not closed')
+			return
+		} 
+
+		anim3.add(objects.hintMsgCont,{alpha:[1,0,'linear']}, false, 0.25);
+	},
+	
+
+	clicked() {
+		if (hint.Msg.resolver) hintMsg.resolver(1)
+	}
+
+	
 }
 
 keyboard={
@@ -4208,7 +4259,7 @@ confirm_dialog = {
 
 }
 
-keep_alive = function() {
+keep_alive= ()=>{
 
 	fbs.ref("players/"+my_data.uid+"/tm").set(firebase.database.ServerValue.TIMESTAMP);
 	//fbs.ref("inbox/"+my_data.uid).onDisconnect().remove();
@@ -4217,13 +4268,13 @@ keep_alive = function() {
 	set_state({});
 }
 
-var kill_game = function() {
+const kill_game = ()=>{
 	my_ws.kill();
 	firebase.app().delete();
 	document.body.innerHTML = 'CLIENT TURN OFF';
 }
 
-var process_new_message = function(msg) {
+const process_new_message = (msg)=>{
 
 	//проверяем плохие сообщения
 	if (msg===null || msg===undefined)
@@ -4333,22 +4384,25 @@ players_cache={
 
 	on:0,
 	loading:{},
-
+	pending:{},
+	
 	async update(uid,params={}){
 
 		//ссылка на игрока
 		this[uid]||={}
 		const player=this[uid]
 
-		if (this.loading[uid]) return
-
-
-		while(Object.keys(this.loading).length>5){
+		if (this.loading[uid] || this.pending[uid]) return
+		
+		this.pending[uid] = 1
+	
+		while(Object.keys(this.loading).length>6){
 			console.log('Много загрузок, ждем...')
 			await new Promise(r => setTimeout(r, hf.randIntInc(400,800)));
 		}
-
-		this.loading[uid]=1
+	
+		delete this.pending[uid];
+		this.loading[uid]=1		
 
 		//загружаем имя если нет данных
 		if (!player.name) {
