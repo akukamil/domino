@@ -6113,7 +6113,7 @@ lobby={
 	process(){
 				
 		//проверка слепой игры
-		if (my_data.rating<1700) return
+		if (my_data.rating<1750) return
 		if (!SERVER_TM) return
 
 		const card0=objects.mini_cards[0]
