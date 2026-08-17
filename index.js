@@ -15,7 +15,7 @@ const SHADOW_SHIFT=3;
 const SHADOW_DISP_XY={'0':[3,3],'90':[3,-3],'-90':[-3,3],'180':[-3,-3]}
 const TM={s:0,ms:0}
 
-const COM_URL='https://akukamil.github.io/com'
+const COM_URL='https://mtg.gitverse.site/com/'
 
 SKINS_DATA={
 	0:{tint:0x262626,rating:0,games:0},
