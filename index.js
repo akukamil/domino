@@ -6951,7 +6951,7 @@ main_loader={
 
 		//добавляем текстуры стикеров
 		for (let i=0;i<16;i++)
-			loader.add('sticker_texture_'+i, git_src+'stickers/'+i+'.png');
+			loader.add('sticker_texture_'+i, COM_URL+'/stickers/'+i+'.png');
 
 
 		//подпапка с ресурсами
@@ -7335,6 +7335,10 @@ async function init_game_env(lang) {
 
 	//показыаем основное меню
 	main_menu.activate();
+	
+	//ready api yandex
+	if (game_platform==='YANDEX')
+		window.ysdk.features.LoadingAPI.ready()
 
 }
 
