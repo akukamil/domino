@@ -6988,7 +6988,7 @@ main_loader={
 		loader.add('save',git_src+'sounds/save.mp3');
 
 		//добавляем смешные загрузки
-		loader.add('fun_logs', 'https://akukamil.github.io/common/fun_logs.txt');
+		//loader.add('fun_logs', 'https://akukamil.github.io/common/fun_logs.txt');
 
 		//прогресс
 		loader.onProgress.add((l,res)=>{
