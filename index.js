@@ -1160,8 +1160,7 @@ anim3={
 		if(document.hidden){
 			this.finish_obj(obj,inp_params,vis_on_end)
 			return Promise.resolve(1)
-		}
-		
+		}		
 
 		let found=false;
 		//ищем свободный слот для анимации
@@ -1216,8 +1215,6 @@ anim3={
 
 		console.log("Кончились слоты анимации");
 		this.finish_obj(obj,inp_params,vis_on_end)
-
-
 
 	},
 	
@@ -1408,9 +1405,18 @@ big_msg={
 		
 	},
 
-	total_stop(result){
+	async total_stop(result){
 
 		this.show()
+		
+		//cheat with timeouts
+		if (opponent===online_player&&result==='opp_timeout'){
+			const timeout_check=await fbs_once('timeouts/'+game_id)
+			if (timeout_check)
+				result='my_cheat'
+			else
+				fbs.ref('timeouts/'+game_id).set(1)
+		}
 
 		const results_map = {
 			'my_win':{type:WIN, desc:['Вы выиграли!','You win! Opponent out of time']},
@@ -1423,6 +1429,7 @@ big_msg={
  			'opp_giveup':{type:WIN , desc:['Вы выиграли! Соперник сдался','You win! Opponent gave up!']},
  			'my_no_sync':{type:NOSYNC , desc:['Похоже вы не захотели начинать игру.','It looks like you did not want to start the game']},
  			'opp_no_sync':{type:NOSYNC , desc:['Похоже соперник не смог начать игру.','It looks like the opponent could not start the game']},
+ 			'my_cheat':{type:LOSE , desc:['Эта игра уже была завершена.','This game is finished']},
  			'my_no_connection':{type:LOSE , desc:['Потеряна связь!','Lost connection!']}
 		};
 
@@ -1435,15 +1442,13 @@ big_msg={
 		if (result_type===DRAW) my_data.rating=my_data.draw_rating
 		
 		let energy_bonus=0
-		let crystals_bonus=0
-		
+		let crystals_bonus=0		
 		
 		//если не начали играть в слепой игре то снимаем очки
 		if (result==='my_no_sync'&&online_player.blind_game_flag){
 			my_data.rating=my_data.lose_rating
 			fbs.ref('players/'+my_data.uid+'/rating').set(my_data.rating)
 		}
-				
 				
 		//показываем бонусы
 		objects.big_msg_crystals_t.text=0
@@ -1496,10 +1501,8 @@ big_msg={
 		}
 		
 		//бонус за выигрыш до конца
-		if (result==='my_win')
-			opponent===online_player?energy_bonus+=7:energy_bonus+=2
-		if (result==='opp_win')
-			opponent===online_player?energy_bonus+=3:energy_bonus+=1
+		if (result==='my_win') opponent===online_player?energy_bonus+=7:energy_bonus+=2
+		if (result==='opp_win') opponent===online_player?energy_bonus+=3:energy_bonus+=1
 
 		//разные моменты связанные с соперниками
 		opponent.stop(result)
@@ -2289,6 +2292,9 @@ online_player={
 		//seed=650333
 		//устанавливаем локальный и удаленный статус
 		set_state({state:'p'});
+		
+		//убираем gid
+		fbs.ref('timeouts/'+game_id).remove()
 
 		//фиксируем врему начала игры для статистики
 		this.move_time_start=Date.now();
