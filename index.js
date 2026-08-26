@@ -1407,6 +1407,11 @@ big_msg={
 
 	async total_stop(result){
 
+		this.game_end=1
+		
+		//останавливаем таймер		
+		timer.stop()
+		
 		this.show()
 		
 		//cheat with timeouts
@@ -1515,8 +1520,7 @@ big_msg={
 		this.show_bonus_anim(objects.big_msg_energy_t,energy_bonus||0)
 		this.show_bonus_anim(objects.big_msg_crystals_t,crystals_bonus||0)
 				
-		//останавливаем таймер		
-		timer.stop()
+
 		
 		//звуки
 		if (result_type===WIN)
@@ -1524,7 +1528,7 @@ big_msg={
 		else
 			sound.play('lose')
 		
-		this.game_end=1
+		
 
 		//конпка ок
 		objects.big_msg_ok_btn.visible=true
@@ -2009,6 +2013,8 @@ timer={
 
 	start({sec=30,check_game_end=1} = {}){
 
+		//return
+		
 		if (opponent===bot){
 			this.just_place()
 			return
@@ -2742,7 +2748,8 @@ my_player={
 		sound.play('domino2');
 		//если нажали на ждущую костяшку то убираем ее
 		if (chip===this.pending_chip&&!tar_anchor){
-			this.pending_chip=0;
+			this.pending_chip=0
+			game.hide_anchors()
 			return;
 		}
 
