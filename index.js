@@ -1484,7 +1484,11 @@ big_msg={
 				//если это слепая игра
 				if (online_player.blind_game_flag){
 					energy_bonus+=10
-					crystals_bonus+=10
+					
+					if (my_data.rating>2500)
+						crystals_bonus+=8
+					else
+						crystals_bonus+=10
 				}
 				
 				//бонус кристаллов за заход в зону подтверждения
@@ -1493,7 +1497,7 @@ big_msg={
 			}
 
 			//контрольные концовки логируем на виртуальной машине
-			if (my_data.rating>1990 || opp_data.rating>1990 || my_data.uid==='s8TfksrpqIBqLqG6SG1Ku3nnrbISWfMQUX1ldA96AtU'){
+			if (my_data.rating>1990 || opp_data.rating>1990){
 				const duration = Math.floor((Date.now() - opponent.start_time)*0.001);
 				const data={uid:my_data.uid,p1:objects.my_card_name.text,p2:objects.opp_card_name.text, res:result_type,f:result,d:duration,bg:opponent.blind_game_flag, r: [old_rating,my_data.rating],games:my_data.games,gid:game_id,cid:client_id,tm:'TMS'}
 				my_ws.safe_send({cmd:'log',logger:`${game_name}_games`,data});
@@ -7257,7 +7261,7 @@ async function init_game_env(lang) {
 
 
 	//номер комнаты в зависимости от рейтинга игрока
-	const rooms_bins=[0,1266,1373,1400,1433,1490,1568,1663,1857,9999];
+	const rooms_bins=[0,1372,1408,1483,1627,1788,1908,1953,2077,9999];
 	for (let i=1;i<rooms_bins.length;i++){
 		const f=rooms_bins[i-1];
 		const t=rooms_bins[i];
