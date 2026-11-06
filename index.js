@@ -7261,7 +7261,7 @@ async function init_game_env(lang) {
 
 
 	//номер комнаты в зависимости от рейтинга игрока
-	const rooms_bins=[0,1372,1408,1483,1627,1788,1908,1953,2077,9999];
+	const rooms_bins=[0,1282,1352,1398,1446,1519,1657,1760,1882,9999];
 	for (let i=1;i<rooms_bins.length;i++){
 		const f=rooms_bins[i-1];
 		const t=rooms_bins[i];
