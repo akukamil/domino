@@ -6951,7 +6951,7 @@ main_loader={
 		objects.t_loader_progress=new PIXI.BitmapText('',{fontName: 'bahnschrift48s',fontSize: 22});
 		objects.t_loader_progress.anchor.set(0.5,0.5);
 		objects.t_loader_progress.x=400;
-		objects.t_loader_progress.y=385;
+		objects.t_loader_progress.y=415;
 
 		objects.load_bar_cont=new PIXI.Container();
 		objects.load_bar_cont.addChild(objects.loader_progress_mask,loader_bar_progress,loader_bar_frame,objects.t_loader_progress);
